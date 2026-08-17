@@ -30,7 +30,7 @@ function scheduleWrite(groupId, data) {
     try {
       fs.writeFileSync(getFilePath(groupId), JSON.stringify(data, null, 2))
     } catch (e) {
-      console.error(`[ACTIVIDAD] Error escribiendo ${groupId}:`, e.message)
+      console.error(`[ATIVIDADE] Erro ao salvar ${groupId}:`, e.message)
     }
   }, 3000))
 }
@@ -52,24 +52,24 @@ function resolveJid(p) {
 }
 
 const handler = async (m, { conn, participants, isAdmin, isOwner, args, command }) => {
-  if (!m.isGroup) return m.reply(`*⌬┤ 👥 ├⌬ SOLO GRUPOS.*\n> Este comando solo funciona en grupos.`)
+  if (!m.isGroup) return m.reply(`*⌬┤ 👥 ├⌬ SOMENTE GRUPOS.*\n> Este comando funciona apenas em grupos.`)
 
   const sub = (args[0] || '').toLowerCase()
 
   if (sub === 'reset') {
     if (!isAdmin && !isOwner) {
-      return m.reply(`*⌬┤ 👤 ├⌬ SOLO ADMINS.*\n> Necesitás ser admin para resetear la actividad.`)
+      return m.reply(`*⌬┤ 👤 ├⌬ SOMENTE ADMINS.*\n> Você precisa ser admin para resetar a atividade.`)
     }
     memCache.set(m.chat, {})
     try { fs.writeFileSync(getFilePath(m.chat), '{}') } catch {}
-    return m.reply(`*⌬┤ ✅ ├⌬ RESET COMPLETO.*\n> El contador de actividad del grupo fue reiniciado.`)
+    return m.reply(`*⌬┤ ✅ ├⌬ RESET CONCLUÍDO.*\n> O contador de atividade do grupo foi reiniciado.`)
   }
 
   const data     = getCache(m.chat)
   const mentions = []
   let txt        = ''
 
-  const esInactivos = ['inactivos', 'inactive', 'nulos'].includes(command)
+  const esInactivos = ['inactivos', 'inactive', 'nulos', 'inativos'].includes(command)
 
   if (esInactivos) {
     const botJid = jidNormalizedUser(conn.user.id)
@@ -88,12 +88,12 @@ const handler = async (m, { conn, participants, isAdmin, isOwner, args, command 
       .slice(0, 20)
 
     if (inactivos.length === 0) {
-      return m.reply(`*⌬┤ ✅ ├⌬ SIN RESULTADOS.*\n> Ningún miembro tiene ${umbral} mensaje${umbral === 1 ? '' : 's'} o menos.`)
+      return m.reply(`*⌬┤ ✅ ├⌬ SEM RESULTADOS.*\n> Nenhum membro tem ${umbral} mensagem${umbral === 1 ? '' : 's'} ou menos.`)
     }
 
-    const tituloFiltro = umbral === 0 ? 'SIN MENSAJES' : `${umbral} MSGS O MENOS`
+    const tituloFiltro = umbral === 0 ? 'SEM MENSAGENS' : `${umbral} MSGS OU MENOS`
 
-    txt = `*╔═══⌦ ✦ 😴 INACTIVOS ✦ ⌫═══╗*\n\n`
+    txt = `*╔═══⌦ ✦ 😴 INATIVOS ✦ ⌫═══╗*\n\n`
     txt += `*⌬┤ 💤 ${tituloFiltro} ├⌬*\n`
     inactivos.forEach((p, i) => {
       const jid  = resolveJid(p)
@@ -102,29 +102,29 @@ const handler = async (m, { conn, participants, isAdmin, isOwner, args, command 
       txt += `> *${i + 1}.* @${jid.split('@')[0]} — ${msgs} msgs\n`
     })
     txt += `\n*━━━━━━━━━━━━━━━━━━━━*\n`
-    txt += `> 😴 *Encontrados:* ${inactivos.length} usuarios\n`
-    txt += `> 👥 *Total en grupo:* ${participants.length}\n`
+    txt += `> 😴 *Encontrados:* ${inactivos.length} usuários\n`
+    txt += `> 👥 *Total no grupo:* ${participants.length}\n`
     txt += `*╚══⌦ ${config.footer} ⌫══╝*`
 
   } else {
     const sorted = Object.entries(data).sort(([, a], [, b]) => b - a).slice(0, 20)
 
     if (sorted.length === 0) {
-      return m.reply(`*⌬┤ 📊 ├⌬ SIN DATOS.*\n> Aún no hay actividad registrada en este grupo.`)
+      return m.reply(`*⌬┤ 📊 ├⌬ SEM DADOS.*\n> Ainda não há atividade registrada neste grupo.`)
     }
 
     const totalMsgs = Object.values(data).reduce((a, b) => a + b, 0)
     const medals    = ['🥇', '🥈', '🥉']
 
-    txt = `*╔═══⌦ ✦ 📊 ACTIVIDAD ✦ ⌫═══╗*\n\n`
-    txt += `*⌬┤ 🔥 MÁS ACTIVOS ├⌬*\n`
+    txt = `*╔═══⌦ ✦ 📊 ATIVIDADE ✦ ⌫═══╗*\n\n`
+    txt += `*⌬┤ 🔥 MAIS ATIVOS ├⌬*\n`
     sorted.forEach(([jid, count], i) => {
       mentions.push(jid)
       txt += `> ${medals[i] || `*${i + 1}.*`} @${jid.split('@')[0]} — ${count} msgs\n`
     })
     txt += `\n*━━━━━━━━━━━━━━━━━━━━*\n`
-    txt += `> 📨 *Total mensajes:* ${totalMsgs}\n`
-    txt += `> 👥 *Usuarios con actividad:* ${Object.keys(data).length}\n`
+    txt += `> 📨 *Total de mensagens:* ${totalMsgs}\n`
+    txt += `> 👥 *Usuários com atividade:* ${Object.keys(data).length}\n`
     txt += `*╚══⌦ ${config.footer} ⌫══╝*`
   }
 
@@ -140,9 +140,9 @@ handler.all = async function (m) {
   scheduleWrite(m.chat, data)
 }
 
-handler.help      = ['actividad', 'inactivos']
+handler.help      = ['atividade', 'inativos']
 handler.tags      = ['group']
-handler.command   = ['actividad', 'activos', 'activity', 'rank', 'inactivos', 'inactive', 'nulos']
+handler.command   = ['actividad', 'atividade', 'activos', 'ativos', 'activity', 'rank', 'ranking', 'inactivos', 'inativos', 'inactive', 'nulos']
 handler.groupOnly = true
 handler.noRegister = true
 
