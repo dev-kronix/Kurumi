@@ -1,8 +1,11 @@
 const MEDIA_CONFIG = {
-  antinotadevoz: { emoji: '🎙️', name: 'ANTI NOTA DE VOZ', dbKey: 'antinotadevoz', msg: 'las notas de voz' },
-  antisticker:   { emoji: '🎭', name: 'ANTI STICKER', dbKey: 'antisticker', msg: 'los stickers' },
-  antivideo:     { emoji: '🎬', name: 'ANTI VIDEO', dbKey: 'antivideo', msg: 'los videos' },
-  antiimagen:    { emoji: '🖼️', name: 'ANTI IMAGEN', dbKey: 'antiimagen', msg: 'las imágenes' },
+  antinotadevoz: { emoji: '🎙️', name: 'ANTI ÁUDIO', dbKey: 'antinotadevoz', msg: 'as mensagens de voz' },
+  antiaudio:     { emoji: '🎙️', name: 'ANTI ÁUDIO', dbKey: 'antinotadevoz', msg: 'as mensagens de voz' },
+  antivoz:       { emoji: '🎙️', name: 'ANTI ÁUDIO', dbKey: 'antinotadevoz', msg: 'as mensagens de voz' },
+  antisticker:   { emoji: '🎭', name: 'ANTI STICKER', dbKey: 'antisticker', msg: 'os stickers' },
+  antivideo:     { emoji: '🎬', name: 'ANTI VÍDEO', dbKey: 'antivideo', msg: 'os vídeos' },
+  antiimagen:    { emoji: '🖼️', name: 'ANTI IMAGEM', dbKey: 'antiimagen', msg: 'as imagens' },
+  antiimagem:    { emoji: '🖼️', name: 'ANTI IMAGEM', dbKey: 'antiimagen', msg: 'as imagens' },
 }
 
 const handler = async (m, { args, groupDb, usedPrefix, command }) => {
@@ -10,15 +13,15 @@ const handler = async (m, { args, groupDb, usedPrefix, command }) => {
   if (!conf) return
 
   const modo = args[0]?.toLowerCase()
-  if (!['on', '1', 'true', 'activar', 'off', '0', 'false', 'desactivar'].includes(modo)) {
-    return m.reply(`*⌬┤ ✙ ├⌬ MODO INVÁLIDO.*\n> Usá: *${usedPrefix}${command} on | off*`)
+  if (!['on', '1', 'true', 'activar', 'ativar', 'off', '0', 'false', 'desactivar', 'desativar'].includes(modo)) {
+    return m.reply(`*⌬┤ ✙ ├⌬ MODO INVÁLIDO.*\n> Use: *${usedPrefix}${command} on | off*`)
   }
 
-  const activar = ['on', '1', 'true', 'activar'].includes(modo)
+  const activar = ['on', '1', 'true', 'activar', 'ativar'].includes(modo)
   groupDb[conf.dbKey] = activar
   await groupDb.save()
   
-  return m.reply(`*⌬┤ ${conf.emoji} ├⌬ ${conf.name} ${activar ? 'ACTIVADO' : 'DESACTIVADO'}.*`)
+  return m.reply(`*⌬┤ ${conf.emoji} ├⌬ ${conf.name} ${activar ? 'ATIVADO' : 'DESATIVADO'}.*`)
 }
 
 handler.before = async (m, { conn, isAdmin, isOwner, groupDb }) => {
@@ -39,16 +42,16 @@ handler.before = async (m, { conn, isAdmin, isOwner, groupDb }) => {
     const conf = MEDIA_CONFIG[flag]
     
     try { await conn.sendMessage(m.chat, { delete: m.key }) } catch {}
-    await conn.sendMessage(m.chat, { text: `*⌬┤ ${conf.emoji} ├⌬ ELIMINADO.*\n> @${nombre}, ${conf.msg} no están permitidos en este grupo.`, mentions: [sender] })
+    await conn.sendMessage(m.chat, { text: `*⌬┤ ${conf.emoji} ├⌬ REMOVIDO.*\n> @${nombre}, ${conf.msg} não são permitidos neste grupo.`, mentions: [sender] })
     return true
   }
 
   return false
 }
 
-handler.help = ['antinotadevoz', 'antisticker', 'antivideo', 'antiimagen']
+handler.help = ['antiaudio', 'antisticker', 'antivideo', 'antiimagem']
 handler.tags = ['group']
-handler.command = ['antinotadevoz', 'antisticker', 'antivideo', 'antiimagen']
+handler.command = ['antinotadevoz', 'antiaudio', 'antivoz', 'antisticker', 'antivideo', 'antiimagen', 'antiimagem']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.alwaysBefore = true
