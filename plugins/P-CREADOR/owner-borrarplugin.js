@@ -1,43 +1,31 @@
 import fs from 'fs'
 import path from 'path'
+import { plugins } from '../../handler.js'
 
-function findFileRecursively(dir, fileName) {
-  const list = fs.readdirSync(dir, { withFileTypes: true })
-  for (const item of list) {
-    const fullPath = path.join(dir, item.name)
-    if (item.isDirectory()) {
-      const found = findFileRecursively(fullPath, fileName)
-      if (found) return found
-    } else if (item.name === fileName) {
-      return fullPath
-    }
-  }
-  return null
-}
+const PLUGINS = path.resolve('./plugins')
 
 const handler = async (m, { text, usedPrefix, command }) => {
-  if (!text) return m.reply(`*⌬┤ ⚠️ ├⌬ USO:* ${usedPrefix + command} <nombre>\n> Ejemplo: *${usedPrefix + command} eco-bal*`)
+  let relPath = (text || '').trim().replace(/^plugins[\\/]/, '').replace(/\.\./g, '')
+  if (!relPath) return m.reply(`*⌬┤ ✙ ├⌬ USO:* ${usedPrefix}${command} <pasta/arquivo.js>`)
+  if (!relPath.endsWith('.js')) relPath += '.js'
 
-  let fileName = text.trim()
-  if (!fileName.endsWith('.js')) fileName += '.js'
-
-  const pluginsDir = path.resolve(process.cwd(), 'plugins')
-  const filePath = findFileRecursively(pluginsDir, fileName)
-
-  if (!filePath) return m.reply(`*⌬┤ ❌ ├⌬ NO ENCONTRADO.*\n> No existe ningún plugin llamado *${fileName}*.`)
+  const fullPath = path.join(PLUGINS, relPath)
+  if (!fullPath.startsWith(PLUGINS)) return m.reply(`*⌬┤ ❌ ├⌬ CAMINHO INVÁLIDO.*`)
+  if (!fs.existsSync(fullPath)) return m.reply(`*⌬┤ ❌ ├⌬ PLUGIN NÃO ENCONTRADO.*\n> Arquivo: *${relPath}*`)
 
   try {
-    fs.unlinkSync(filePath)
-    const relPath = path.relative(pluginsDir, filePath).replace(/\\/g, '/')
-    m.reply(`*⌬┤ 🗑️ ├⌬ PLUGIN ELIMINADO EXITOSAMENTE.*\n> Se borró: *plugins/${relPath}*\n\n> 💡 _Si estabas en modo producción, usá el comando de reload para actualizar la memoria._`)
+    fs.unlinkSync(fullPath)
+    delete plugins[relPath]
+    m.reply(`*⌬┤ ✅ ├⌬ PLUGIN REMOVIDO.*\n> 📄 *${relPath}*`)
   } catch (e) {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR AL BORRAR.*\n> ${e.message}`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> ${e.message}`)
   }
 }
 
-handler.help = ['borrarplugin <nombre>']
+handler.help = ['removerplugin <arquivo>']
+handler.command = ['borrarplugin', 'delplugin', 'removerplugin', 'deleteplugin']
 handler.tags = ['owner']
-handler.command = ['borrarplugin', 'delplugin', 'delp']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler
