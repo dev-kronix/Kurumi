@@ -14,11 +14,11 @@ const normalizeToTag = (name) => {
 const handler = async (m, { conn, command, userDb }) => {
   if (!userDb) return
 
-  const isBestiary = ['bestiario', 'bestiary', 'cazas'].includes(command)
+  const isBestiary = ['bestiario', 'bestiary', 'cazas', 'cacas'].includes(command)
   const collection = isBestiary ? userDb.bestiary : userDb.aquarium
-  const title = isBestiary ? 'BESTIARIO' : 'PECERA'
+  const title = isBestiary ? 'BESTIÁRIO' : 'AQUÁRIO'
   const emoji = isBestiary ? '🐾' : '🐟'
-  const action = isBestiary ? 'cazar' : 'pescar'
+  const action = isBestiary ? 'caçar' : 'pescar'
 
   let items = []
 
@@ -34,28 +34,28 @@ const handler = async (m, { conn, command, userDb }) => {
 
   items = items.filter(([key]) => !key.startsWith('$') && !key.startsWith('_') && key !== 'init')
 
-  if (items.length === 0) return m.reply(`*⌬┤ ${emoji} ├⌬ TU ${title} ESTÁ VACÍO.*\n> ¡Sal a ${action} algo para empezar tu colección!`)
+  if (items.length === 0) return m.reply(`*⌬┤ ${emoji} ├⌬ SEU ${title} ESTÁ VAZIO.*\n> Vá ${action} alguma coisa para começar sua coleção!`)
 
   items.sort((a, b) => b[1] - a[1])
 
   let txt = `*╔═══⌦ ✦ ${emoji} ${title} ✦ ⌫═══╗*\n\n`
-  txt += `> 👤 *Dueño:* @${m.sender.split('@')[0]}\n`
-  txt += `> 📊 *Descubrimientos:* ${items.length}\n\n`
-  txt += `*📜 LISTADO DE CAPTURAS:*\n`
+  txt += `> 👤 *Dono:* @${m.sender.split('@')[0]}\n`
+  txt += `> 📊 *Descobertas:* ${items.length}\n\n`
+  txt += `*📜 LISTA DE CAPTURAS:*\n`
 
   items.forEach(([name, count]) => {
     const tag = normalizeToTag(name)
     txt += `> *${name}* \`[${tag}]\` — x${count}\n`
   })
-  txt += `\n> 💡 _¡Vende tus capturas usando el comando *!contratos* para obtener cuantiosas sumas de ${config.CURRENCY_NAME} y ${config.PREMIUM_NAME}!_\n`
+  txt += `\n> 💡 _Venda suas capturas usando o comando *!contratos* para receber boas quantias de ${config.CURRENCY_NAME} e ${config.PREMIUM_NAME}!_\n`
   txt += `*╚══⌦ ${config.footer} ⌫══╝*`
   
   await conn.sendMessage(m.chat, { text: txt, mentions: [m.sender] }, { quoted: m })
 }
 
-handler.help = ['bestiario', 'pecera']
+handler.help = ['bestiario', 'aquario']
 handler.tags = ['eco']
-handler.command = ['bestiario', 'bestiary', 'cazas', 'pecera', 'peces', 'aquarium']
+handler.command = ['bestiario', 'bestiary', 'cazas', 'cacas', 'pecera', 'peces', 'aquarium', 'aquario', 'peixes']
 handler.register = true
 
 export default handler
