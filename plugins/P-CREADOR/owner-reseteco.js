@@ -1,66 +1,53 @@
 import User from '../../lib/database/models/zen-users.js'
+import config from '../../config.js'
 
-const handler = async (m, { conn, isOwner }) => {
-  if (!isOwner) return
+const handler = async (m, { text, usedPrefix, command }) => {
+  const target = m.mentionedJid?.[0] || m.quoted?.sender || null
+  if (!target) return m.reply(`*⌬┤ ✙ ├⌬ USUÁRIO OBRIGATÓRIO.*\n> Mencione ou responda ao usuário que terá a economia redefinida.`)
 
-  try {
-    await User.updateMany({}, {
-      $set: {
-        registered: false,
-        everRegistered: false,
-        name: '',
-        age: 0,
-        serial: '',
-        zenCoins: 0,
-        bankBalance: 0,
-        bankExpiry: 0,
-        kogen: 0,
-        level: 0,
-        xp: 0,
-        'inventory.pickaxe': 'none',
-        'inventory.pickaxeDurability': 0,
-        'inventory.bow': 'none',
-        'inventory.bowDurability': 0,
-        'inventory.bait': 'none',
-        'inventory.baitDurability': 0,
-        'inventory.sword': 0,
-        'inventory.potion': 0,
-        'inventory.shield': 0,
-        'inventory.suit': false,
-        'inventory.mask': false,
-        'dailyStats.workCount': 0,
-        'dailyStats.mineCount': 0,
-        'dailyStats.crimeCount': 0,
-        'dailyStats.suitUsed': false,
-        'dailyStats.maskUsed': false,
-        'dailyStats.buy_mythic': 0,
-        'dailyStats.buy_rare': 0,
-        'dailyStats.buy_normal': 0,
-        'dailyStats.buy_sword': 0,
-        'dailyStats.buy_potion': 0,
-        'dailyStats.buy_shield': 0,
-        'dailyStats.buy_suit': 0,
-        'dailyStats.buy_mask': 0,
-        lastDaily: 0,
-        lastWork: 0,
-        lastMine: 0,
-        lastRob: 0,
-        lastHunt: 0,
-        lastFish: 0
-      }
-    })
-
-    m.reply('*⌬┤ 🏦 · ECONOMÍA Y REGISTROS RESETEADOS.*\n\n> Todos los balances, inventarios y niveles han vuelto a cero.\n> **Todos los usuarios han sido desregistrados y deberán usar .reg nuevamente.**')
-
-  } catch (e) {
-    console.error(e)
-    m.reply('*⌬┤ ❌ · ERROR AL RESETEAR LA ECONOMÍA.*')
+  const confirm = (text || '').toLowerCase().includes('confirmar') || (text || '').toLowerCase().includes('confirm')
+  if (!confirm) {
+    return m.reply(`*⌬┤ ⚠️ ├⌬ CONFIRMAÇÃO NECESSÁRIA.*\n> Esta ação redefine moedas, banco, Kōgen, inventário e estatísticas econômicas.\n> Use: *${usedPrefix}${command} @usuario confirmar*`)
   }
+
+  const num = target.split('@')[0].split(':')[0].replace(/\D/g, '')
+  const user = await User.findOne({ jid: { $regex: `^${num}@` } })
+  if (!user) return m.reply(`*⌬┤ ❌ ├⌬ USUÁRIO NÃO CADASTRADO.*`)
+
+  await User.updateOne({ _id: user._id }, {
+    $set: {
+      zenCoins: 100,
+      bankBalance: 0,
+      bankExpiry: 0,
+      kogen: 15,
+      bestiary: {},
+      aquarium: {},
+      shopStock: {},
+      inventory: {
+        pickaxe: 'none', pickaxeDurability: 0,
+        bow: 'none', bowDurability: 0,
+        bait: 'none', baitDurability: 0,
+        sword: 0, swordTier: 'none', swordUses: 0,
+        potion: 0, potionTier: 'none', potionStock: {},
+        shield: 0, shieldStock: {}, amulet: 'none',
+        suit: false, mask: false, title: '', titles: [], badges: []
+      },
+      dailyStats: {
+        lastReset: Date.now(), workCount: 0, mineCount: 0, crimeCount: 0, rouletteCount: 0,
+        suitUsed: false, maskUsed: false, buy_mythic: 0, buy_rare: 0, buy_normal: 0,
+        buy_legendary: 0, buy_sword: 0, buy_potion: 0, buy_shield: 0, buy_suit: 0,
+        buy_mask: 0, buy_amulet: 0, buy_cosmetic: 0, transferToday: 0
+      }
+    }
+  })
+
+  m.reply(`*⌬┤ ✅ ├⌬ ECONOMIA REDEFINIDA.*\n> 👤 @${num}\n> 🪙 ${config.CURRENCY_NAME}: 100\n> ${config.PREMIUM_SYMBOL} ${config.PREMIUM_NAME}: 15\n> Inventário e coleções foram limpos.`, { mentions: [target] })
 }
 
-handler.help = ['reseteco']
+handler.help = ['reseteco @usuario confirmar']
+handler.command = ['reseteco', 'resetarconomia', 'resetareconomia']
 handler.tags = ['owner']
-handler.command = ['reseteco', 'resetareconomia', 'hardreset']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler
