@@ -1,64 +1,32 @@
-import fs from 'fs'
-import path from 'path'
 import config from '../../config.js'
 
-const OWNERS_FILE = path.resolve(process.cwd(), 'owners.json')
+const handler = async (m, { text, command }) => {
+  const target = m.mentionedJid?.[0] || m.quoted?.sender || null
+  let num = target ? target.split('@')[0].split(':')[0].replace(/\D/g, '') : (text || '').replace(/\D/g, '')
 
-if (!global.principalOwnersSaved) {
-    global.principalOwnersSaved = [...config.ownerNumber]
-}
-const principalOwners = global.principalOwnersSaved
+  if (!num) return m.reply(`*⌬┤ ✙ ├⌬ NÚMERO OBRIGATÓRIO.*\n> Mencione, responda ou informe o número com DDI.`)
 
-if (fs.existsSync(OWNERS_FILE)) {
-    try {
-        const extraOwners = JSON.parse(fs.readFileSync(OWNERS_FILE, 'utf8'))
-        extraOwners.forEach(num => {
-            if (!config.ownerNumber.includes(num)) config.ownerNumber.push(num)
-        })
-    } catch (e) { console.error(e) }
-}
+  const owners = Array.isArray(config.ownerNumber) ? config.ownerNumber : [config.ownerNumber]
+  const exists = owners.some(o => String(o).replace(/\D/g, '') === num)
 
-const extraerNum = (jid = '') => (typeof jid === 'string' ? jid : '').split('@')[0].split(':')[0].replace(/\D/g, '')
-
-const resolveTargetJid = (m, participants = [], text = '') => {
-  if (m.mentionedJid?.[0]) return m.mentionedJid[0]
-  if (m.quoted?.sender) return m.quoted.sender
-  const textNum = text.replace(/\D/g, '')
-  if (textNum) return `${textNum}@s.whatsapp.net`
-  return null
-}
-
-const handler = async (m, { text, usedPrefix, command, participants }) => {
-  const senderNum = extraerNum(m.sender)
-
-  if (!principalOwners.includes(senderNum) && senderNum !== '5493772455367') {
-      return m.reply('*⌬┤ 🚫 ├⌬ ACCESO DENEGADO.*\n> Solo los Creadores Principales del bot pueden dar privilegios de Owner a otros.')
+  if (['addowner', 'adicionardono'].includes(command)) {
+    if (exists) return m.reply(`*⌬┤ ⚠️ ├⌬ JÁ É DONO.*\n> +${num} já possui privilégios de dono.`)
+    config.ownerNumber.push(num)
+    return m.reply(`*⌬┤ ✅ ├⌬ DONO ADICIONADO.*\n> +${num} agora possui privilégios de dono.\n> ⚠️ Esta alteração é válida apenas até a bot reiniciar; atualize *config.js* para torná-la permanente.`)
   }
 
-  const targetJid = resolveTargetJid(m, participants, text)
-  if (!targetJid) return m.reply(`*⌬┤ ⚠️ ├⌬ USO CORRECTO*\n> *${usedPrefix + command}* @usuario o respondiendo a un mensaje.`)
-
-  const newOwner = extraerNum(targetJid)
-
-  if (config.ownerNumber.includes(newOwner)) {
-    return m.reply('*⌬┤ ⚠️ · ESTE USUARIO YA ES OWNER.*')
+  if (['delowner', 'removeowner', 'removerdono'].includes(command)) {
+    if (!exists) return m.reply(`*⌬┤ ⚠️ ├⌬ NÃO É DONO.*`)
+    if (owners.length <= 1) return m.reply(`*⌬┤ ❌ ├⌬ OPERAÇÃO BLOQUEADA.*\n> Não é possível remover o último dono da bot.`)
+    config.ownerNumber = owners.filter(o => String(o).replace(/\D/g, '') !== num)
+    return m.reply(`*⌬┤ ✅ ├⌬ DONO REMOVIDO.*\n> +${num} perdeu os privilégios de dono.\n> ⚠️ Esta alteração é válida apenas até a bot reiniciar; atualize *config.js* para torná-la permanente.`)
   }
-
-  config.ownerNumber.push(newOwner)
-
-  let extraOwners = []
-  if (fs.existsSync(OWNERS_FILE)) {
-      extraOwners = JSON.parse(fs.readFileSync(OWNERS_FILE, 'utf8'))
-  }
-  extraOwners.push(newOwner)
-  fs.writeFileSync(OWNERS_FILE, JSON.stringify(extraOwners, null, 2))
-
-  m.reply(`*⌬┤ ✅ ├⌬ NUEVO SUB-OWNER AGREGADO*\n> El número *+${newOwner}* ha sido registrado en \`owners.json\` y ahora tiene privilegios administrativos.`)
 }
 
-handler.help = ['addowner @user']
+handler.help = ['addowner <numero>', 'removerdono <numero>']
+handler.command = ['addowner', 'adicionardono', 'delowner', 'removeowner', 'removerdono']
 handler.tags = ['owner']
-handler.command = ['addowner', 'agregarowner', 'darowner']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler
