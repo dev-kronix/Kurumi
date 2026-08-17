@@ -6,32 +6,31 @@ import fs from 'fs'
 import { promisify } from 'util'
 import { exec } from 'child_process'
 import { join } from 'path'
+import config from '../../config.js'
 
 const readFile = promisify(fs.readFile)
 const unlink = promisify(fs.unlink)
 const execPromise = promisify(exec)
 
 const SPENZY = 'https://spenzy-api.vercel.app/api/ai'
-const IDENTITY = `Eres un asistente de WhatsApp llamado ZenBot. Fuiste creado por AxelDev09. Si alguien te pregunta quién te creó, quién es tu dueño, quién te programó, quién eres o cualquier pregunta relacionada con tu origen o identidad, responde que fuiste creado por AxelDev09. Responde siempre de forma natural y amigable. Pregunta del usuario: `
+const IDENTITY = `Você é ${config.botName || 'Kurumi'}, uma assistente feminina de WhatsApp. Fale sempre em português do Brasil e se refira a si mesma no feminino. Sua personalidade é elegante, confiante, misteriosa, espirituosa e direta, com um toque de humor seco, sem exagerar nem ser grosseira. Seja útil, natural e objetiva. Nunca se apresente como ZenBot. Este fork é mantido e personalizado por DevKronix e é baseado no projeto ZenBot original de AxelDev09. Se perguntarem sobre sua origem, autoria ou manutenção, explique isso de forma curta e transparente.`
 
-const GEMINI_KEYS = [
-    process.env.GEMINI_API_KEY || 'AQ.Ab8RN6Ixd32dRsGatF4cQ7Evm8w9X979iliDiVR-ch63_jdpMg',
-    'AQ.Ab8RN6LJqKhPzhy1pUOyvjc0BOG5eoAdu06SzkYtZ7VQ547DFA'
-]
-const REMOVEBG_KEY = 'zCdVbVyLkHkVkqRRzycSzMrc'
+const GEMINI_KEY = process.env.GEMINI_API_KEY || ''
+const REMOVEBG_KEY = process.env.REMOVEBG_API_KEY || ''
+const NOVA_KEY = process.env.NOVA_API_KEY || ''
 
 const handler = async (m, { conn, command, text, usedPrefix, userDb }) => {
     const query = text?.trim()
     let q = m.quoted ? m.quoted : m
     let mime = (q.msg || q).mimetype || q.mediaType || ''
 
-    if (['generarimg', 'crearimg', 'aiimg', 'flux', 'aimg', 'delfon', 'removebg'].includes(command)) {
-        
-        if (['delfon', 'removebg'].includes(command)) {
-            if (!/image/.test(mime)) return m.reply(`*⌬┤ 🖼️ ├⌬ USO.*\n> Respondé a una imagen con *${usedPrefix}${command}* para quitarle el fondo.\n> Cuesta *1 ✦*.`)
-            if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN KŌGEN.*\n> No tenés suficientes Kōgen para usar esto.`)
+    if (['generarimg', 'gerarimg', 'crearimg', 'criarimg', 'aiimg', 'flux', 'aimg', 'delfon', 'removebg', 'removerfundo'].includes(command)) {
+        if (['delfon', 'removebg', 'removerfundo'].includes(command)) {
+            if (!/image/.test(mime)) return m.reply(`*⌬┤ 🖼️ ├⌬ USO.*\n> Responda a uma imagem com *${usedPrefix}${command}* para remover o fundo.\n> Custa *1 ✦*.`)
+            if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM KŌGEN.*\n> Você não tem Kōgen suficiente para usar este comando.`)
+            if (!REMOVEBG_KEY) return m.reply(`*⌬┤ ⚙️ ├⌬ CONFIGURAÇÃO PENDENTE.*\n> A chave *REMOVEBG_API_KEY* não foi configurada.`)
 
-            await m.reply(`*⌬┤ ⏳ ├⌬ Procesando imagen...*`)
+            await m.reply(`*⌬┤ ⏳ ├⌬ Processando imagem...*`)
             await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
             try {
@@ -45,30 +44,30 @@ const handler = async (m, { conn, command, text, usedPrefix, userDb }) => {
                     responseType: 'arraybuffer'
                 })
 
-                await conn.sendMessage(m.chat, { image: Buffer.from(res.data), caption: '*⌬┤ ✂️ · FONDO ELIMINADO ├⌬*' }, { quoted: m })
+                await conn.sendMessage(m.chat, { image: Buffer.from(res.data), caption: '*⌬┤ ✂️ · FUNDO REMOVIDO ├⌬*' }, { quoted: m })
                 userDb.kogen -= 1
-                await conn.sendMessage(m.chat, { text: `✦ Utilizaste *1 Kōgen*` }, { quoted: m })
+                await conn.sendMessage(m.chat, { text: `✦ Você usou *1 Kōgen*` }, { quoted: m })
                 return conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
             } catch (e) {
                 await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-                return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo quitar el fondo. No se cobró Kōgen.`)
+                return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível remover o fundo. Nenhum Kōgen foi cobrado.`)
             }
         }
 
-        if (!query) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <descripción>*\n> Cuesta *1 ✦* por generación.`)
-        if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN KŌGEN.*\n> No tenés suficientes Kōgen para usar este comando.`)
-        
-        await m.reply(`*⌬┤ ⏳ ├⌬ Generando obra de arte...*`)
+        if (!query) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <descrição>*\n> Custa *1 ✦* por geração.`)
+        if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM KŌGEN.*\n> Você não tem Kōgen suficiente para usar este comando.`)
+
+        await m.reply(`*⌬┤ ⏳ ├⌬ Gerando imagem...*`)
         await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
         try {
-            let imageUrl = null;
-            let captionText = `*⌬┤ 🖼️ ├⌬ IMAGEN GENERADA*\n\n> 🎨 Prompt: _${query}_`
+            let imageUrl = null
+            let captionText = `*⌬┤ 🖼️ ├⌬ IMAGEM GERADA*\n\n> 🎨 Prompt: _${query}_`
 
             if (command === 'flux') {
                 const initRes = await axios.get(`https://omegatech-api.dixonomega.tech/api/ai/flux-pro2?prompt=${encodeURIComponent(query)}`)
                 if (!initRes.data.success) throw new Error()
-                
+
                 const taskId = initRes.data.task_id
                 for (let i = 0; i < 15; i++) {
                     await new Promise(r => setTimeout(r, 4000))
@@ -82,7 +81,7 @@ const handler = async (m, { conn, command, text, usedPrefix, userDb }) => {
                 captionText += `\n> ⚙️ Motor: Flux.1 Pro`
 
             } else if (command === 'aimg') {
-                const token = "cat_bot_token_decoded_here"
+                const token = 'cat_bot_token_decoded_here'
                 const form = new FormData()
                 form.append('prompt', query)
                 form.append('token', token)
@@ -97,20 +96,20 @@ const handler = async (m, { conn, command, text, usedPrefix, userDb }) => {
             }
 
             if (!imageUrl) throw new Error()
-            
+
             await conn.sendMessage(m.chat, { image: { url: imageUrl.trim() }, caption: captionText }, { quoted: m })
             userDb.kogen -= 1
-            await conn.sendMessage(m.chat, { text: `✦ Utilizaste *1 Kōgen*` }, { quoted: m })
+            await conn.sendMessage(m.chat, { text: `✦ Você usou *1 Kōgen*` }, { quoted: m })
             await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
 
         } catch (e) {
             await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-            m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> El motor de imágenes está saturado. Intenta de nuevo más tarde. No se cobró Kōgen.`)
+            m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> O serviço de imagens está indisponível ou sobrecarregado. Tente novamente mais tarde. Nenhum Kōgen foi cobrado.`)
         }
         return
     }
 
-    if (['voz', 'decir'].includes(command)) {
+    if (['voz', 'decir', 'falar'].includes(command)) {
         if (!query) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <texto>*`)
         await conn.sendMessage(m.chat, { react: { text: '🗣️', key: m.key } })
 
@@ -119,7 +118,7 @@ const handler = async (m, { conn, command, text, usedPrefix, userDb }) => {
         const output = join('./tmp', `output_${id}.opus`)
 
         try {
-            const speech = gtts('es')
+            const speech = gtts('pt-br')
             await new Promise((resolve, reject) => {
                 speech.save(input, query, (err) => err ? reject(err) : resolve())
             })
@@ -130,7 +129,7 @@ const handler = async (m, { conn, command, text, usedPrefix, userDb }) => {
             await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
         } catch (e) {
             await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-            m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> Fallo al generar el audio. ¿Tienes FFmpeg instalado?`)
+            m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível gerar o áudio. Verifique se o FFmpeg está instalado.`)
         } finally {
             if (fs.existsSync(input)) await unlink(input).catch(() => {})
             if (fs.existsSync(output)) await unlink(output).catch(() => {})
@@ -138,63 +137,67 @@ const handler = async (m, { conn, command, text, usedPrefix, userDb }) => {
         return
     }
 
-    if (!query && !/image/.test(mime)) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <tu pregunta>*`)
+    if (!query && !/image/.test(mime)) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <sua pergunta>*`)
     await conn.sendMessage(m.chat, { react: { text: '⏳', key: m.key } })
 
     try {
-        if (['gemini', 'ia', 'askai'].includes(command)) {
-            const currentParts = [{ text: (IDENTITY + (query || "Describe esta imagen")) }]
-            
+        if (['gemini', 'ia', 'askai', 'perguntar'].includes(command)) {
+            if (!GEMINI_KEY) return m.reply(`*⌬┤ ⚙️ ├⌬ CONFIGURAÇÃO PENDENTE.*\n> A chave *GEMINI_API_KEY* não foi configurada.`)
+
+            const currentParts = [{ text: `${IDENTITY}\n\nMensagem do usuário: ${query || 'Descreva esta imagem.'}` }]
+
             if (/image/.test(mime)) {
                 const media = await q.download()
                 currentParts.push({ inline_data: { mime_type: mime, data: media.toString('base64') } })
             }
 
             const payload = { contents: [{ role: 'user', parts: currentParts }] }
-            const res = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEYS[0]}`, payload, {
+            const res = await axios.post(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_KEY}`, payload, {
                 headers: { 'Content-Type': 'application/json' }, timeout: 30000
             })
-            
+
             const answer = res.data?.candidates?.[0]?.content?.parts?.[0]?.text
             if (!answer) throw new Error()
-            
+
             await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
             return conn.sendMessage(m.chat, { text: `*⌬┤ 🔷 ├⌬ GEMINI*\n\n${answer.replace(/\*\*/g, '*')}` }, { quoted: m })
         }
 
         if (['nova', 'catia'].includes(command)) {
+            if (!NOVA_KEY) return m.reply(`*⌬┤ ⚙️ ├⌬ CONFIGURAÇÃO PENDENTE.*\n> A chave *NOVA_API_KEY* não foi configurada.`)
+
             const payload = {
-                model: "nova-2-lite-v1",
+                model: 'nova-2-lite-v1',
                 messages: [
-                    { role: "system", content: IDENTITY },
-                    { role: "user", content: query }
+                    { role: 'system', content: IDENTITY },
+                    { role: 'user', content: query }
                 ]
             }
             const { data } = await axios.post('https://api.nova.amazon.com/v1/chat/completions', payload, {
-                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer 3f7f5a1f-36df-44b0-ac47-eb5554fe022c` }
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${NOVA_KEY}` }
             })
             let response = data.choices[0].message.content
             response = response.replace(/###\s+/g, '■ ').replace(/##\s+/g, '▼ ').replace(/#\s+/g, '► ').replace(/\*\*/g, '*')
-            
+
             await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
             return m.reply(`*⌬┤ 🌌 ├⌬ NOVA AI*\n\n${response.trim()}`)
         }
 
         if (['chatgpt', 'gpt'].includes(command)) {
-            const q = encodeURIComponent(IDENTITY + query)
+            const q = encodeURIComponent(`${IDENTITY}\n\nMensagem do usuário: ${query}`)
             const res = await fetch(`${SPENZY}/chatgpt?text=${q}`, { timeout: 20000 })
             const data = await res.json()
             if (!data?.status || !data?.result?.message) throw new Error()
-            
+
             await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
             return conn.sendMessage(m.chat, { text: `*⌬┤ 🧠 ├⌬ CHATGPT*\n\n${data.result.message}` }, { quoted: m })
         }
 
         if (['copilot', 'ms', 'nagi'].includes(command)) {
-            const res = await axios.get(`https://api.yupra.my.id/api/ai/gpt5?text=${encodeURIComponent(IDENTITY + query)}`, { timeout: 20000 })
+            const res = await axios.get(`https://api.yupra.my.id/api/ai/gpt5?text=${encodeURIComponent(`${IDENTITY}\n\nMensagem do usuário: ${query}`)}`, { timeout: 20000 })
             const answer = res.data?.result || res.data?.response
             if (!answer) throw new Error()
-            
+
             await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
             const prefix = command === 'nagi' ? '✨ NAGI' : '🪟 COPILOT'
             return conn.sendMessage(m.chat, { text: `*⌬┤ ${prefix.split(' ')[0]} ├⌬ ${prefix.split(' ')[1]}*\n\n${answer}` }, { quoted: m })
@@ -203,11 +206,11 @@ const handler = async (m, { conn, command, text, usedPrefix, userDb }) => {
     } catch (e) {
         console.error(e)
         await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-        m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo obtener respuesta de la IA. Intentá de nuevo.`)
+        m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível obter uma resposta da IA. Tente novamente.`)
     }
 }
 
-handler.command = ['chatgpt', 'gpt', 'nagi', 'gemini', 'ia', 'askai', 'copilot', 'ms', 'nova', 'catia', 'generarimg', 'crearimg', 'aiimg', 'flux', 'aimg', 'delfon', 'removebg', 'voz', 'decir']
+handler.command = ['chatgpt', 'gpt', 'nagi', 'gemini', 'ia', 'askai', 'perguntar', 'copilot', 'ms', 'nova', 'catia', 'generarimg', 'gerarimg', 'crearimg', 'criarimg', 'aiimg', 'flux', 'aimg', 'delfon', 'removebg', 'removerfundo', 'voz', 'decir', 'falar']
 handler.tags = ['tools']
-handler.help = ['chatgpt <msg>', 'ia <msg/foto>', 'flux <desc> ✦', 'removebg <foto> ✦']
+handler.help = ['chatgpt <msg>', 'ia <msg/foto>', 'flux <descrição> ✦', 'removerfundo <foto> ✦', 'falar <texto>']
 export default handler
