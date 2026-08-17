@@ -5,7 +5,7 @@ const { jidNormalizedUser } = pkg
 
 const handler = async (m, { conn }) => {
   const user = m.mentionedJid[0] || (m.quoted ? m.quoted.sender : null)
-  if (!user) return m.reply(`*⌬┤ ⚠️ ├⌬ USUARIO REQUERIDO.*\n> Mencioná o respondé el mensaje del usuario a despromover.`)
+  if (!user) return m.reply(`*⌬┤ ⚠️ ├⌬ USUÁRIO OBRIGATÓRIO.*\n> Mencione ou responda à mensagem do usuário que deseja remover da administração.`)
 
   const targetJid = jidNormalizedUser(user)
   const targetNum = targetJid.split('@')[0]
@@ -16,15 +16,16 @@ const handler = async (m, { conn }) => {
   )
 
   if (target?.admin === 'superadmin' || target?.isCommunityAdmin) {
-    return m.reply(`*⌬┤ 👑 ├⌬ ACCIÓN BLOQUEADA.*\n▢ No puedo despromover al admin supremo del grupo.`)
+    return m.reply(`*⌬┤ 👑 ├⌬ AÇÃO BLOQUEADA.*\n▢ Não posso remover o administrador principal do grupo.`)
   }
 
   await conn.groupParticipantsUpdate(m.chat, [targetJid], 'demote')
-  m.reply(`*⌬┤ ⬇️ ├⌬ DESPROMOVIDO.*\n▢ *Quitado de admin:* @${targetNum}`, [targetJid])
+  m.reply(`*⌬┤ ⬇️ ├⌬ ADMIN REMOVIDO.*\n▢ *Removido da administração:* @${targetNum}`, { mentions: [targetJid] })
 }
 
+handler.help = ['rebaixar @usuario']
 handler.tags = ['group']
-handler.command = ['despromover', 'demote', 'deadmin']
+handler.command = ['despromover', 'demote', 'deadmin', 'rebaixar', 'removeradmin']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.botAdminOnly = true
