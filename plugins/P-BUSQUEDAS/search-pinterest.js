@@ -20,7 +20,7 @@ async function fetchImageBuffer(url) {
   const ct = res.headers.get('content-type') || ''
   if (!ct.startsWith('image/')) throw new Error(`Content-Type inválido: ${ct}`)
   const buf = Buffer.from(await res.arrayBuffer())
-  if (buf.length < 2000) throw new Error(`Buffer muy pequeño: ${buf.length}b`)
+  if (buf.length < 2000) throw new Error(`Buffer muito pequeno: ${buf.length}b`)
   return buf
 }
 
@@ -30,7 +30,7 @@ async function getPins(text, sender) {
 
   let lista = pinCache.get(cacheKey)
   if (!lista) {
-    const results = await pinsearch(text, 80) 
+    const results = await pinsearch(text, 80)
     if (!results?.length) return null
     lista = results.filter(r => r.image && r.pinId).sort(() => Math.random() - 0.5)
     pinCache.set(cacheKey, lista)
@@ -52,14 +52,14 @@ async function getPins(text, sender) {
 }
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <búsqueda>*`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <pesquisa>*`)
 
   const query = text.trim()
-  await m.reply(`*⌬┤ ⏳ ├⌬ Buscando en Pinterest...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Buscando no Pinterest...*`)
 
   try {
     const pool = await getPins(query, m.sender)
-    if (!pool) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontraron imágenes para *${query}*.`)
+    if (!pool) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei imagens para *${query}*.`)
 
     const validas = []
     for (const item of pool) {
@@ -67,11 +67,10 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       try {
         const buf = await fetchImageBuffer(item.image)
         validas.push({ buf, pinId: item.pinId })
-      } catch {
-      }
+      } catch {}
     }
 
-    if (!validas.length) return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo cargar ninguna imagen. Intentá de nuevo.`)
+    if (!validas.length) return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível carregar nenhuma imagem. Tente novamente.`)
 
     const album = generateWAMessageFromContent(m.chat, {
       albumMessage: {
@@ -84,7 +83,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     for (let i = 0; i < validas.length; i++) {
       try {
         const msg = await generateWAMessage(m.chat, {
-          image:   validas[i].buf,
+          image: validas[i].buf,
           caption: i === 0 ? `*⌬┤ 📌 ├⌬ PINTEREST*\n> 🔎 *${query}*` : ''
         }, { upload: conn.waUploadToServer })
         msg.message.messageContextInfo = { messageAssociation: { associationType: 1, parentMessageKey: album.key } }
@@ -93,11 +92,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     }
 
   } catch (e) {
-    await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`)
+    await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`)
   }
 }
 
-handler.help    = ['pinimg <búsqueda>']
+handler.help    = ['pinimg <pesquisa>']
 handler.command = ['pin', 'pinterest', 'pinimg', 'pinterestimg', 'pinterestbuscar', 'pinsearch']
 handler.tags    = ['busquedas']
 
