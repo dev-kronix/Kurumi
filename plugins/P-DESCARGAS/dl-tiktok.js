@@ -14,18 +14,18 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ ENLACE REQUERIDO.*\n> Enviá o respondé a un mensaje con un enlace válido de TikTok.`)
-  if (!/tiktok\.com|vt\.tiktok\.com/i.test(url)) return m.reply(`*⌬┤ ✙ ├⌬ ENLACE INVÁLIDO.*\n> Asegurate de que sea de TikTok.`)
-  if (userDb.kogen < 1)                            return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ LINK OBRIGATÓRIO.*\n> Envie ou responda a uma mensagem com um link válido do TikTok.`)
+  if (!/tiktok\.com|vt\.tiktok\.com/i.test(url)) return m.reply(`*⌬┤ ✙ ├⌬ LINK INVÁLIDO.*\n> Verifique se o link é do TikTok.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ 📥 ├⌬ Descargando de TikTok...*`)
+  await m.reply(`*⌬┤ 📥 ├⌬ Baixando conteúdo do TikTok...*`)
 
   try {
     const data = await snaptikDownload(url)
 
     if (data.type === 'images' && data.images?.length) {
-      const caption = `*⌬┤ 🖼️ ├⌬ TIKTOK · ${data.images.length} IMÁGENES*\n> 📝 ${data.title || 'Sin título'}`
+      const caption = `*⌬┤ 🖼️ ├⌬ TIKTOK · ${data.images.length} IMAGENS*\n> 📝 ${data.title || 'Sem título'}`
 
       const album = generateWAMessageFromContent(chatId, {
         albumMessage: {
@@ -49,26 +49,26 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
 
     } else if (data.type === 'video') {
       const videoUrl = data.download?.hd || data.download?.sd
-      if (!videoUrl) return m.reply(`*⌬┤ ✙ ├⌬ SIN VIDEO.*\n> No se encontró video en ese enlace.`)
+      if (!videoUrl) return m.reply(`*⌬┤ ✙ ├⌬ VÍDEO NÃO ENCONTRADO.*\n> Não encontrei um vídeo nesse link.`)
 
-      const captionVid = `*⌬┤ 🎵 ├⌬ TIKTOK*\n> 📝 ${data.title || 'Sin título'}`
+      const captionVid = `*⌬┤ 🎵 ├⌬ TIKTOK*\n> 📝 ${data.title || 'Sem título'}`
       const buf = Buffer.from(await (await fetch(videoUrl, { timeout: 60000 })).arrayBuffer())
       await conn.sendMessage(chatId, { video: buf, mimetype: 'video/mp4', caption: captionVid }, { quoted: m })
 
     } else {
-      return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo obtener contenido de ese enlace.`)
+      return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível obter conteúdo desse link.`)
     }
 
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch (e) {
     console.error(e)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> ${e.message || 'Ocurrió un error inesperado. Intentá de nuevo.'}`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> ${e.message || 'Ocorreu um erro inesperado. Tente novamente.'}`)
   }
 }
 
-handler.help    = [`ttkdl <link> ${config.PREMIUM_SYMBOL}`]
+handler.help    = [`tiktok <link> ${config.PREMIUM_SYMBOL}`]
 handler.command = ['ttkdl', 'tiktok', 'tt', 'tiktokdl', 'ttk']
 handler.tags    = ['descargas']
 
