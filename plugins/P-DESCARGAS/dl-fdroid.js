@@ -9,22 +9,22 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK REQUERIDO.*\n> Ej: *${usedPrefix}${command} https://f-droid.org/en/packages/com.termux/*`)
-  if (!url.includes('f-droid.org')) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Asegurate de que sea un link de F-Droid.`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK OBRIGATÓRIO.*\n> Exemplo: *${usedPrefix}${command} https://f-droid.org/en/packages/com.termux/*`)
+  if (!url.includes('f-droid.org')) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Verifique se é um link do F-Droid.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ ⏳ ├⌬ Buscando información de la app...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Buscando informações do aplicativo...*`)
 
   try {
     const res = await axios.get(`https://api.vreden.my.id/api/v1/download/fdroid?url=${encodeURIComponent(url)}`)
     const app = res.data?.result
-    if (!app) return m.reply(`*⌬┤ ❌ ├⌬ No se pudo obtener la información.*`)
+    if (!app) return m.reply(`*⌬┤ ❌ ├⌬ Não foi possível obter as informações.*`)
 
     const latest = app.versions?.[0]
 
     await conn.sendMessage(chatId, {
-      text: `*⌬┤ 📱 ├⌬ ${app.name}*\n> 📝 ${app.summary}\n\n> 📖 _${app.description.substring(0, 300)}..._\n\n> 🔖 Versión: *${latest?.version || '-'}*\n> 📅 Fecha: *${latest?.added || '-'}*\n> ⚙️ Req: *${latest?.requirements || '-'}*\n> 📦 Tamaño: *${latest?.size || '-'}*`,
+      text: `*⌬┤ 📱 ├⌬ ${app.name}*\n> 📝 ${app.summary}\n\n> 📖 _${app.description.substring(0, 300)}..._\n\n> 🔖 Versão: *${latest?.version || '-'}*\n> 📅 Data: *${latest?.added || '-'}*\n> ⚙️ Requisitos: *${latest?.requirements || '-'}*\n> 📦 Tamanho: *${latest?.size || '-'}*`,
     }, { quoted: m })
 
     if (!latest?.link) return
@@ -33,15 +33,15 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       document: { url: latest.link },
       mimetype: 'application/vnd.android.package-archive',
       fileName: `${app.name}-${latest.version}.apk`,
-      caption:  `*⌬┤ 📥 ├⌬ APK descargado de F-Droid*`,
+      caption:  `*⌬┤ 📥 ├⌬ APK baixado do F-Droid*`,
     }, { quoted: m })
     
     userDb.kogen -= 1
     await conn.sendMessage(chatId, { react: { text: '✅', key: m.key } })
-    await conn.sendMessage(m.chat, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(m.chat, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch {
-    return m.reply(`*⌬┤ ❗ ├⌬ Error al obtener la información de la app.*`)
+    return m.reply(`*⌬┤ ❗ ├⌬ Erro ao obter as informações do aplicativo.*`)
   }
 }
 
