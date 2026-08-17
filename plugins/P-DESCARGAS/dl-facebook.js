@@ -9,12 +9,12 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ ENLACE REQUERIDO.*\n> Enviá o respondé a un mensaje con un enlace de Facebook válido.`)
-  if (!/facebook\.com|fb\.watch/i.test(url)) return m.reply(`*⌬┤ ✙ ├⌬ ENLACE INVÁLIDO.*\n> Asegurate de que sea de Facebook.`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ LINK OBRIGATÓRIO.*\n> Envie ou responda a uma mensagem com um link válido do Facebook.`)
+  if (!/facebook\.com|fb\.watch/i.test(url)) return m.reply(`*⌬┤ ✙ ├⌬ LINK INVÁLIDO.*\n> Verifique se o link é do Facebook.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ 📥 ├⌬ Descargando video de Facebook...*`)
+  await m.reply(`*⌬┤ 📥 ├⌬ Baixando vídeo do Facebook...*`)
   
   try {
     let videoUrl = null
@@ -26,7 +26,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       if (json.status && json.data) {
         const data = json.data
         videoUrl = data.hd || data.sd || null
-        if (videoUrl) caption = `*⌬┤ 📘 ├⌬ FACEBOOK*\n> 📝 ${data.description || 'Sin descripción'}\n> ⏱️ *Duración:* ${data.duration || '—'}\n> 🎬 *Calidad:* ${data.hd ? 'HD' : 'SD'}`
+        if (videoUrl) caption = `*⌬┤ 📘 ├⌬ FACEBOOK*\n> 📝 ${data.description || 'Sem descrição'}\n> ⏱️ *Duração:* ${data.duration || '—'}\n> 🎬 *Qualidade:* ${data.hd ? 'HD' : 'SD'}`
       }
     } catch {}
 
@@ -36,21 +36,21 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
         const json = await response.json()
         if (json.status && Array.isArray(json.list) && json.list.length) {
           videoUrl = json.list[0].url
-          if (videoUrl) caption = `*⌬┤ 📘 ├⌬ FACEBOOK*\n> 🎬 *Calidad:* ${json.list[0].quality || 'SD'}`
+          if (videoUrl) caption = `*⌬┤ 📘 ├⌬ FACEBOOK*\n> 🎬 *Qualidade:* ${json.list[0].quality || 'SD'}`
         }
       } catch {}
     }
 
-    if (!videoUrl) return m.reply(`*⌬┤ ✙ ├⌬ SIN VIDEO.*\n> No se encontró video en ese enlace.`)
+    if (!videoUrl) return m.reply(`*⌬┤ ✙ ├⌬ VÍDEO NÃO ENCONTRADO.*\n> Não encontrei um vídeo nesse link.`)
     
     const buf = Buffer.from(await (await fetch(videoUrl, { timeout: 60000 })).arrayBuffer())
     
     await conn.sendMessage(chatId, { video: buf, mimetype: 'video/mp4', caption }, { quoted: m })
     
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
   } catch (e) { 
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar. Intentá de nuevo.`) 
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download. Tente novamente.`) 
   }
 }
 
