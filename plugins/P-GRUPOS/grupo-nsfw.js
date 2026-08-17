@@ -3,12 +3,12 @@ const handler = async (m, { args, usedPrefix, command, groupDb }) => {
   if (!['on', 'off'].includes(type)) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} on/off*`)
 
   const isEnable = type === 'on'
-  if (groupDb.nsfw === isEnable) return m.reply(`*⌬┤ ⚠️ ├⌬ ESTADO ACTUAL.*\n> El contenido NSFW ya se encuentra *${isEnable ? 'ACTIVADO' : 'DESACTIVADO'}* en este grupo.`)
+  if (groupDb.nsfw === isEnable) return m.reply(`*⌬┤ ⚠️ ├⌬ ESTADO ATUAL.*\n> O conteúdo NSFW já está *${isEnable ? 'ATIVADO' : 'DESATIVADO'}* neste grupo.`)
 
   groupDb.nsfw = isEnable
   await groupDb.save()
 
-  m.reply(`*⌬┤ 🔞 ├⌬ NSFW ${isEnable ? 'ACTIVADO' : 'DESACTIVADO'}.*\n> El contenido +18 ${isEnable ? 'ahora está permitido' : 'ha sido bloqueado'} en este grupo.`)
+  m.reply(`*⌬┤ 🔞 ├⌬ NSFW ${isEnable ? 'ATIVADO' : 'DESATIVADO'}.*\n> O conteúdo +18 ${isEnable ? 'agora está permitido' : 'foi bloqueado'} neste grupo.`)
 }
 
 handler.help = ['nsfw <on/off>']
