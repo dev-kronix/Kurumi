@@ -1,43 +1,30 @@
 import { plugins } from '../../handler.js'
-import path from 'path'
-import config from '../../config.js'
 
 const handler = async (m) => {
-  const list = Object.keys(plugins).sort()
-  if (list.length === 0) return m.reply('*⌬┤ ⚠️ · No hay plugins cargados en memoria.*')
+  const entries = Object.entries(plugins).sort(([a], [b]) => a.localeCompare(b))
+  if (!entries.length) return m.reply(`*⌬┤ ℹ️ ├⌬ NENHUM PLUGIN CARREGADO.*`)
 
-  const groups = {}
-  let total = 0
-
-  list.forEach(relPath => {
-    const parts = relPath.replace(/\\/g, '/').split('/')
-    const folder = parts.length > 1 ? parts.slice(0, -1).join('/') : 'Raíz'
-    const file = parts[parts.length - 1]
-    
-    if (!groups[folder]) groups[folder] = []
-    groups[folder].push(file)
-    total++
-  })
-
-  let txt = `*╔═══⌦ ✦ 📜 LISTA DE PLUGINS ✦ ⌫═══╗*\n\n`
-  txt += `> 📦 *Total cargados:* ${total}\n\n`
-
-  for (const [folder, files] of Object.entries(groups)) {
-    txt += `*📁 ${folder.toUpperCase()}*\n`
-    files.forEach(f => {
-      txt += `> 📄 ${f}\n`
-    })
-    txt += `\n`
+  const grupos = {}
+  for (const [file, plugin] of entries) {
+    const pasta = file.includes('/') ? file.split('/')[0] : 'RAIZ'
+    if (!grupos[pasta]) grupos[pasta] = []
+    const cmds = Array.isArray(plugin.command) ? plugin.command.join(', ') : plugin.command instanceof RegExp ? plugin.command.toString() : String(plugin.command || 'sem comando')
+    grupos[pasta].push(`> 📄 *${file}*\n>    ⌨️ ${cmds}`)
   }
 
-  txt += `*╚══⌦ ${config.footer} ⌫══╝*`
+  let txt = `*╔═══⌦ ✦ 🧩 PLUGINS CARREGADOS ✦ ⌫═══╗*\n\n`
+  for (const [pasta, itens] of Object.entries(grupos)) {
+    txt += `*⌬┤ 📁 ${pasta} ├⌬*\n${itens.join('\n')}\n\n`
+  }
+  txt += `> 📊 *Total:* ${entries.length} plugins\n*╚══════════════════════════╝*`
 
   m.reply(txt)
 }
 
 handler.help = ['listplugins']
+handler.command = ['listplugins', 'plugins', 'listarplugins']
 handler.tags = ['owner']
-handler.command = ['listplugins', 'plugins', 'lp']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler
