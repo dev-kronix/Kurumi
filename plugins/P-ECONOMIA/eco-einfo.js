@@ -1,7 +1,7 @@
 import config from '../../config.js'
 
 const formatTime = (ms) => {
-  if (ms <= 0) return '✅ Listo'
+  if (ms <= 0) return '✅ Pronto'
 
   const h = Math.floor(ms / 3600000)
   const m = Math.floor((ms % 3600000) / 60000)
@@ -43,27 +43,27 @@ const handler = async (m, { conn, userDb }) => {
 
   const rouletteStatus =
     roulettePlays >= 15
-      ? '🚫 Límite (15/15)'
+      ? '🚫 Limite (15/15)'
       : `${stRoulette} [${roulettePlays}/15]`
 
-  let txt = `*╔═══⌦ ✦ ⏱️ ESTADO DE ECONOMÍA ✦ ⌫═══╗*\n\n`
-    + `> 👤 *Usuario:* @${m.sender.split('@')[0]}\n\n`
+  let txt = `*╔═══⌦ ✦ ⏱️ STATUS DA ECONOMIA ✦ ⌫═══╗*\n\n`
+    + `> 👤 *Usuário:* @${m.sender.split('@')[0]}\n\n`
 
-    + `*⌬┤ ⚒️ TRABAJOS Y RECOLECCIÓN ├⌬*\n`
-    + `> ⛏️ *Minar:* ${stMine}\n`
-    + `> 🏹 *Cazar:* ${stHunt}\n`
+    + `*⌬┤ ⚒️ TRABALHOS E COLETA ├⌬*\n`
+    + `> ⛏️ *Minerar:* ${stMine}\n`
+    + `> 🏹 *Caçar:* ${stHunt}\n`
     + `> 🎣 *Pescar:* ${stFish}\n`
-    + `> 💼 *Trabajar:* ${stWork}\n\n`
+    + `> 💼 *Trabalhar:* ${stWork}\n\n`
 
-    + `*⌬┤ 🔫 ILEGALES Y COMBATE ├⌬*\n`
-    + `> 🔫 *Crimen:* ${stCrime}\n`
-    + `> 🥷 *Robar:* ${stRob}\n`
-    + `> 🛰️ *Asalto Cuántico:* ${stKogenRob}\n`
+    + `*⌬┤ 🔫 ILEGAIS E COMBATE ├⌬*\n`
+    + `> 🔫 *Crime:* ${stCrime}\n`
+    + `> 🥷 *Roubar:* ${stRob}\n`
+    + `> 🛰️ *Assalto Quântico:* ${stKogenRob}\n`
     + `> ⚔️ *Duelo:* ${stDuel}\n\n`
 
     + `*⌬┤ 🎰 EXTRAS ├⌬*\n`
-    + `> 🎁 *Diario:* ${stDaily}\n`
-    + `> 🎡 *Ruleta:* ${rouletteStatus}\n\n`
+    + `> 🎁 *Diário:* ${stDaily}\n`
+    + `> 🎡 *Roleta:* ${rouletteStatus}\n\n`
 
     + `*╚══⌦ ${config.footer} ⌫══╝*`
 
@@ -77,9 +77,9 @@ const handler = async (m, { conn, userDb }) => {
   )
 }
 
-handler.help = ['einfo']
+handler.help = ['statuseco']
 handler.tags = ['eco']
-handler.command = ['einfo', 'cooldowns', 'tiempos', 'cd', 'miscd']
+handler.command = ['einfo', 'statuseco', 'cooldowns', 'tiempos', 'tempos', 'cd', 'miscd']
 handler.register = true
 
 export default handler
