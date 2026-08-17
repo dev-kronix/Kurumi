@@ -7,7 +7,7 @@ const handler = async (m, { conn, participants, config }) => {
   const user = m.mentionedJid[0] ? m.mentionedJid[0] : (m.quoted ? m.quoted.sender : null)
 
   if (!user) {
-    return m.reply(`*⌬┤ ⚠️ ├⌬ USUARIO REQUERIDO.*\n> Mencioná o respondé el mensaje del usuario a expulsar.`)
+    return m.reply(`*⌬┤ ⚠️ ├⌬ USUÁRIO OBRIGATÓRIO.*\n> Mencione ou responda à mensagem do usuário que deseja expulsar.`)
   }
 
   const botJid    = jidNormalizedUser(conn.user.id)
@@ -15,7 +15,7 @@ const handler = async (m, { conn, participants, config }) => {
   const targetNum = targetJid.split('@')[0].replace(/\D/g, '')
 
   if (targetJid === botJid) {
-    return m.reply(`*⌬┤ 🤖 ├⌬ ACCIÓN INVÁLIDA.*\n> No puedo expulsarme a mí mismo.`)
+    return m.reply(`*⌬┤ 🤖 ├⌬ AÇÃO INVÁLIDA.*\n> Não posso expulsar a mim mesma.`)
   }
 
   const owners = Array.isArray(config.ownerNumber) ? config.ownerNumber : [config.ownerNumber]
@@ -30,7 +30,7 @@ const handler = async (m, { conn, participants, config }) => {
   })
 
   if (esOwnerTarget) {
-    return m.reply(`*⌬┤ 👑 ├⌬ ACCIÓN BLOQUEADA.*\n> No puedo expulsar al dueño del bot.`)
+    return m.reply(`*⌬┤ 👑 ├⌬ AÇÃO BLOQUEADA.*\n> Não posso expulsar o dono da bot.`)
   }
 
   const targetIsAdmin = participants.some(p =>
@@ -39,22 +39,22 @@ const handler = async (m, { conn, participants, config }) => {
   )
 
   if (targetIsAdmin) {
-    return m.reply(`*⌬┤ 🛡️ ├⌬ ACCIÓN BLOQUEADA.*\n> No puedo expulsar a un administrador del grupo.`)
+    return m.reply(`*⌬┤ 🛡️ ├⌬ AÇÃO BLOQUEADA.*\n> Não posso expulsar um administrador do grupo.`)
   }
 
   try {
     await conn.groupParticipantsUpdate(m.chat, [targetJid], 'remove')
     const senderNum = m.sender.split('@')[0]
-    const txt = `*⌬┤ 🥾 ├⌬ EXPULSIÓN.*\n▢ *Usuario:* @${targetNum}\n▢ *Por:* @${senderNum}`
+    const txt = `*⌬┤ 🥾 ├⌬ EXPULSÃO.*\n▢ *Usuário:* @${targetNum}\n▢ *Por:* @${senderNum}`
     await conn.sendMessage(m.chat, { text: txt, mentions: [targetJid, m.sender] }, { quoted: m })
   } catch (e) {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo expulsar al usuario.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível expulsar o usuário.`)
   }
 }
 
-handler.help = ['ban @tag']
+handler.help = ['expulsar @usuario']
 handler.tags = ['group']
-handler.command = ['ban', 'kick', 'echar', 'expulsar']
+handler.command = ['ban', 'kick', 'echar', 'expulsar', 'removermembro']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.botAdminOnly = true
