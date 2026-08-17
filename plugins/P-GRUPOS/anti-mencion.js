@@ -1,14 +1,14 @@
 const handler = async (m, { args, groupDb, usedPrefix, command }) => {
   const modo = args[0]?.toLowerCase()
-  if (!['on', '1', 'true', 'activar', 'off', '0', 'false', 'desactivar'].includes(modo)) {
-    return m.reply(`*⌬┤ ✙ ├⌬ MODO INVÁLIDO.*\n> Usá: *${usedPrefix}${command} on | off*`)
+  if (!['on', '1', 'true', 'activar', 'ativar', 'off', '0', 'false', 'desactivar', 'desativar'].includes(modo)) {
+    return m.reply(`*⌬┤ ✙ ├⌬ MODO INVÁLIDO.*\n> Use: *${usedPrefix}${command} on | off*`)
   }
 
-  const activar = ['on', '1', 'true', 'activar'].includes(modo)
+  const activar = ['on', '1', 'true', 'activar', 'ativar'].includes(modo)
   groupDb.antimenciongp = activar
   await groupDb.save()
   
-  return m.reply(`*⌬┤ 📢 ├⌬ ANTI ETIQUETA DE ESTADO ${activar ? 'ACTIVADO' : 'DESACTIVADO'}.*`)
+  return m.reply(`*⌬┤ 📢 ├⌬ ANTI MENÇÃO DE STATUS ${activar ? 'ATIVADO' : 'DESATIVADO'}.*`)
 }
 
 handler.before = async (m, { conn }) => {
@@ -24,7 +24,7 @@ handler.before = async (m, { conn }) => {
     const groupJid = typeof grupo === 'string' ? grupo : (grupo?.groupJid || grupo?.jid || '')
     if (!groupJid || !groupJid.endsWith('@g.us')) continue
     
-    const targetGroupDb = await import('../lib/database/models/zen-groups.js').then(M => M.default.findOne({ id: groupJid }).lean())
+    const targetGroupDb = await import('../../lib/database/models/zen-groups.js').then(M => M.default.findOne({ id: groupJid }).lean())
     if (!targetGroupDb?.antimenciongp) continue
     
     let meta
@@ -35,14 +35,14 @@ handler.before = async (m, { conn }) => {
     if (senderEnGrupo?.admin) continue
     
     try { await conn.groupParticipantsUpdate(groupJid, [sender], 'remove') } catch {}
-    await conn.sendMessage(groupJid, { text: `*⌬┤ 📢 ├⌬ EXPULSADO.*\n> @${nombre} fue expulsado por etiquetar este grupo en su estado de WhatsApp.`, mentions: [sender] })
+    await conn.sendMessage(groupJid, { text: `*⌬┤ 📢 ├⌬ EXPULSO.*\n> @${nombre} foi expulso por marcar este grupo no status do WhatsApp.`, mentions: [sender] })
   }
   return false
 }
 
-handler.help = ['antimenciongp <on/off>']
+handler.help = ['antimencaogrupo <on/off>']
 handler.tags = ['group']
-handler.command = ['antimenciongp']
+handler.command = ['antimenciongp', 'antimencaogrupo', 'antimencao']
 handler.adminOnly = true
 handler.alwaysBefore = true
 handler.noRegister = true
