@@ -12,44 +12,44 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK REQUERIDO.*\n> Enviá o respondé a un mensaje con un enlace de GitHub válido.`)
-  if (!GIT_REGEX.test(url)) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Asegurate de que sea un link de GitHub válido.`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK OBRIGATÓRIO.*\n> Envie ou responda a uma mensagem com um link válido do GitHub.`)
+  if (!GIT_REGEX.test(url)) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Verifique se é um link válido do GitHub.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
   let [, ghUser, repo] = url.match(GIT_REGEX)
   repo = repo.replace(/\.git$/i, '')
-  await m.reply(`*⌬┤ ⏳ ├⌬ Descargando repositorio...*\n> 📌 Límite: ${MAX_REPO} MB`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Baixando repositório...*\n> 📌 Limite: ${MAX_REPO} MB`)
 
   try {
     const apiRes = await fetch(`https://api.github.com/repos/${ghUser}/${repo}`, {
-      headers: { 'User-Agent': 'ZEN-BOT', 'Accept': 'application/vnd.github+json' },
+      headers: { 'User-Agent': 'KURUMI-BOT', 'Accept': 'application/vnd.github+json' },
       timeout: 15_000
     })
 
-    if (!apiRes.ok) return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> El repo no existe, es privado o GitHub no respondió.`)
+    if (!apiRes.ok) return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> O repositório não existe, é privado ou o GitHub não respondeu.`)
 
     const info = await apiRes.json()
     const branch = info.default_branch || 'main'
     const sizeKB = info.size || 0
 
     if (sizeKB / 1024 > MAX_REPO) {
-      return m.reply(`*⌬┤ ❌ ├⌬ REPO MUY GRANDE.*\n> El repo pesa ~${Math.round(sizeKB / 1024)} MB y supera el límite de ${MAX_REPO} MB.`)
+      return m.reply(`*⌬┤ ❌ ├⌬ REPOSITÓRIO MUITO GRANDE.*\n> O repositório possui aproximadamente ${Math.round(sizeKB / 1024)} MB e ultrapassa o limite de ${MAX_REPO} MB.`)
     }
 
     const zipUrl = `https://github.com/${ghUser}/${repo}/archive/refs/heads/${branch}.zip`
     const res = await fetch(zipUrl, { timeout: 60_000 })
 
-    if (!res.ok) return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo descargar el archivo ZIP del repositorio.`)
+    if (!res.ok) return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível baixar o arquivo ZIP do repositório.`)
 
     const buffer = Buffer.from(await res.arrayBuffer())
 
     if (buffer.length / (1024 * 1024) > MAX_REPO) {
-      return m.reply(`*⌬┤ ❌ ├⌬ REPO MUY GRANDE.*\n> El archivo supera el límite de ${MAX_REPO} MB.`)
+      return m.reply(`*⌬┤ ❌ ├⌬ REPOSITÓRIO MUITO GRANDE.*\n> O arquivo ultrapassa o limite de ${MAX_REPO} MB.`)
     }
 
-    const stars = info.stargazers_count?.toLocaleString('es-AR') || '0'
-    const forks = info.forks_count?.toLocaleString('es-AR') || '0'
+    const stars = info.stargazers_count?.toLocaleString('pt-BR') || '0'
+    const forks = info.forks_count?.toLocaleString('pt-BR') || '0'
     const lang  = info.language || 'N/A'
     const desc  = info.description ? `\n> 📝 ${info.description}` : ''
 
@@ -57,15 +57,15 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       document: buffer,
       mimetype: 'application/zip',
       fileName: `${repo}-${branch}.zip`,
-      caption: `*⌬┤ 🐙 ├⌬ GITHUB*${desc}\n> 🌿 *Branch:* ${branch}\n> ⭐ *Stars:* ${stars}\n> 🍴 *Forks:* ${forks}\n> 💻 *Lenguaje:* ${lang}`
+      caption: `*⌬┤ 🐙 ├⌬ GITHUB*${desc}\n> 🌿 *Branch:* ${branch}\n> ⭐ *Estrelas:* ${stars}\n> 🍴 *Forks:* ${forks}\n> 💻 *Linguagem:* ${lang}`
     }, { quoted: m })
 
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch (e) {
     console.error('[GIT]', e.message)
-    return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar. Intentá de nuevo.`)
+    return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download. Tente novamente.`)
   }
 }
 
