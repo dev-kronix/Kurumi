@@ -7,7 +7,7 @@ const pkg = baileysMod.default && Object.keys(baileysMod).length === 1 ? baileys
 const { generateWAMessageFromContent, generateWAMessage } = pkg
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <término>*`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <termo>*`)
 
   await m.reply(`*⌬┤ ⏳ ├⌬ Buscando...*`)
   
@@ -22,7 +22,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       try { const p = JSON.parse($(el).attr('m')); if (p?.murl) lista.push(p.murl) } catch {}
     })
     
-    if (!lista.length) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontraron resultados para esa búsqueda.`)
+    if (!lista.length) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei resultados para essa pesquisa.`)
     
     const items = lista.sort(() => Math.random() - 0.5).slice(0, 6)
     
@@ -36,19 +36,19 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         const buf = Buffer.from(await fetch(url).then(r => r.arrayBuffer()))
         const msg = await generateWAMessage(m.chat, {
           image: buf,
-          caption: i === 0 ? `*⌬┤ 🖼️ ├⌬ IMÁGENES*\n> 🔎 *${text}*` : ''
+          caption: i === 0 ? `*⌬┤ 🖼️ ├⌬ IMAGENS*\n> 🔎 *${text}*` : ''
         }, { upload: conn.waUploadToServer })
         msg.message.messageContextInfo = { messageAssociation: { associationType: 1, parentMessageKey: album.key } }
         await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
       } catch (e) {}
     }))
   } catch (e) { 
-    await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`) 
+    await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`) 
   }
 }
 
-handler.help = ['imagen <término>']
-handler.command = ['img', 'imagen']
+handler.help = ['imagem <termo>']
+handler.command = ['img', 'imagen', 'imagem']
 handler.tags = ['busquedas']
 
 export default handler
