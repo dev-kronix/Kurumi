@@ -7,14 +7,14 @@ const handler = async (m, { conn, text, usedPrefix, participants }) => {
   let num = text ? text.replace(/[^0-9]/g, '') : ''
   
   if (!num) {
-    return m.reply(`*⌬┤ ⚠️ ├⌬ NÚMERO REQUERIDO.*\n\n> Uso: ${usedPrefix}agregar <número sin +>`)
+    return m.reply(`*⌬┤ ⚠️ ├⌬ NÚMERO OBRIGATÓRIO.*\n\n> Uso: ${usedPrefix}adicionar <número sem +>`)
   }
 
   const targetJid = jidNormalizedUser(`${num}@s.whatsapp.net`)
   const isAlreadyInGroup = participants.some(p => p.id === targetJid)
 
   if (isAlreadyInGroup) {
-    return m.reply('*⌬┤ ⚠️ · El usuario ya está dentro del grupo.*')
+    return m.reply('*⌬┤ ⚠️ · O usuário já está no grupo.*')
   }
 
   try {
@@ -23,10 +23,10 @@ const handler = async (m, { conn, text, usedPrefix, participants }) => {
 
     if (status === '403' || status === '401' || status?.status === '403' || status?.status === '401') {
       const code = await conn.groupInviteCode(m.chat)
-      return m.reply(`*⌬┤ 🔒 PRIVACIDAD ACTIVADA ├⌬*\n\n> @${num} tiene configurada su privacidad para no ser añadido de forma directa.\n> Enlace de invitación enviado:\n> https://chat.whatsapp.com/${code}`, { mentions: [targetJid] })
+      return m.reply(`*⌬┤ 🔒 PRIVACIDADE ATIVADA ├⌬*\n\n> @${num} configurou a privacidade para não ser adicionado diretamente.\n> Link de convite:\n> https://chat.whatsapp.com/${code}`, { mentions: [targetJid] })
     }
 
-    m.reply(`*⌬┤ ✅ ├⌬ USUARIO AGREGADO*\n\n> @${num} ha sido añadido con éxito al grupo.`, { mentions: [targetJid] })
+    m.reply(`*⌬┤ ✅ ├⌬ USUÁRIO ADICIONADO*\n\n> @${num} foi adicionado ao grupo com sucesso.`, { mentions: [targetJid] })
 
   } catch (e) {
     const errorStr = String(e?.stack || e?.message || e)
@@ -35,20 +35,20 @@ const handler = async (m, { conn, text, usedPrefix, participants }) => {
     if (isRestricted) {
       try {
         const code = await conn.groupInviteCode(m.chat)
-        return m.reply(`*⌬┤ 🔒 RESTRICCIÓN DE CONTACTO ├⌬*\n\n> WhatsApp tiene restringida temporalmente la capacidad del bot de añadir contactos directamente.\n> Por favor, compartile este enlace para que se una voluntariamente:\n> https://chat.whatsapp.com/${code}`)
+        return m.reply(`*⌬┤ 🔒 RESTRIÇÃO DE CONTATO ├⌬*\n\n> O WhatsApp restringiu temporariamente a capacidade da bot de adicionar contatos diretamente.\n> Compartilhe este link para que a pessoa entre voluntariamente:\n> https://chat.whatsapp.com/${code}`)
       } catch {
-        return m.reply(`*⌬┤ 🔒 RESTRICCIÓN DE CONTACTO ├⌬*\n\n> WhatsApp tiene restringida temporalmente la capacidad del bot de añadir contactos directamente. Comparte un enlace de invitación manual.`)
+        return m.reply(`*⌬┤ 🔒 RESTRIÇÃO DE CONTATO ├⌬*\n\n> O WhatsApp restringiu temporariamente a capacidade da bot de adicionar contatos diretamente. Compartilhe um link de convite manualmente.`)
       }
     }
 
     console.error(e)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n\n> No se pudo agregar al usuario. Comprobá si el número es válido y tiene cuenta de WhatsApp activa.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n\n> Não foi possível adicionar o usuário. Verifique se o número é válido e possui uma conta ativa no WhatsApp.`)
   }
 }
 
-handler.help = ['agregar @tag']
+handler.help = ['adicionar <número>']
 handler.tags = ['group']
-handler.command = ['add', 'agregar', 'añadir', 'invitar']
+handler.command = ['add', 'agregar', 'añadir', 'invitar', 'adicionar', 'addmembro']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.botAdminOnly = true
