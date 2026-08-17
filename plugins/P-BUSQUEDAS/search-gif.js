@@ -5,7 +5,7 @@ const pkg = baileysMod.default && Object.keys(baileysMod).length === 1 ? baileys
 const { generateWAMessageFromContent, generateWAMessage } = pkg
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <búsqueda>*`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <pesquisa>*`)
 
   await m.reply(`*⌬┤ ⏳ ├⌬ Buscando...*`)
   
@@ -13,7 +13,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const res = await fetch(`https://g.tenor.com/v1/search?q=${encodeURIComponent(text)}&key=LIVDSRZULELA&limit=6`)
     const json = await res.json()
     
-    if (!json.results?.length) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontraron GIFs para *${text}*.`)
+    if (!json.results?.length) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei GIFs para *${text}*.`)
     
     const items = json.results
     
@@ -36,11 +36,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       } catch (e) {}
     }))
   } catch (e) {
-    await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`)
+    await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`)
   }
 }
 
-handler.help = ['gif <búsqueda>']
+handler.help = ['gif <pesquisa>']
 handler.command = ['gif', 'buscargif', 'tenorgif']
 handler.tags = ['busquedas']
 
