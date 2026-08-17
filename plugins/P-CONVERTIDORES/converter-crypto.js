@@ -4,7 +4,7 @@ const MORSE = {
   s:'...',t:'-',u:'..-',v:'...-',w:'.--',x:'-..-',y:'-.--',z:'--..',
   '0':'-----','1':'.----','2':'..---','3':'...--','4':'....-','5':'.....',
   '6':'-....','7':'--...','8':'---..','9':'----.',
-  '.':'.-.-.-',',':'--..--','?':'..--..','!':'-.-.--','/':'-..-.','(':'-.--.',')'  :'-.--.-',' ':'/'
+  '.':'.-.-.-',',':'--..--','?':'..--..','!':'-.-.--','/':'-..-.','(':'-.--.',')':'-.--.-',' ':'/'
 }
 const MORSE_INV = Object.fromEntries(Object.entries(MORSE).map(([k,v]) => [v,k]))
 
@@ -50,7 +50,7 @@ const esLegible = s => typeof s==='string' && s.length>0 && /^[\x20-\x7E\n\r\t]*
 function intentarDecodificar(text) {
   try { const v=Buffer.from(text,'base64').toString('utf-8'); if(esLegible(v)&&v!==text) return {tipo:'Base64',valor:v} } catch {}
   try { if(/^[0-9a-fA-F\s]+$/.test(text)&&text.replace(/\s/g,'').length%2===0){const v=Buffer.from(text.replace(/\s/g,''),'hex').toString('utf-8');if(esLegible(v))return{tipo:'Hex',valor:v}} } catch {}
-  if(/^[01\s]+$/.test(text)&&text.trim().split(/\s+/).length>1) { try{const v=text.trim().split(/\s+/).map(b=>String.fromCharCode(parseInt(b,2))).join('');if(esLegible(v))return{tipo:'Binario',valor:v}}catch{} }
+  if(/^[01\s]+$/.test(text)&&text.trim().split(/\s+/).length>1) { try{const v=text.trim().split(/\s+/).map(b=>String.fromCharCode(parseInt(b,2))).join('');if(esLegible(v))return{tipo:'Binário',valor:v}}catch{} }
   try { const v=decodeURIComponent(text); if(v!==text&&esLegible(v))return{tipo:'URL',valor:v} } catch {}
   if(/\\u[\dA-F]{4}/i.test(text)){try{const v=text.replace(/\\u([\dA-F]{4})/gi,(_,h)=>String.fromCharCode(parseInt(h,16)));if(esLegible(v))return{tipo:'Unicode',valor:v}}catch{}}
   if(/^[.\-/\s]+$/.test(text)){try{const v=text.trim().split(' / ').map(w=>w.split(' ').map(c=>MORSE_INV[c]||'?').join('')).join(' ');if(esLegible(v)&&!v.includes('?'))return{tipo:'Morse',valor:v}}catch{}}
@@ -63,30 +63,30 @@ const handler = async (m, { command, text }) => {
   const isDec = ['desencriptar','decrypt','descriptografar'].includes(command)
 
   if (isEnc) {
-    if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *!encriptar <tipo>: <texto>*\n> Tipos: *base64 · hex · rot13 · url · binario · unicode · md5 · morse*`)
+    if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *!criptografar <tipo>: <texto>*\n> Tipos: *base64 · hex · rot13 · url · binario · unicode · md5 · morse*`)
     const match = text.match(/^([a-zA-Z0-9]+)\s*[:>\-|=>]\s*(.+)$/s)
-    if (!match) return m.reply(`*⌬┤ ✙ ├⌬ FORMATO INCORRECTO.*\n> Usá: *!encriptar base64: hola mundo*`)
+    if (!match) return m.reply(`*⌬┤ ✙ ├⌬ FORMATO INCORRETO.*\n> Use: *!criptografar base64: olá mundo*`)
     const tipo = match[1].trim().toLowerCase()
     const msg  = match[2].trim()
     const fn   = encriptadores[tipo]
-    if (!fn) return m.reply(`*⌬┤ ✙ ├⌬ TIPO NO SOPORTADO.*\n> Tipos: base64, hex, rot13, url, binario, unicode, md5, morse`)
+    if (!fn) return m.reply(`*⌬┤ ✙ ├⌬ TIPO NÃO SUPORTADO.*\n> Tipos: base64, hex, rot13, url, binario, unicode, md5, morse`)
     try {
-      await m.reply(`*⌬┤ 🔐 ├⌬ ENCRIPTADO · ${tipo.toUpperCase()}*\n\n≡ 📝 *Original:* \`${msg}\`\n≡ 🔒 *Resultado:* \`${fn(msg)}\``)
-    } catch { m.reply(`*⌬┤ ❌ ├⌬ ERROR.*`) }
+      await m.reply(`*⌬┤ 🔐 ├⌬ CODIFICADO · ${tipo.toUpperCase()}*\n\n≡ 📝 *Original:* \`${msg}\`\n≡ 🔒 *Resultado:* \`${fn(msg)}\``)
+    } catch { m.reply(`*⌬┤ ❌ ├⌬ ERRO.*`) }
     return
   }
 
   if (isDec) {
-    if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *!desencriptar <texto codificado>*\n> Detecta automáticamente: base64, hex, binario, url, unicode, rot13, morse`)
+    if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *!descriptografar <texto codificado>*\n> Detecta automaticamente: base64, hex, binário, url, unicode, rot13 e morse`)
     try {
       const res = intentarDecodificar(text)
-      if (!res) return m.reply(`*⌬┤ ❌ ├⌬ NO DETECTADO.*\n> No se pudo identificar el formato del texto.`)
-      await m.reply(`*⌬┤ 🔓 ├⌬ DESENCRIPTADO · ${res.tipo}*\n\n≡ 🔒 *Original:* \`${text.slice(0,80)}\`\n≡ 📝 *Resultado:* \`${res.valor}\``)
-    } catch { m.reply(`*⌬┤ ❌ ├⌬ ERROR.*`) }
+      if (!res) return m.reply(`*⌬┤ ❌ ├⌬ FORMATO NÃO DETECTADO.*\n> Não foi possível identificar o formato do texto.`)
+      await m.reply(`*⌬┤ 🔓 ├⌬ DECODIFICADO · ${res.tipo}*\n\n≡ 🔒 *Original:* \`${text.slice(0,80)}\`\n≡ 📝 *Resultado:* \`${res.valor}\``)
+    } catch { m.reply(`*⌬┤ ❌ ├⌬ ERRO.*`) }
   }
 }
 
-handler.help = ['encriptar <tipo>: <texto>', 'desencriptar <texto>']
+handler.help = ['criptografar <tipo>: <texto>', 'descriptografar <texto>']
 handler.command = ['encriptar','encrypt','criptografar','desencriptar','decrypt','descriptografar']
 handler.tags = ['convertidores']
 
