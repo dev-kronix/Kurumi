@@ -16,11 +16,11 @@ const clean = async (...paths) => { for (const p of paths) if (p) await rm(p, { 
 async function runEmojimix(m, conn, text) {
   if (!text?.includes('+')) return m.reply(`*⌬┤ ✙ ├⌬ USO:* !emojimix 😎+😅`)
   const [e1, e2] = text.split('+').map(s => s.trim())
-  if (!e1 || !e2) return m.reply(`*⌬┤ ✙ ├⌬ DOS EMOJIS.*\n> Separalos con *+*`)
-  await m.reply(`*⌬┤ ⏳ ├⌬ Procesando...*`)
+  if (!e1 || !e2) return m.reply(`*⌬┤ ✙ ├⌬ DOIS EMOJIS.*\n> Separe os emojis com *+*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Processando...*`)
   const url = `https://www.gstatic.com/android/keyboard/emojikitchen/20201001/u${toUni(e1)}/u${toUni(e1)}_u${toUni(e2)}.png`
   const res = await fetch(url)
-  if (!res.ok) return m.reply(`*⌬┤ ❌ ├⌬ NO EXISTE.*\n> Esa combinación no existe.`)
+  if (!res.ok) return m.reply(`*⌬┤ ❌ ├⌬ COMBINAÇÃO INDISPONÍVEL.*\n> Essa combinação não existe.`)
   const buffer = await res.buffer()
   const png = tmpFile('png')
   const webpOut = tmpFile('webp')
@@ -35,18 +35,18 @@ async function runEmojimix(m, conn, text) {
 async function runEmojimix2(m, conn, text) {
   if (!text?.includes('+')) return m.reply(`*⌬┤ ✙ ├⌬ USO:* !emojimix2 😎+😅`)
   const [e1, e2] = text.split('+').map(s => s.trim())
-  if (!e1 || !e2) return m.reply(`*⌬┤ ✙ ├⌬ DOS EMOJIS.*\n> Separalos con *+*`)
-  await m.reply(`*⌬┤ ⏳ ├⌬ Procesando...*`)
+  if (!e1 || !e2) return m.reply(`*⌬┤ ✙ ├⌬ DOIS EMOJIS.*\n> Separe os emojis com *+*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Processando...*`)
   const url  = `https://tenor.googleapis.com/v2/featured?key=AIzaSyAyimkuYQYF_FXVALexPuGQctUWRURdCYQ&contentfilter=high&media_filter=png_transparent&component=proactive&collection=emoji_kitchen_v5&q=${encodeURIComponent(e1)}_${encodeURIComponent(e2)}`
   const res  = await fetch(url)
   const json = await res.json()
-  if (!json.results?.length) return m.reply(`*⌬┤ ❌ ├⌬ NO EXISTE.*\n> Esa combinación no existe.`)
+  if (!json.results?.length) return m.reply(`*⌬┤ ❌ ├⌬ COMBINAÇÃO INDISPONÍVEL.*\n> Essa combinação não existe.`)
   for (const r of json.results) await conn.sendMessage(m.chat, { image: { url: r.url } }, { quoted: m })
 }
 
 async function runBrat(m, conn, text) {
   if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO:* !brat <texto>`)
-  await m.reply(`*⌬┤ ⏳ ├⌬ Procesando...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Processando...*`)
   const png = tmpFile('png')
   const webpOut = tmpFile('webp')
   try {
@@ -101,7 +101,7 @@ async function gifToWebp(gifBuffer) {
 
 async function runEmojiSticker(m, conn, text) {
   if (!text?.trim()) return m.reply(`*⌬┤ ✙ ├⌬ USO:* !emojisticker 😎`)
-  await m.reply(`*⌬┤ ⏳ ├⌬ Procesando...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Processando...*`)
   const code = emojiToCode(text.trim())
   if (!code) return m.reply(`*⌬┤ ✙ ├⌬ USO:* !emojisticker 😎`)
   const gifBuf = await fetchEmojiGif(code)
@@ -124,8 +124,8 @@ const handler = async (m, { conn, command, text }) => {
     await run(m, conn, text)
   } catch (e) {
     console.error(`[EMOJIS:${command}]`, e.message)
-    if (e.message === 'noAnimado') return m.reply(`*⌬┤ ❌ ├⌬ SIN ANIMACIÓN.*\n> No se encontró animación para ese emoji.`)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la operación.`)
+    if (e.message === 'noAnimado') return m.reply(`*⌬┤ ❌ ├⌬ SEM ANIMAÇÃO.*\n> Não encontrei uma animação para esse emoji.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a operação.`)
   }
 }
 
