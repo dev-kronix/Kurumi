@@ -2,7 +2,7 @@ import axios from 'axios'
 import fetch from 'node-fetch'
 
 const handler = async (m, { conn, command, text, usedPrefix }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <canción>*`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <música>*`)
 
   if (['genius', 'geniuslyrics', 'letragenius'].includes(command)) {
     await m.reply(`*⌬┤ ⏳ ├⌬ Buscando...*`)
@@ -25,7 +25,7 @@ const handler = async (m, { conn, command, text, usedPrefix }) => {
         if (hit?.image) imagenUrl = hit.image
       } catch {}
       
-      if (!geniusUrl) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontró la letra de esa canción.`)
+      if (!geniusUrl) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei a letra dessa música.`)
       
       let letra = null
       try {
@@ -34,7 +34,7 @@ const handler = async (m, { conn, command, text, usedPrefix }) => {
         letra = lJson?.data?.lyrics || null
       } catch {}
       
-      if (!letra) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontró la letra de esa canción.`)
+      if (!letra) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei a letra dessa música.`)
       
       const truncado = letra.length > 3000 ? letra.slice(0, 3000) + '\n\n... *(letra truncada)*' : letra
       const caption = `🎵 *${titulo}*\n👤 *Artista:* ${artista}\n💿 *Álbum:* ${album}\n\n📖 *Letra:*\n${truncado}`
@@ -48,7 +48,7 @@ const handler = async (m, { conn, command, text, usedPrefix }) => {
         await m.reply(caption) 
       }
     } catch (e) { 
-      await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`) 
+      await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`) 
     }
     return
   }
@@ -61,21 +61,21 @@ const handler = async (m, { conn, command, text, usedPrefix }) => {
         timeout: 15000
       })
       const song = res?.data?.[0]
-      if (!song?.lyrics) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontró la letra de *${text}*.`)
+      if (!song?.lyrics) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei a letra de *${text}*.`)
 
       const truncado = song.lyrics.length > 3000 ? song.lyrics.slice(0, 3000) + '\n\n... *(letra truncada)*' : song.lyrics
       const dur = song.duration ? `${Math.floor(song.duration / 60)}:${String(song.duration % 60).padStart(2, '0')}` : '?'
 
       await m.reply(`*⌬┤ 🎵 ├⌬ ${song.title}*\n> 👤 *${song.artist}*\n> 💿 *${song.album || '?'}* · ⏱️ *${dur}*\n\n${truncado}`)
     } catch {
-      await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`)
+      await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`)
     }
     return
   }
 }
 
-handler.help = ['genius <canción>']
-handler.command = ['genius', 'geniuslyrics', 'letragenius', 'lyrics', 'letracancion', 'songlyrics']
+handler.help = ['genius <música>']
+handler.command = ['genius', 'geniuslyrics', 'letragenius', 'lyrics', 'letracancion', 'songlyrics', 'letramusica']
 handler.tags = ['busquedas']
 
 export default handler
