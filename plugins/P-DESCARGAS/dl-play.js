@@ -12,14 +12,14 @@ const DELIRIUS = 'https://api.delirius.store'
 
 async function ytSearch(query) {
   const { data } = await axios.get(`${DELIRIUS}/search/ytsearch?q=${encodeURIComponent(query)}`, { timeout: 15000 })
-  if (!data?.status || !data?.data?.length) throw new Error('Sin resultados')
+  if (!data?.status || !data?.data?.length) throw new Error('Sem resultados')
   const v = data.data[0]
   return {
     id:        v.videoId,
     url:       v.url || `https://www.youtube.com/watch?v=${v.videoId}`,
-    title:     v.title       || 'Sin título',
-    channel:   v.author?.name || 'Desconocido',
-    views:     Number(v.views || 0).toLocaleString(),
+    title:     v.title       || 'Sem título',
+    channel:   v.author?.name || 'Desconhecido',
+    views:     Number(v.views || 0).toLocaleString('pt-BR'),
     duration:  v.duration    || '',
     thumbnail: v.image       || `https://i.ytimg.com/vi/${v.videoId}/maxresdefault.jpg`,
   }
@@ -35,10 +35,10 @@ async function fetchAudio(url) {
   try {
     const fallbackRes = await playaudio.convert(url, '128k')
     if (fallbackRes?.url) {
-      return { download: fallbackRes.url, title: fallbackRes.filename || 'YouTube Audio' }
+      return { download: fallbackRes.url, title: fallbackRes.filename || 'Áudio do YouTube' }
     }
   } catch {}
-  throw new Error('No se pudo obtener el audio')
+  throw new Error('Não foi possível obter o áudio')
 }
 
 async function fetchVideo(url) {
@@ -51,17 +51,17 @@ async function fetchVideo(url) {
   try {
     const fallbackRes = await playvid.convert(url, '360p')
     if (fallbackRes?.url) {
-      return { download: fallbackRes.url, title: fallbackRes.filename || 'YouTube Video' }
+      return { download: fallbackRes.url, title: fallbackRes.filename || 'Vídeo do YouTube' }
     }
   } catch {}
-  throw new Error('No se pudo obtener el video')
+  throw new Error('Não foi possível obter o vídeo')
 }
 
 const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> Ingresá el nombre de una canción o video.\n\n> *Ejemplo:* ${usedPrefix}${command} linkin park numb`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> Digite o nome de uma música ou vídeo.\n\n> *Exemplo:* ${usedPrefix}${command} linkin park numb`)
 
   if (command === 'playdl') {
-    if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+    if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
     const [type, ...idParts] = text.split(' ')
     const videoId = idParts.join(' ')
@@ -74,13 +74,13 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     const ext     = isAudio ? 'mp3' : 'mp4'
     const ytUrl   = `https://www.youtube.com/watch?v=${videoId}`
 
-    await m.reply(`*⌬┤ ⏳ ├⌬ DESCARGANDO...*\n\n> _Esto puede tardar un momento..._`)
+    await m.reply(`*⌬┤ ⏳ ├⌬ BAIXANDO...*\n\n> _Isso pode levar alguns instantes..._`)
 
     const tmpDir = path.resolve('./tmp')
     if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true })
     const localPath = path.join(tmpDir, `playdl_${Date.now()}.${ext}`)
 
-    let dlTitle    = 'YouTube Media'
+    let dlTitle    = 'Mídia do YouTube'
     let downloaded = false
 
     try {
@@ -96,29 +96,29 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (!downloaded) {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
       await rm(localPath, { force: true }).catch(() => {})
-      return m.reply(`*⌬┤ ✙ ├⌬ ERROR.*\n> No se pudo descargar. Puede tener restricción o copyright.`)
+      return m.reply(`*⌬┤ ✙ ├⌬ ERRO.*\n> Não foi possível baixar. O conteúdo pode possuir alguma restrição ou direitos autorais.`)
     }
 
     try {
       if (isAudio) {
         if (isDoc) {
-          await conn.sendMessage(m.chat, { document: { url: localPath }, mimetype: 'audio/mpeg', fileName: `${dlTitle}.mp3`, caption: `*⌬┤ 🎧 ├⌬ AUDIO DOC*` }, { quoted: m })
+          await conn.sendMessage(m.chat, { document: { url: localPath }, mimetype: 'audio/mpeg', fileName: `${dlTitle}.mp3`, caption: `*⌬┤ 🎧 ├⌬ ÁUDIO · DOCUMENTO*` }, { quoted: m })
         } else {
           await conn.sendMessage(m.chat, { audio: { url: localPath }, mimetype: 'audio/mpeg', fileName: `${dlTitle}.mp3` }, { quoted: m })
         }
       } else {
         if (isDoc) {
-          await conn.sendMessage(m.chat, { document: { url: localPath }, mimetype: 'video/mp4', fileName: `${dlTitle}.mp4`, caption: `*⌬┤ 🎬 ├⌬ VIDEO DOC*` }, { quoted: m })
+          await conn.sendMessage(m.chat, { document: { url: localPath }, mimetype: 'video/mp4', fileName: `${dlTitle}.mp4`, caption: `*⌬┤ 🎬 ├⌬ VÍDEO · DOCUMENTO*` }, { quoted: m })
         } else {
           await conn.sendMessage(m.chat, { video: { url: localPath }, mimetype: 'video/mp4', caption: `*⌬┤ 🎬 ├⌬ ${dlTitle}*`, fileName: `${dlTitle}.mp4` }, { quoted: m })
         }
       }
       userDb.kogen -= 1
-      await conn.sendMessage(m.chat, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+      await conn.sendMessage(m.chat, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
       await conn.sendMessage(m.chat, { react: { text: '✅', key: m.key } })
     } catch {
       await conn.sendMessage(m.chat, { react: { text: '❌', key: m.key } })
-      m.reply(`*⌬┤ ✙ ├⌬ ERROR.*\n> Hubo un error al enviar el archivo.`)
+      m.reply(`*⌬┤ ✙ ├⌬ ERRO.*\n> Ocorreu um erro ao enviar o arquivo.`)
     } finally {
       await rm(localPath, { force: true }).catch(() => {})
     }
@@ -132,21 +132,21 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
   try {
     videoInfo = await ytSearch(text)
   } catch {
-    return m.reply(`*⌬┤ ✙ ├⌬ ERROR.*\n> No se encontraron resultados. Intentá con otro título.`)
+    return m.reply(`*⌬┤ ✙ ├⌬ ERRO.*\n> Nenhum resultado encontrado. Tente outro título.`)
   }
 
-  const infoText = `*⌬┤ 🎵 ├⌬ YOUTUBE PLAY*\n\n> *Título:* ${videoInfo.title}\n> *Autor:* ${videoInfo.channel}\n> *Duración:* ${videoInfo.duration}\n> *Vistas:* ${videoInfo.views}\n> *Enlace:* ${videoInfo.url}\n\n> *Elige una opción para descargar:*`
-  const isLid    = sender.includes('@lid')
+  const infoText = `*⌬┤ 🎵 ├⌬ YOUTUBE PLAY*\n\n> *Título:* ${videoInfo.title}\n> *Autor:* ${videoInfo.channel}\n> *Duração:* ${videoInfo.duration}\n> *Visualizações:* ${videoInfo.views}\n> *Link:* ${videoInfo.url}\n\n> *Escolha uma opção para download:*`
+  const isLid = sender.includes('@lid')
 
   const nativeFlowButtons = [{
-    text: `Elegir formato ⚙️`,
+    text: `Escolher formato ⚙️`,
     sections: [{
-      title: `✧ Opciones Disponibles ✧`,
+      title: `✧ Opções disponíveis ✧`,
       rows: [
-        { header: '', title: `🎧 | Audio (MP3)`,       description: `» Reproductor de audio estándar`,  id: `${usedPrefix}playdl ytmp3_norm ${videoInfo.id}` },
-        { header: '', title: `📁 | Audio (Documento)`, description: `» Archivo original descargable`,    id: `${usedPrefix}playdl ytmp3_doc ${videoInfo.id}`  },
-        { header: '', title: `📽️ | Video (MP4)`,       description: `» Reproductor de video estándar`,  id: `${usedPrefix}playdl ytmp4_norm ${videoInfo.id}` },
-        { header: '', title: `📄 | Video (Documento)`, description: `» Archivo original descargable`,    id: `${usedPrefix}playdl ytmp4_doc ${videoInfo.id}`  },
+        { header: '', title: `🎧 | Áudio (MP3)`,       description: `» Reprodutor de áudio padrão`, id: `${usedPrefix}playdl ytmp3_norm ${videoInfo.id}` },
+        { header: '', title: `📁 | Áudio (Documento)`, description: `» Arquivo original para download`, id: `${usedPrefix}playdl ytmp3_doc ${videoInfo.id}` },
+        { header: '', title: `📽️ | Vídeo (MP4)`,       description: `» Reprodutor de vídeo padrão`, id: `${usedPrefix}playdl ytmp4_norm ${videoInfo.id}` },
+        { header: '', title: `📄 | Vídeo (Documento)`, description: `» Arquivo original para download`, id: `${usedPrefix}playdl ytmp4_doc ${videoInfo.id}` },
       ]
     }]
   }]

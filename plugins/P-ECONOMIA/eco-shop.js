@@ -2,65 +2,65 @@ import User from '../../lib/database/models/zen-users.js'
 import config from '../../config.js'
 
 const items = [
-  { id: 'p_normal',  n: '⚒️ Pico Normal',     v: 4000,  cat: 'normal',    lim: 8, dur: 10, sec: 'tools', desc: 'Mejora tus probabilidades al minar.' },
-  { id: 'p_rare',    n: '✨ Pico Raro',        v: 12000, cat: 'rare',      lim: 5, dur: 5,  sec: 'tools', desc: 'Más chances de minerales raros.' },
-  { id: 'p_mythic',  n: '🌌 Pico Mítico',      v: 35000, cat: 'mythic',    lim: 2, dur: 3,  sec: 'tools', desc: 'Desbloquea minerales míticos.' },
+  { id: 'p_normal',  n: '⚒️ Picareta Normal',     v: 4000,  cat: 'normal',    lim: 8, dur: 10, sec: 'tools', desc: 'Melhora suas chances ao minerar.' },
+  { id: 'p_rare',    n: '✨ Picareta Rara',        v: 12000, cat: 'rare',      lim: 5, dur: 5,  sec: 'tools', desc: 'Aumenta a chance de encontrar minerais raros.' },
+  { id: 'p_mythic',  n: '🌌 Picareta Mítica',      v: 35000, cat: 'mythic',    lim: 2, dur: 3,  sec: 'tools', desc: 'Desbloqueia minerais míticos.' },
 
-  { id: 'h_normal',  n: '🏹 Arco Madera',      v: 3500,  cat: 'normal',    lim: 8, dur: 8,  sec: 'tools', desc: 'Mejora tus cacerías básicas.' },
-  { id: 'h_rare',    n: '🏹 Arco Compuesto',   v: 11000, cat: 'rare',      lim: 5, dur: 5,  sec: 'tools', desc: 'Presas más valiosas al cazar.' },
-  { id: 'h_mythic',  n: '🏹 Arco Artemis',     v: 30000, cat: 'mythic',    lim: 2, dur: 2,  sec: 'tools', desc: 'La élite de la cacería.' },
+  { id: 'h_normal',  n: '🏹 Arco de Madeira',      v: 3500,  cat: 'normal',    lim: 8, dur: 8,  sec: 'tools', desc: 'Melhora suas caçadas básicas.' },
+  { id: 'h_rare',    n: '🏹 Arco Composto',        v: 11000, cat: 'rare',      lim: 5, dur: 5,  sec: 'tools', desc: 'Permite encontrar presas mais valiosas.' },
+  { id: 'h_mythic',  n: '🏹 Arco de Ártemis',      v: 30000, cat: 'mythic',    lim: 2, dur: 2,  sec: 'tools', desc: 'A elite da caça.' },
 
-  { id: 'f_normal',  n: '🪱 Carnada Gusano',   v: 2500,  cat: 'normal',    lim: 8, dur: 15, sec: 'tools', desc: 'Pesca básica mejorada.' },
-  { id: 'f_rare',    n: '✨ Carnada Dorada',    v: 9000,  cat: 'rare',      lim: 5, dur: 8,  sec: 'tools', desc: 'Atrae peces raros.' },
-  { id: 'f_mythic',  n: '🌌 Esencia Kraken',   v: 22000, cat: 'mythic',    lim: 2, dur: 4,  sec: 'tools', desc: 'Pesca criaturas legendarias.' },
+  { id: 'f_normal',  n: '🪱 Isca de Minhoca',      v: 2500,  cat: 'normal',    lim: 8, dur: 15, sec: 'tools', desc: 'Melhora a pesca básica.' },
+  { id: 'f_rare',    n: '✨ Isca Dourada',          v: 9000,  cat: 'rare',      lim: 5, dur: 8,  sec: 'tools', desc: 'Atrai peixes raros.' },
+  { id: 'f_mythic',  n: '🌌 Essência de Kraken',    v: 22000, cat: 'mythic',    lim: 2, dur: 4,  sec: 'tools', desc: 'Atrai criaturas lendárias.' },
 
-  { id: 'sword_normal',    n: '⚔️ Espada de Honor',     v: 3000,   cat: 'sword',    lim: 5, sec: 'swords', dur: 1, buff: 1.15, desc: '+15% daño en duelos · 1 uso' },
-  { id: 'sword_rare',      n: '🗡️ Espada Encantada',    v: 9500,   cat: 'sword',    lim: 4, sec: 'swords', dur: 2, buff: 1.30, desc: '+30% daño en duelos · 2 usos' },
-  { id: 'sword_mythic',    n: '🌌 Espada del Vacío',    v: 28000,  cat: 'sword',    lim: 2, sec: 'swords', dur: 3, buff: 1.50, desc: '+50% daño en duelos · 3 usos' },
-  { id: 'sword_legendary', n: '🔥 Excalibur Reforjada', v: 120000,  cat: 'legendary',lim: 1, sec: 'swords', dur: 5, buff: 1.80, desc: '+80% daño en duelos · 5 usos' },
+  { id: 'sword_normal',    n: '⚔️ Espada da Honra',       v: 3000,   cat: 'sword',     lim: 5, sec: 'swords', dur: 1, buff: 1.15, desc: '+15% de dano em duelos · 1 uso' },
+  { id: 'sword_rare',      n: '🗡️ Espada Encantada',      v: 9500,   cat: 'sword',     lim: 4, sec: 'swords', dur: 2, buff: 1.30, desc: '+30% de dano em duelos · 2 usos' },
+  { id: 'sword_mythic',    n: '🌌 Espada do Vazio',        v: 28000,  cat: 'sword',     lim: 2, sec: 'swords', dur: 3, buff: 1.50, desc: '+50% de dano em duelos · 3 usos' },
+  { id: 'sword_legendary', n: '🔥 Excalibur Reforjada',   v: 120000, cat: 'legendary', lim: 1, sec: 'swords', dur: 5, buff: 1.80, desc: '+80% de dano em duelos · 5 usos' },
 
-  { id: 'potion_normal', n: '🧪 Poción de Vida',     v: 2500,  cat: 'potion', lim: 5, sec: 'potions', buff: 200, desc: '+200 PV en tu próximo duelo' },
-  { id: 'potion_rare',   n: '💉 Elixir Mayor',       v: 7000,  cat: 'potion', lim: 4, sec: 'potions', buff: 350, desc: '+350 PV en tu próximo duelo' },
-  { id: 'potion_mythic', n: '🌟 Néctar Divino',      v: 18000, cat: 'potion', lim: 2, sec: 'potions', buff: 600, desc: '+600 PV en tu próximo duelo' },
+  { id: 'potion_normal', n: '🧪 Poção de Vida',       v: 2500,  cat: 'potion', lim: 5, sec: 'potions', buff: 200, desc: '+200 PV no próximo duelo' },
+  { id: 'potion_rare',   n: '💉 Elixir Maior',        v: 7000,  cat: 'potion', lim: 4, sec: 'potions', buff: 350, desc: '+350 PV no próximo duelo' },
+  { id: 'potion_mythic', n: '🌟 Néctar Divino',       v: 18000, cat: 'potion', lim: 2, sec: 'potions', buff: 600, desc: '+600 PV no próximo duelo' },
 
-  { id: 'shield_normal', n: '🛡️ Escudo Energía',   v: 1500,  cat: 'shield', lim: 6, sec: 'shields', desc: 'Bloquea 1 intento de robo' },
-  { id: 'shield_rare',   n: '🔰 Escudo Reforzado',  v: 4500,  cat: 'shield', lim: 4, sec: 'shields', desc: 'Bloquea 1 robo + devuelve 5% al ladrón' },
-  { id: 'shield_mythic', n: '✨ Aegis Arcano',      v: 13000, cat: 'shield', lim: 2, sec: 'shields', desc: 'Bloquea 1 robo + devuelve 15% al ladrón' },
+  { id: 'shield_normal', n: '🛡️ Escudo de Energia',   v: 1500,  cat: 'shield', lim: 6, sec: 'shields', desc: 'Bloqueia 1 tentativa de roubo' },
+  { id: 'shield_rare',   n: '🔰 Escudo Reforçado',    v: 4500,  cat: 'shield', lim: 4, sec: 'shields', desc: 'Bloqueia 1 roubo e penaliza o ladrão em 5%' },
+  { id: 'shield_mythic', n: '✨ Aegis Arcano',        v: 13000, cat: 'shield', lim: 2, sec: 'shields', desc: 'Bloqueia 1 roubo e penaliza o ladrão em 15%' },
 
-  { id: 'amulet_fortune', n: '🍀 Amuleto de Fortuna',   v: 40000, cat: 'amulet', lim: 1, sec: 'amulets', desc: '+10% ganancias en trabajo y crimen' },
-  { id: 'amulet_thief',   n: '🥷 Amuleto del Ladrón',   v: 45000, cat: 'amulet', lim: 1, sec: 'amulets', desc: '+10% éxito al robar' },
-  { id: 'amulet_miner',   n: '⛏️ Amuleto del Minero',   v: 45000, cat: 'amulet', lim: 1, sec: 'amulets', desc: '+10% probabilidad de objetos raros al minar' },
-  { id: 'amulet_gambler', n: '🎲 Amuleto del Tahúr',    v: 50000, cat: 'amulet', lim: 1, sec: 'amulets', desc: '+5% probabilidad de ganar en ruleta/slots' },
+  { id: 'amulet_fortune', n: '🍀 Amuleto da Fortuna',    v: 40000, cat: 'amulet', lim: 1, sec: 'amulets', desc: '+10% de ganhos em trabalho e crime' },
+  { id: 'amulet_thief',   n: '🥷 Amuleto do Ladrão',     v: 45000, cat: 'amulet', lim: 1, sec: 'amulets', desc: '+10% de chance de sucesso ao roubar' },
+  { id: 'amulet_miner',   n: '⛏️ Amuleto do Minerador',  v: 45000, cat: 'amulet', lim: 1, sec: 'amulets', desc: '+10% de chance de itens raros ao minerar' },
+  { id: 'amulet_gambler', n: '🎲 Amuleto do Apostador',  v: 50000, cat: 'amulet', lim: 1, sec: 'amulets', desc: '+5% de chance de ganhar em roleta/slots' },
 
-  { id: 'suit', n: '👔 Capa de Magnate',  v: 5000, cat: 'suit', lim: 5, sec: 'cosmetics', desc: 'Permite usar !trabajar con bono x2 (1/día)' },
-  { id: 'mask', n: '👺 Máscara Hacker',   v: 7500, cat: 'mask', lim: 5, sec: 'cosmetics', desc: 'Garantiza éxito en el próximo crimen (1/día)' },
+  { id: 'suit', n: '👔 Capa de Magnata',  v: 5000, cat: 'suit', lim: 5, sec: 'cosmetics', desc: 'Concede bônus no comando !trabalhar (1 vez por dia)' },
+  { id: 'mask', n: '👺 Máscara Hacker',    v: 7500, cat: 'mask', lim: 5, sec: 'cosmetics', desc: 'Garante sucesso no próximo crime (1 vez por dia)' },
 
-  { id: 'title_cazador',   n: '🏷️ Título: "El Cazador"',     v: 6000,  cat: 'cosmetic', lim: 3, sec: 'titles', desc: 'Mostrá tu título en !mochila y !perfil' },
-  { id: 'title_magnate',   n: '🏷️ Título: "Magnate"',        v: 15000, cat: 'cosmetic', lim: 3, sec: 'titles', desc: 'Para los más ricos del servidor' },
-  { id: 'title_legendario',n: '🏷️ Título: "Leyenda Viva"',   v: 50000, cat: 'cosmetic', lim: 1, sec: 'titles', desc: 'Solo para los más dedicados' },
-  { id: 'title_sombra',    n: '🏷️ Título: "Sombra"',         v: 20000, cat: 'cosmetic', lim: 2, sec: 'titles', desc: 'Para los maestros del sigilo' },
+  { id: 'title_cazador',    n: '🏷️ Título: "O Caçador"',    v: 6000,  cat: 'cosmetic', lim: 3, sec: 'titles', desc: 'Exibe seu título em !mochila e !perfil' },
+  { id: 'title_magnate',    n: '🏷️ Título: "Magnata"',      v: 15000, cat: 'cosmetic', lim: 3, sec: 'titles', desc: 'Para os mais ricos do servidor' },
+  { id: 'title_legendario', n: '🏷️ Título: "Lenda Viva"',  v: 50000, cat: 'cosmetic', lim: 1, sec: 'titles', desc: 'Para os jogadores mais dedicados' },
+  { id: 'title_sombra',     n: '🏷️ Título: "Sombra"',       v: 20000, cat: 'cosmetic', lim: 2, sec: 'titles', desc: 'Para os mestres da furtividade' },
 
-  { id: 'relic_corona', n: '👑 Corona del Vacío',      v: 150000, cat: 'legendary', lim: 1, sec: 'relics', desc: 'Reliquia coleccionable · badge exclusivo' },
-  { id: 'relic_orbe',   n: '🔮 Orbe de los Ancestros', v: 90000,  cat: 'legendary', lim: 1, sec: 'relics', desc: 'Reliquia coleccionable · badge exclusivo' },
-  { id: 'relic_fenix',  n: '🐦‍🔥 Pluma de Fénix',       v: 120000, cat: 'legendary', lim: 1, sec: 'relics', desc: 'Reliquia coleccionable · badge exclusivo' },
+  { id: 'relic_corona', n: '👑 Coroa do Vazio',       v: 150000, cat: 'legendary', lim: 1, sec: 'relics', desc: 'Relíquia colecionável · insígnia exclusiva' },
+  { id: 'relic_orbe',   n: '🔮 Orbe dos Ancestrais',  v: 90000,  cat: 'legendary', lim: 1, sec: 'relics', desc: 'Relíquia colecionável · insígnia exclusiva' },
+  { id: 'relic_fenix',  n: '🐦‍🔥 Pena de Fênix',      v: 120000, cat: 'legendary', lim: 1, sec: 'relics', desc: 'Relíquia colecionável · insígnia exclusiva' },
 ]
 
 const SECCIONES = [
-  { key: 'tools',     titulo: '⚒️ HERRAMIENTAS' },
-  { key: 'swords',    titulo: '⚔️ ARMERÍA — ESPADAS' },
-  { key: 'potions',   titulo: '🧪 ARMERÍA — POCIONES' },
-  { key: 'shields',   titulo: '🛡️ ARMERÍA — ESCUDOS' },
+  { key: 'tools',     titulo: '⚒️ FERRAMENTAS' },
+  { key: 'swords',    titulo: '⚔️ ARSENAL · ESPADAS' },
+  { key: 'potions',   titulo: '🧪 ARSENAL · POÇÕES' },
+  { key: 'shields',   titulo: '🛡️ ARSENAL · ESCUDOS' },
   { key: 'amulets',   titulo: '🔱 AMULETOS' },
-  { key: 'cosmetics', titulo: '✨ BUFFS COSMÉTICOS' },
+  { key: 'cosmetics', titulo: '✨ BÔNUS ESPECIAIS' },
   { key: 'titles',    titulo: '🏷️ TÍTULOS' },
-  { key: 'relics',    titulo: '💎 RELIQUIAS MÍTICAS' },
+  { key: 'relics',    titulo: '💎 RELÍQUIAS MÍTICAS' },
 ]
 
 const handler = async (m, { text, usedPrefix, command, userDb }) => {
   if (!userDb) return
 
   if (!text) {
-    let txt = `*╔═══⌦ ✦ 🛒 ZEN-SHOP ✦ ⌫═══╗*\n`
+    let txt = `*╔═══⌦ ✦ 🛒 KURUMI SHOP ✦ ⌫═══╗*\n`
 
     let n = 1
     for (const sec of SECCIONES) {
@@ -70,7 +70,7 @@ const handler = async (m, { text, usedPrefix, command, userDb }) => {
       for (const item of secItems) {
         const currentPurchases = userDb.dailyStats[`buy_${item.cat}`] || 0
         txt += `*${n}.* ${item.n} [${currentPurchases}/${item.lim}]\n`
-        txt += `   💰 ${item.v.toLocaleString('es-AR')} ${config.CURRENCY_NAME}`
+        txt += `   💰 ${item.v.toLocaleString('pt-BR')} ${config.CURRENCY_NAME}`
         if (item.desc) txt += ` — _${item.desc}_`
         txt += `\n`
         n++
@@ -83,26 +83,26 @@ const handler = async (m, { text, usedPrefix, command, userDb }) => {
 
   const i = parseInt(text) - 1
   const item = items[i]
-  if (!item) return m.reply('*⌬┤ ⚠️ · Ítem inválido.*')
+  if (!item) return m.reply('*⌬┤ ⚠️ · Item inválido.*')
 
   const currentCount = userDb.dailyStats[`buy_${item.cat}`] || 0
   if (currentCount >= item.lim) {
-    return m.reply(`*⌬┤ 🚫 ├⌬ LÍMITE ALCANZADO.*\n> Ya compraste demasiados de esta categoría hoy (${item.lim}/${item.lim}).`)
+    return m.reply(`*⌬┤ 🚫 ├⌬ LIMITE ATINGIDO.*\n> Você já comprou o limite desta categoria hoje (${item.lim}/${item.lim}).`)
   }
 
-  if (userDb.zenCoins < item.v) return m.reply('*⌬┤ ❌ · FONDOS INSUFICIENTES.*')
+  if (userDb.zenCoins < item.v) return m.reply('*⌬┤ ❌ · SALDO INSUFICIENTE.*')
 
   if (['suit', 'mask'].includes(item.id) && userDb.inventory[item.id]) {
-    return m.reply('*⌬┤ ⚠️ · Ya tienes este objeto equipado. Úsalo primero.*')
+    return m.reply('*⌬┤ ⚠️ · Você já possui este item equipado. Use-o primeiro.*')
   }
   if (item.sec === 'amulets' && userDb.inventory.amulet !== 'none') {
-    return m.reply(`*⌬┤ ⚠️ · Ya tenés un amuleto equipado (${userDb.inventory.amulet}). Reemplazalo comprando otro tipo o consultá !inventario.*`)
+    return m.reply(`*⌬┤ ⚠️ · Você já possui um amuleto equipado (${userDb.inventory.amulet}). Compre outro tipo para substituí-lo ou consulte !inventario.*`)
   }
   if (item.sec === 'titles' && userDb.inventory.titles?.includes(item.id)) {
-    return m.reply('*⌬┤ ⚠️ · Ya tenés este título desbloqueado.*')
+    return m.reply('*⌬┤ ⚠️ · Você já desbloqueou este título.*')
   }
   if (item.sec === 'relics' && userDb.inventory.badges?.includes(item.id)) {
-    return m.reply('*⌬┤ ⚠️ · Ya posees esta reliquia.*')
+    return m.reply('*⌬┤ ⚠️ · Você já possui esta relíquia.*')
   }
 
   const update = { $inc: { zenCoins: -item.v, [`dailyStats.buy_${item.cat}`]: 1 }, $set: {} }
@@ -182,11 +182,11 @@ const handler = async (m, { text, usedPrefix, command, userDb }) => {
   if (Object.keys(update.$set).length === 0) delete update.$set
   await User.updateOne({ jid: m.sender }, update)
 
-  m.reply(`*⌬┤ ✅ ├⌬ COMPRA EXITOSA*\n> Has adquirido: *${item.n}*\n> _Balance diario: ${userDb.dailyStats[`buy_${item.cat}`]}/${item.lim}_`)
+  m.reply(`*⌬┤ ✅ ├⌬ COMPRA CONCLUÍDA*\n> Você adquiriu: *${item.n}*\n> _Limite diário: ${userDb.dailyStats[`buy_${item.cat}`]}/${item.lim}_`)
 }
 
-handler.help = ['shop', 'tienda', 'buy']
+handler.help = ['loja', 'shop', 'buy']
 handler.tags = ['eco']
-handler.command = ['shop', 'tienda', 'buy']
+handler.command = ['shop', 'tienda', 'loja', 'buy', 'comprar']
 handler.register = true
 export default handler

@@ -1,52 +1,44 @@
+import fs from 'fs'
+import path from 'path'
 import { tmpdir } from 'os'
-import { join } from 'path'
-import { writeFileSync, readFileSync } from 'fs'
-import { rm } from 'fs/promises'
 import { execSync } from 'child_process'
+import { rm } from 'fs/promises'
 
-const tmp = ext => join(tmpdir(), `conv_${Date.now()}.${ext}`)
-const clean = async (...ps) => { for (const p of ps) if (p) await rm(p, { force: true }).catch(() => {}) }
+const tmpFile = ext => path.join(tmpdir(), `audio_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`)
 
 const handler = async (m, { conn, command }) => {
-  const mtype = m.quoted?.mtype || m.mtype
+  const q = m.quoted || m
+  const mime = q.mimetype || q.msg?.mimetype || ''
+  if (!/video|audio|document/.test(mime)) return m.reply(`*⌬┤ ✙ ├⌬ SEM MÍDIA.*\n> Envie ou responda a um vídeo ou áudio.`)
 
-  if (command === 'todoc' || command === 'todocumento') {
-    if (mtype !== 'videoMessage' && mtype !== 'audioMessage')
-      return m.reply(`*⌬┤ ✙ ├⌬ SIN ARCHIVO.*\n> Respondé un video o audio para convertirlo a documento.`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Convertendo...*`)
 
-    await m.reply(`*⌬┤ ⏳ ├⌬ Convirtiendo...*`)
-    try {
-      const isVid = mtype === 'videoMessage'
-      const buffer = await (m.quoted || m).download()
-      if (!buffer) throw new Error('Sin buffer')
-      await conn.sendMessage(m.chat, {
-        document: buffer,
-        mimetype: isVid ? 'video/mp4' : 'audio/mpeg',
-        fileName: isVid ? 'archivo.mp4' : 'archivo.mp3'
-      }, { quoted: m })
-    } catch {
-      m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo convertir.`)
-    }
-    return
-  }
+  const isPtt = ['tovn', 'toptt', 'voz', 'audioptt'].includes(command)
+  const inputPath = tmpFile('bin')
+  const outputPath = tmpFile(isPtt ? 'ogg' : 'mp3')
 
-  if (mtype !== 'videoMessage') return m.reply(`*⌬┤ ✙ ├⌬ SIN VIDEO.*\n> Respondé un video para pasarlo a audio.`)
-  await m.reply(`*⌬┤ ⏳ ├⌬ Extrayendo audio...*`)
-  let i, o
   try {
-    const buffer = await (m.quoted || m).download()
-    if (!buffer) throw new Error('Sin buffer')
-    i = tmp('mp4'); o = tmp('mp3')
-    writeFileSync(i, buffer)
-    execSync(`ffmpeg -y -i "${i}" -vn -acodec libmp3lame -q:a 2 "${o}"`, { stdio: 'pipe', timeout: 60000 })
-    await conn.sendMessage(m.chat, { audio: readFileSync(o), mimetype: 'audio/mpeg', ptt: false }, { quoted: m })
-  } catch {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo extraer el audio.`)
-  } finally { await clean(i, o) }
+    const buffer = await q.download()
+    fs.writeFileSync(inputPath, buffer)
+
+    if (isPtt) {
+      execSync(`ffmpeg -y -i "${inputPath}" -vn -c:a libopus -b:a 64k -vbr on -compression_level 10 "${outputPath}"`, { stdio: 'pipe', timeout: 120000 })
+      await conn.sendMessage(m.chat, { audio: fs.readFileSync(outputPath), mimetype: 'audio/ogg; codecs=opus', ptt: true }, { quoted: m })
+    } else {
+      execSync(`ffmpeg -y -i "${inputPath}" -vn -c:a libmp3lame -b:a 192k "${outputPath}"`, { stdio: 'pipe', timeout: 120000 })
+      await conn.sendMessage(m.chat, { audio: fs.readFileSync(outputPath), mimetype: 'audio/mpeg', ptt: false, fileName: 'audio.mp3' }, { quoted: m })
+    }
+  } catch (e) {
+    console.error('[TOAUDIO]', e.message)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível converter a mídia para áudio.`)
+  } finally {
+    await rm(inputPath, { force: true }).catch(() => {})
+    await rm(outputPath, { force: true }).catch(() => {})
+  }
 }
 
-handler.help = ['toaudio', 'todoc']
-handler.command = ['toaudio', 'tomp3', 'todoc', 'todocumento']
+handler.help = ['toaudio', 'tovn']
+handler.command = ['toaudio', 'mp3', 'audio', 'tomp3', 'tovn', 'toptt', 'voz', 'audioptt']
 handler.tags = ['convertidores']
 
 export default handler

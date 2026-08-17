@@ -1,43 +1,45 @@
-const OPCIONES = {
-  'all': 'todos',
-  'contacts': 'contactos',
-  'contact_blacklist': 'contactos excepto...',
-  'none': 'nadie'
-}
-
-const CONFIGS = {
-  'lastseen':   { fn: 'updateLastSeenPrivacy',       label: 'Último visto' },
-  'foto':       { fn: 'updateProfilePicturePrivacy',  label: 'Foto de perfil' },
-  'bio':        { fn: 'updateStatusPrivacy',           label: 'Bio / Estado' },
-  'grupos':     { fn: 'updateGroupsAddPrivacy',        label: 'Quién te agrega a grupos' },
-  'llamadas':   { fn: 'updateCallPrivacy',             label: 'Llamadas' },
-  'ticks':      { fn: 'updateReadReceiptsPrivacy',     label: 'Confirmaciones de lectura' },
-}
-
-const handler = async (m, { conn, args, usedPrefix, command }) => {
-  const tipo = args[0]?.toLowerCase()
-  const valor = args[1]?.toLowerCase()
-
-  if (!tipo || !CONFIGS[tipo]) {
-    const lista = Object.entries(CONFIGS).map(([k, v]) => `▢ *${k}* — ${v.label}`).join('\n')
-    const vals = Object.entries(OPCIONES).map(([k, v]) => `▢ *${k}* → ${v}`).join('\n')
-    return m.reply(
-      `*⌬┤ 🔒 ├⌬ PRIVACIDAD DEL BOT.*\n\n*Configuraciones:*\n${lista}\n\n*Valores posibles:*\n${vals}\n\n*Uso:* ${usedPrefix}${command} <config> <valor>\n*Ej:* ${usedPrefix}${command} lastseen none`
-    )
+const handler = async (m, { conn, command, text, usedPrefix }) => {
+  const priv = command.replace(/^privacy/, '')
+  const accion = text?.toLowerCase()
+  if (!['all', 'contacts', 'contactos', 'contatos', 'none', 'nobody', 'ninguno', 'ninguem', 'known'].includes(accion)) {
+    return m.reply(`*⌬┤ ✙ ├⌬ USO:* ${usedPrefix + command} <all | contacts | none>`)
   }
 
-  if (!valor || !OPCIONES[valor]) {
-    return m.reply(`*⌬┤ ⚠️ ├⌬ VALOR INVÁLIDO.*\n> Valores: *all*, *contacts*, *contact_blacklist*, *none*`)
+  const value = ['all'].includes(accion) ? 'all'
+    : ['contacts', 'contactos', 'contatos', 'known'].includes(accion) ? 'contacts'
+    : 'none'
+
+  const map = {
+    lastseen:   () => conn.updateLastSeenPrivacy(value),
+    online:     () => conn.updateOnlinePrivacy(value),
+    profile:    () => conn.updateProfilePicturePrivacy(value),
+    foto:       () => conn.updateProfilePicturePrivacy(value),
+    status:     () => conn.updateStatusPrivacy(value),
+    estado:     () => conn.updateStatusPrivacy(value),
+    read:       () => conn.updateReadReceiptsPrivacy(value),
+    lectura:    () => conn.updateReadReceiptsPrivacy(value),
+    leitura:    () => conn.updateReadReceiptsPrivacy(value),
+    groupsadd:  () => conn.updateGroupsAddPrivacy(value),
+    groups:     () => conn.updateGroupsAddPrivacy(value),
+    grupos:     () => conn.updateGroupsAddPrivacy(value),
+    calls:      () => conn.updateCallPrivacy(value),
+    chamadas:   () => conn.updateCallPrivacy(value),
   }
 
-  const { fn, label } = CONFIGS[tipo]
-  await conn[fn](valor)
-  m.reply(`*⌬┤ ✅ ├⌬ PRIVACIDAD ACTUALIZADA.*\n▢ *${label}:* ${OPCIONES[valor]}`)
+  if (!map[priv]) return m.reply(`*⌬┤ ✙ ├⌬ TIPO INVÁLIDO.*`)
+
+  try {
+    await map[priv]()
+    m.reply(`*⌬┤ ✅ ├⌬ PRIVACIDADE ATUALIZADA.*\n> *${priv}* → *${value}*`)
+  } catch (e) {
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> ${e.message}`)
+  }
 }
 
-handler.help = ['privacidad <config> <valor>']
+handler.help = ['privacylastseen <all/contacts/none>']
+handler.command = ['privacylastseen','privacyonline','privacyprofile','privacyfoto','privacystatus','privacyestado','privacyread','privacyleitura','privacygroupsadd','privacygroups','privacygrupos','privacycalls','privacychamadas']
 handler.tags = ['owner']
-handler.command = ['privacidad', 'privacy']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler

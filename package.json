@@ -1,11 +1,11 @@
 {
-  "name": "zenbot",
-  "version": "8.0.0",
+  "name": "kurumi-whatsapp-bot",
+  "version": "8.1.0",
   "type": "module",
-  "main": "zen.js",
+  "main": "kurumi.js",
   "scripts": {
-    "start": "node zen.js",
-    "dev": "node zen.js"
+    "start": "node kurumi.js",
+    "dev": "node kurumi.js"
   },
   "dependencies": {
     "@adiwajshing/keyed-db": "^0.2.4",

@@ -21,7 +21,7 @@ async function downloadApk(url, destPath) {
   })
   await pipeline(res.data, createWriteStream(destPath))
   const { size } = statSync(destPath)
-  if (size < 1000) throw new Error('Archivo demasiado pequeño')
+  if (size < 1000) throw new Error('Arquivo muito pequeno')
   return size
 }
 
@@ -37,8 +37,8 @@ async function fetchInfo(packageId) {
 }
 
 const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <nombre o package ID>*`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <nome ou package ID>*`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
   const input  = text.trim()
@@ -53,17 +53,17 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
 
   if (packageId) {
     const tmpPath = join(TMP_DIR, `${randomUUID()}.apk`)
-    await m.reply(`*⌬┤ ⏳ ├⌬ Obteniendo info de la app...*`)
+    await m.reply(`*⌬┤ ⏳ ├⌬ Obtendo informações do aplicativo...*`)
     try {
       const info = await fetchInfo(packageId)
-      if (!info?.download) return m.reply(`*⌬┤ ❌ ├⌬ No se encontró la app o no tiene descarga disponible.*`)
+      if (!info?.download) return m.reply(`*⌬┤ ❌ ├⌬ O aplicativo não foi encontrado ou não possui download disponível.*`)
 
       await conn.sendMessage(chatId, {
         image:   { url: info.thumb },
-        caption: `*⌬┤ 📱 ├⌬ ${info.title}*\n\n> 🔖 *Versión:* ${info.version}\n> ⚖️ *Tamaño:* ${info.size}\n> ⭐ *Rating:* ${info.rating}\n> 📥 *Descargas:* ${info.downloads}\n> 📱 *Android:* ${info.min_android}\n> 🏗️ *Arch:* ${info.arch}\n> 🛡️ *Estado:* ${info.is_safe ? '✅ Trusted' : '⚠️ Unverified'}`,
+        caption: `*⌬┤ 📱 ├⌬ ${info.title}*\n\n> 🔖 *Versão:* ${info.version}\n> ⚖️ *Tamanho:* ${info.size}\n> ⭐ *Avaliação:* ${info.rating}\n> 📥 *Downloads:* ${info.downloads}\n> 📱 *Android:* ${info.min_android}\n> 🏗️ *Arquitetura:* ${info.arch}\n> 🛡️ *Estado:* ${info.is_safe ? '✅ Confiável' : '⚠️ Não verificado'}`,
       }, { quoted: m })
 
-      await m.reply(`*⌬┤ ⬇️ ├⌬ Descargando APK...*`)
+      await m.reply(`*⌬┤ ⬇️ ├⌬ Baixando APK...*`)
       await downloadApk(info.download, tmpPath)
 
       await conn.sendMessage(chatId, {
@@ -74,11 +74,11 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       }, { quoted: m })
 
       userDb.kogen -= 1
-      await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+      await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
     } catch (e) {
       console.error('[APT]', e.message)
-      m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la descarga.`)
+      m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download.`)
     } finally {
       await rm(tmpPath, { force: true }).catch(() => {})
     }
@@ -87,7 +87,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     await m.reply(`*⌬┤ 🔎 ├⌬ Buscando: ${input}...*`)
     try {
       const results = await fetchSearch(input)
-      if (!results.length) return m.reply(`*⌬┤ ❌ ├⌬ NO ENCONTRADO.*\n> No se encontró nada para: *${input}*`)
+      if (!results.length) return m.reply(`*⌬┤ ❌ ├⌬ NÃO ENCONTRADO.*\n> Não encontrei resultados para: *${input}*`)
 
       const STARS = ['⭐', '🌟', '💫']
       let txt = `*╔═══⌦ ✦ 📱 APTOIDE ✦ ⌫═══╗*\n\n`
@@ -99,7 +99,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
         txt += `> ${stars} ${app.rating} · 📦 ${app.size} · v${app.version}\n\n`
       })
 
-      txt += `*Respondé citando este mensaje con el número de la app.*\n`
+      txt += `*Responda citando esta mensagem com o número do aplicativo.*\n`
       txt += `*╚══⌦ ${config.footer} ⌫══╝*`
 
       const sent = await conn.sendMessage(chatId, { text: txt }, { quoted: m })
@@ -113,12 +113,12 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
 
     } catch (e) {
       console.error('[APT:SEARCH]', e.message)
-      m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo buscar la app. Intentá de nuevo.`)
+      m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível pesquisar o aplicativo. Tente novamente.`)
     }
   }
 }
 
-handler.help = [`aptoide <nombre> ${config.PREMIUM_SYMBOL}`]
+handler.help = [`aptoide <nome> ${config.PREMIUM_SYMBOL}`]
 handler.command = ['aptoide', 'apk']
 handler.tags    = ['descargas']
 

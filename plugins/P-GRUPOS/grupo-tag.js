@@ -8,7 +8,7 @@ const handler = async (m, { conn, text, participants }) => {
   const isMedia = /image|video|audio|sticker|document/.test(type)
   const mime = q.msg?.mimetype || q.mimetype || ''
   const ptt = q.msg?.ptt || q.ptt || false
-  const fileName = q.msg?.fileName || q.fileName || 'archivo'
+  const fileName = q.msg?.fileName || q.fileName || 'arquivo'
 
   const finalMsg = text || (m.quoted ? q.body : '') || '📢'
 
@@ -22,7 +22,7 @@ const handler = async (m, { conn, text, participants }) => {
       const fileData = await getFileBuffer(rawMsg, null, false)
       buffer = fileData.buffer
     } catch (e) {
-      return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo procesar el archivo: ${e.message}`)
+      return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível processar o arquivo: ${e.message}`)
     }
 
     if      (/image/.test(type))    await conn.sendMessage(m.chat, { image: buffer, caption: finalMsg, mentions }, { quoted: m })
@@ -35,9 +35,9 @@ const handler = async (m, { conn, text, participants }) => {
   }
 }
 
-handler.help = ['tag']
+handler.help = ['marcar <mensagem>']
 handler.tags = ['group']
-handler.command = ['tag', 'n', 'mensaje', 'notify', 'notificar', 'mencionar']
+handler.command = ['tag', 'n', 'mensaje', 'notify', 'notificar', 'mencionar', 'marcar']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.noRegister = true

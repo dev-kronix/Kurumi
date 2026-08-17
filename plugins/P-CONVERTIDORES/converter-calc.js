@@ -12,26 +12,26 @@ function calcular(expr) {
 
 function buildPasos(expr) {
   const s=[]
-  if (/[a-zA-Z]/.test(expr))   s.push(`> ① Funciones identificadas`)
-  if (/\*\*|\^/.test(expr))    s.push(`> ② Potencias calculadas`)
-  if (/\(/.test(expr))         s.push(`> ③ Paréntesis resueltos`)
-  if (/%/.test(expr))          s.push(`> ④ Porcentajes expandidos`)
-  s.push(`> ⑤ Operaciones: × ÷ antes que + −`)
+  if (/[a-zA-Z]/.test(expr))   s.push(`> ① Funções identificadas`)
+  if (/\*\*|\^/.test(expr))    s.push(`> ② Potências calculadas`)
+  if (/\(/.test(expr))         s.push(`> ③ Parênteses resolvidos`)
+  if (/%/.test(expr))          s.push(`> ④ Porcentagens expandidas`)
+  s.push(`> ⑤ Operações: × ÷ antes de + −`)
   return s.join('\n')
 }
 
 const handler = async (m, { text, usedPrefix, command }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO:* ${usedPrefix}${command} <expresión>`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO:* ${usedPrefix}${command} <expressão>`)
   try {
     const res = calcular(text)
-    if (res === null) return m.reply(`*⌬┤ ✙ ├⌬ EXPRESIÓN INVÁLIDA.*\n> Revisá la expresión ingresada.`)
-    await m.reply(`*⌬┤ 🧮 ├⌬ CALCULADORA*\n\n≡ 📝 *Expresión:* \`${text}\`\n≡ ✅ *Resultado:* \`${res}\`\n\n≡ 📊 *Pasos:*\n${buildPasos(text)}`)
+    if (res === null) return m.reply(`*⌬┤ ✙ ├⌬ EXPRESSÃO INVÁLIDA.*\n> Verifique a expressão informada.`)
+    await m.reply(`*⌬┤ 🧮 ├⌬ CALCULADORA*\n\n≡ 📝 *Expressão:* \`${text}\`\n≡ ✅ *Resultado:* \`${res}\`\n\n≡ 📊 *Passos:*\n${buildPasos(text)}`)
   } catch {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*`)
   }
 }
 
-handler.help = ['calc <expresion>']
+handler.help = ['calc <expressão>']
 handler.command = ['calc', 'calcular', 'calcularpt', 'calculator']
 handler.tags = ['convertidores']
 

@@ -1,10 +1,12 @@
 const config = {
-  botName: 'ZΞN-BOT',
-  ownerName: 'AXELDEV09',
-  version: '8.0.0',
+  botName: 'Kurumi',
+  ownerName: 'DevKronix',
+  version: '8.1.0',
+  locale: 'pt-BR',
+  gender: 'feminino',
   prefix: /^[.#/!]/,
-  ownerNumber: ['549XXXXXX'], // Cambia por tu número 
-  phoneNumber: '', //Si estas en un entorno de desarrollo web, define el número que sera el bot aquí
+  ownerNumber: ['55XXXXXXXXXXX'], // Troque pelo seu número com DDI, sem o +
+  phoneNumber: '', // Em ambiente web, defina aqui o número que será usado pelo bot
   MODE: 'public',
   usePairingCode: true,
   antiSpam: {
@@ -21,15 +23,20 @@ const config = {
   },
   newsletterJid: '120363403631501323@newsletter',
   groupLink: 'https://whatsapp.com/channel/0029Vb6OR9O2v1IvoXO5oT2c',
-  CURRENCY_NAME: 'ZenCoins',
+  CURRENCY_NAME: 'KurumiCoins',
   CURRENCY_SYMBOL: '⌬',
   PREMIUM_NAME: 'Kōgen',
   PREMIUM_SYMBOL: '✦',
   kogenPrice: 1000,
-  packname: 'ZΞN-BOT',
-  author: 'AXELDEV09',
-  limiteSubbots: '', // Cambia la cantidad según cuánto soporte tu servidor 
-  footer: 'ᴢᴇɴ‑ʙᴏᴛ · ᴀxᴇʟᴅᴇᴠ⁰⁹'
+  packname: 'Kurumi',
+  author: 'DevKronix',
+  limiteSubbots: '', // Defina conforme a capacidade do seu servidor
+  footer: 'ᴋᴜʀᴜᴍɪ · ᴅᴇᴠᴋʀᴏɴɪx',
+  personality: {
+    name: 'Kurumi',
+    language: 'Português do Brasil',
+    description: 'Assistente feminina, elegante, confiante, misteriosa, espirituosa e direta.'
+  }
 }
 
 export default config

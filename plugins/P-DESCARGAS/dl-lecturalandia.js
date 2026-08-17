@@ -21,12 +21,12 @@ async function downloadFile(dlData, destPath) {
   
   const ct = res.headers['content-type'] || ''
   if (ct.includes('text/html')) {
-     throw new Error('Respuesta HTML — posible bloqueo de AntUpload')
+     throw new Error('Resposta HTML — possível bloqueio do AntUpload')
   }
   
   await pipeline(res.data, createWriteStream(destPath))
   const { size } = statSync(destPath)
-  if (size < 1000) throw new Error(`Archivo inválido (${size} bytes)`)
+  if (size < 1000) throw new Error(`Arquivo inválido (${size} bytes)`)
   return size
 }
 
@@ -39,11 +39,11 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     else url = quotedText.trim()
   }
 
-  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <nombre del libro o link>*`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <nome do livro ou link>*`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId  = m.chat
-  await m.reply(`*⌬┤ 🔎 ├⌬ Buscando libro...*`)
+  await m.reply(`*⌬┤ 🔎 ├⌬ Buscando livro...*`)
 
   const tmpPath = join(TMP_DIR, randomUUID())
 
@@ -53,17 +53,17 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       info = await bookInfo(url)
     } else {
       const search = await bookSearch(url, 1)
-      if (!search?.length) return m.reply(`*⌬┤ ❌ ├⌬ NO ENCONTRADO.*\n> No se encontró nada para: *${url}*`)
+      if (!search?.length) return m.reply(`*⌬┤ ❌ ├⌬ NÃO ENCONTRADO.*\n> Não encontrei resultados para: *${url}*`)
       info = await bookInfo(search[0].url)
     }
 
-    if (!info) throw new Error('No se pudo extraer información del libro')
+    if (!info) throw new Error('Não foi possível extrair informações do livro')
 
     if (info.thumb) {
       try {
         await conn.sendMessage(chatId, {
           image:   { url: info.thumb },
-          caption: `*⌬┤ 📚 ├⌬ ${info.title}*\n\n> 👤 *Autor:* ${info.author || 'Desconocido'}\n> 📑 *Género:* ${info.genre || '-'}\n> 📅 *Publicado:* ${info.year || '-'}\n\n> 📖 ${(info.description || '').slice(0, 500)}${(info.description?.length || 0) > 500 ? '...' : ''}`,
+          caption: `*⌬┤ 📚 ├⌬ ${info.title}*\n\n> 👤 *Autor:* ${info.author || 'Desconhecido'}\n> 📑 *Gênero:* ${info.genre || '-'}\n> 📅 *Publicado:* ${info.year || '-'}\n\n> 📖 ${(info.description || '').slice(0, 500)}${(info.description?.length || 0) > 500 ? '...' : ''}`,
         }, { quoted: m })
       } catch {}
     }
@@ -78,7 +78,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       mime   = 'application/epub+zip'
     }
 
-    if (!dlData || !dlData.url) throw new Error('Sin enlaces de AntUpload disponibles')
+    if (!dlData || !dlData.url) throw new Error('Nenhum link do AntUpload disponível')
 
     const fileName = `${info.title} - ${info.author || 'Autor'}.${ext}`
     const destPath = `${tmpPath}.${ext}`
@@ -93,18 +93,18 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     }, { quoted: m })
 
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch (e) {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo procesar el libro.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível processar o livro.`)
   } finally {
     await rm(`${tmpPath}.pdf`, { force: true }).catch(() => {})
     await rm(`${tmpPath}.epub`, { force: true }).catch(() => {})
   }
 }
 
-handler.help = [`libro <nombre> ${config.PREMIUM_SYMBOL}`]
-handler.command = ['libro', 'lectulandia']
+handler.help = [`livro <nome> ${config.PREMIUM_SYMBOL}`]
+handler.command = ['libro', 'livro', 'lectulandia']
 handler.tags = ['descargas']
 
 export default handler

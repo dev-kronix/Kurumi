@@ -22,7 +22,7 @@ const handler = async (m, { conn, text, command }) => {
       ])
       ff.on('close', async (code) => {
         await rm(inputPath, { force: true }).catch(() => {})
-        if (code !== 0) { await rm(outputPath, { force: true }).catch(() => {}); return reject(new Error('ffmpeg falló')) }
+        if (code !== 0) { await rm(outputPath, { force: true }).catch(() => {}); return reject(new Error('ffmpeg falhou')) }
         const buf = await readFile(outputPath)
         await rm(outputPath, { force: true }).catch(() => {})
         resolve(buf)
@@ -32,7 +32,7 @@ const handler = async (m, { conn, text, command }) => {
     await conn.sendMessage(m.chat, { sticker: stickerBuf }, { quoted: m })
   } catch (e) {
     console.error('[attp]', e.message)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo generar el sticker.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível gerar o sticker.`)
   }
 }
 

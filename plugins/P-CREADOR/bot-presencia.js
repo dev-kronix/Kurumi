@@ -1,20 +1,25 @@
-const handler = async (m, { conn, args, usedPrefix, command }) => {
-  const tipo = args[0]?.toLowerCase()
-
-  if (!tipo || !['escribiendo', 'grabando', 'pausado'].includes(tipo)) {
-    return m.reply(
-      `*⌬┤ 👁️ ├⌬ PRESENCIA.*\n\n▢ *${usedPrefix}${command} escribiendo*\n▢ *${usedPrefix}${command} grabando*\n▢ *${usedPrefix}${command} pausado*`
-    )
+const handler = async (m, { conn, text, command }) => {
+  const tipo = (text || '').trim().toLowerCase()
+  const map = {
+    online: 'available', disponivel: 'available', disponible: 'available',
+    digitando: 'composing', escribiendo: 'composing', typing: 'composing',
+    gravando: 'recording', grabando: 'recording', recording: 'recording',
+    offline: 'unavailable', indisponivel: 'unavailable'
   }
 
-  const mapa = { 'escribiendo': 'composing', 'grabando': 'recording', 'pausado': 'paused' }
-  await conn.sendPresenceUpdate(mapa[tipo], m.chat)
-  m.reply(`*⌬┤ ✅ ├⌬ PRESENCIA ACTIVADA.*\n▢ *Estado:* ${tipo}`)
+  const presence = map[tipo]
+  if (!presence) {
+    return m.reply(`*⌬┤ ℹ️ ├⌬ PRESENÇA.*\n> Use: *${command} online | digitando | gravando | offline*`)
+  }
+
+  await conn.sendPresenceUpdate(presence, m.chat)
+  m.reply(`*⌬┤ ✅ ├⌬ PRESENÇA ATUALIZADA.*\n> Estado: *${tipo}*`)
 }
 
-handler.help = ['presencia <estado>']
+handler.help = ['presenca <estado>']
+handler.command = ['presence', 'presencia', 'presenca']
 handler.tags = ['owner']
-handler.command = ['presencia', 'presence']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler

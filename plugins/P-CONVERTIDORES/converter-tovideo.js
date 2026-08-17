@@ -1,63 +1,48 @@
+import fs from 'fs'
+import path from 'path'
 import { tmpdir } from 'os'
-import { join } from 'path'
-import { writeFileSync, readFileSync } from 'fs'
-import { rm } from 'fs/promises'
 import { execSync } from 'child_process'
+import { rm } from 'fs/promises'
 
-const tmp = ext => join(tmpdir(), `conv_${Date.now()}.${ext}`)
-const clean = async (...ps) => { for (const p of ps) if (p) await rm(p, { force: true }).catch(() => {}) }
-const VELOCIDADES = [0.25, 0.5, 1.5, 2, 3]
+const tmpFile = ext => path.join(tmpdir(), `tovideo_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`)
 
-const handler = async (m, { conn, command, text }) => {
-  const mtype = m.quoted?.mtype || m.mtype
+const handler = async (m, { conn }) => {
+  const q = m.quoted || m
+  const mime = q.mimetype || q.msg?.mimetype || ''
+  const mtype = q.mtype || ''
 
-  if (command === 'tovideo' || command === 'tomp4') {
-    if (mtype !== 'audioMessage') return m.reply(`*⌬┤ ✙ ├⌬ SIN AUDIO.*\n> Respondé un audio para convertirlo a video.`)
-    await m.reply(`*⌬┤ ⏳ ├⌬ Convirtiendo...*`)
-    let i, o
-    try {
-      const buffer = await (m.quoted || m).download()
-      if (!buffer) throw new Error('Sin buffer')
-      i = tmp('mp3'); o = tmp('mp4')
-      writeFileSync(i, buffer)
-      execSync(`ffmpeg -y -f lavfi -i color=c=black:s=1280x720:r=1 -i "${i}" -shortest -c:v libx264 -c:a aac -strict experimental "${o}"`, { stdio: 'pipe', timeout: 60000 })
-      await conn.sendMessage(m.chat, { video: readFileSync(o), mimetype: 'video/mp4' }, { quoted: m })
-    } catch {
-      m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo convertir.`)
-    } finally { await clean(i, o) }
-    return
+  if (!/webp|image|video/i.test(mime) && !/stickerMessage|imageMessage|videoMessage/i.test(mtype)) {
+    return m.reply(`*⌬┤ ✙ ├⌬ SEM MÍDIA.*\n> Responda a um sticker animado, GIF, imagem ou vídeo.`)
   }
 
-  if (mtype !== 'videoMessage') return m.reply(`*⌬┤ ✙ ├⌬ SIN VIDEO.*\n> Respondé un video para aplicarle este efecto.`)
-  let i, o
+  await m.reply(`*⌬┤ ⏳ ├⌬ Convertendo para vídeo...*`)
+
+  const inputPath = tmpFile('bin')
+  const outputPath = tmpFile('mp4')
 
   try {
-    const buffer = await (m.quoted || m).download()
-    if (!buffer) throw new Error('Sin buffer')
-    i = tmp('mp4'); o = tmp('mp4')
-    writeFileSync(i, buffer)
+    const buffer = await q.download()
+    if (!buffer) throw new Error('Não foi possível baixar a mídia')
+    fs.writeFileSync(inputPath, buffer)
 
-    if (command === 'reversevid') {
-      await m.reply(`*⌬┤ ⏳ ├⌬ Revirtiendo video...*`)
-      execSync(`ffmpeg -y -i "${i}" -vf reverse -af areverse "${o}"`, { stdio: 'pipe', timeout: 60000 })
-    } 
-    else if (command === 'speedvid') {
-      const speed = parseFloat(text)
-      if (!VELOCIDADES.includes(speed)) return m.reply(`*⌬┤ ✙ ├⌬ VELOCIDAD INVÁLIDA.*\n> Opciones: *0.25 · 0.5 · 1.5 · 2 · 3*`)
-      await m.reply(`*⌬┤ ⏳ ├⌬ Acelerando video...*`)
-      const vf = `setpts=${(1 / speed).toFixed(4)}*PTS`
-      const af = `atempo=${speed <= 0.5 ? 0.5 : speed >= 2 ? 2 : speed}`
-      execSync(`ffmpeg -y -i "${i}" -vf "${vf}" -af "${af}" "${o}"`, { stdio: 'pipe', timeout: 60000 })
-    }
+    execSync(`ffmpeg -y -i "${inputPath}" -movflags faststart -pix_fmt yuv420p -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2" -an "${outputPath}"`, { stdio: 'pipe', timeout: 120000 })
 
-    await conn.sendMessage(m.chat, { video: readFileSync(o), mimetype: 'video/mp4' }, { quoted: m })
-  } catch {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo procesar el video.`)
-  } finally { await clean(i, o) }
+    await conn.sendMessage(m.chat, {
+      video: fs.readFileSync(outputPath),
+      mimetype: 'video/mp4',
+      caption: `*⌬┤ ✅ ├⌬ VÍDEO CONVERTIDO*`
+    }, { quoted: m })
+  } catch (e) {
+    console.error('[TOVIDEO]', e.message)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível converter a mídia para vídeo.`)
+  } finally {
+    await rm(inputPath, { force: true }).catch(() => {})
+    await rm(outputPath, { force: true }).catch(() => {})
+  }
 }
 
-handler.help = ['tovideo', 'reversevid', 'speedvid <vel>']
-handler.command = ['tovideo', 'tomp4', 'reversevid', 'speedvid']
+handler.help = ['tovideo']
+handler.command = ['tovideo', 'tomp4', 'video', 'convertervideo']
 handler.tags = ['convertidores']
 
 export default handler

@@ -5,7 +5,7 @@ const pkg = baileysMod.default && Object.keys(baileysMod).length === 1 ? baileys
 const { generateWAMessageFromContent, generateWAMessage } = pkg
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <búsqueda>*`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <pesquisa>*`)
 
   await m.reply(`*⌬┤ ⏳ ├⌬ Buscando...*`)
   
@@ -13,7 +13,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const res = await fetch(`https://api.delirius.store/search/bingvideos?query=${encodeURIComponent(text)}`)
     const json = await res.json()
     
-    if (!json.status || !json.data?.length) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontraron videos para *${text}*.`)
+    if (!json.status || !json.data?.length) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei vídeos para *${text}*.`)
     
     const items = json.data.slice(0, 6)
     
@@ -34,11 +34,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       } catch (e) {}
     }))
   } catch (e) { 
-    await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`) 
+    await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`) 
   }
 }
 
-handler.help = ['bingvid <búsqueda>']
+handler.help = ['bingvid <pesquisa>']
 handler.command = ['bingvid', 'bingvideo']
 handler.tags = ['busquedas']
 

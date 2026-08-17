@@ -1,5 +1,5 @@
 const handler = async (m, { conn }) => {
-  if (!m.quoted) return m.reply(`*⌬┤ ⚠️ ├⌬ MENSAJE REQUERIDO.*\n> Respondé el mensaje que querés eliminar.`)
+  if (!m.quoted) return m.reply(`*⌬┤ ⚠️ ├⌬ MENSAGEM OBRIGATÓRIA.*\n> Responda à mensagem que deseja apagar.`)
 
   try {
     await conn.sendMessage(m.chat, { 
@@ -11,13 +11,13 @@ const handler = async (m, { conn }) => {
       } 
     })
   } catch (e) {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo eliminar el mensaje.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível apagar a mensagem.`)
   }
 }
 
-handler.help = ['del']
+handler.help = ['apagar']
 handler.tags = ['group']
-handler.command = ['del', 'delete', 'borrar']
+handler.command = ['del', 'delete', 'borrar', 'apagar']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.botAdminOnly = true

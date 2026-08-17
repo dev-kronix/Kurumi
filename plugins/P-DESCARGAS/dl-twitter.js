@@ -13,14 +13,14 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK REQUERIDO.*\n> Ej: *${usedPrefix}${command} https://x.com/...*`)
+  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK OBRIGATÓRIO.*\n> Exemplo: *${usedPrefix}${command} https://x.com/...*`)
   if (!url.includes('twitter.com') && !url.includes('x.com')) {
-    return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Asegurate de que sea de X (Twitter).`)
+    return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Verifique se o link é do X (Twitter).`)
   }
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ ⏳ ├⌬ Descargando tweet...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Baixando publicação...*`)
 
   try {
     let media = []
@@ -52,12 +52,12 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       } catch {}
     }
 
-    if (!media.length) return m.reply(`*⌬┤ ❗ ├⌬ Sin resultados.*\n> Verificá el link o asegurate de que tenga contenido multimedia.`)
+    if (!media.length) return m.reply(`*⌬┤ ❗ ├⌬ SEM RESULTADOS.*\n> Verifique o link e confirme se a publicação possui mídia.`)
     
     if (media.length === 1) {
       const item = media[0]
       const buf = Buffer.from(await (await fetch(item.url, { timeout: 60000 })).arrayBuffer())
-      await conn.sendMessage(chatId, { [item.type]: buf, mimetype: item.type === 'video' ? 'video/mp4' : undefined, caption: `*⌬┤ ✅ ├⌬ Tweet descargado*` }, { quoted: m })
+      await conn.sendMessage(chatId, { [item.type]: buf, mimetype: item.type === 'video' ? 'video/mp4' : undefined, caption: `*⌬┤ ✅ ├⌬ Publicação baixada*` }, { quoted: m })
     } else {
       const album = generateWAMessageFromContent(chatId, {
         albumMessage: { expectedImageCount: media.length, contextInfo: { stanzaId: m.key.id, participant: m.key.participant || m.key.remoteJid, quotedMessage: m.message } }
@@ -69,7 +69,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
           const buf = Buffer.from(await (await fetch(item.url, { timeout: 60000 })).arrayBuffer())
           const msg = await generateWAMessage(chatId, {
             [item.type]: buf,
-            caption: i === 0 ? `*⌬┤ ✅ ├⌬ Tweet Carrusel*` : ''
+            caption: i === 0 ? `*⌬┤ ✅ ├⌬ CARROSSEL DO X*` : ''
           }, { upload: conn.waUploadToServer })
           msg.message.messageContextInfo = { messageAssociation: { associationType: 1, parentMessageKey: album.key } }
           await conn.relayMessage(chatId, msg.message, { messageId: msg.key.id })
@@ -78,11 +78,11 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     }
     
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
     
   } catch (e) { 
     console.error('[TW]', e.message)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la descarga. Intentá de nuevo.`) 
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download. Tente novamente.`) 
   }
 }
 

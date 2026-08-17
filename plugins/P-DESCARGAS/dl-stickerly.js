@@ -124,7 +124,7 @@ async function patchMediaPathMap() {
         if (defaults.MEDIA_HKDF_KEY_MAPPING) defaults.MEDIA_HKDF_KEY_MAPPING['sticker-pack'] = 'Sticker Pack'
         patchedDefaults = true
     } catch (e) {
-        console.error('[StickerPack] Error parcheando Baileys:', e.message)
+        console.error('[StickerPack] Erro ao aplicar patch no Baileys:', e.message)
     }
 }
 
@@ -192,24 +192,24 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       if (match) url = match[0]
     }
 
-    if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK REQUERIDO.*\n> Ingresá o respondé a un mensaje con un enlace válido de Stickerly.`)
-    if (!url.includes('sticker.ly')) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Asegurate de que sea de Stickerly.`)
-    if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+    if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK OBRIGATÓRIO.*\n> Envie ou responda a uma mensagem com um link válido do Stickerly.`)
+    if (!url.includes('sticker.ly')) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Verifique se o link é do Stickerly.`)
+    if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
-    await m.reply(`*⌬┤ ⏳ ├⌬ Generando Pack Nativo...*\n> _Esto puede tardar unos segundos, por favor espera._`)
+    await m.reply(`*⌬┤ ⏳ ├⌬ Gerando pacote nativo...*\n> _Isso pode levar alguns segundos._`)
 
     try {
         await patchMediaPathMap()
 
         const json = await (await fetch(`https://api.delirius.store/download/stickerly?url=${encodeURIComponent(url)}`)).json()
-        if (!json.status || !json.data) return m.reply(`*⌬┤ ⚠️ ├⌬ No se pudo obtener el pack.*`)
+        if (!json.status || !json.data) return m.reply(`*⌬┤ ⚠️ ├⌬ Não foi possível obter o pacote.*`)
 
         const packData = json.data
         const stickersToProcess = packData.stickers.slice(0, 30) 
 
         const coverRes = await axios.get(packData.preview, { responseType: 'arraybuffer' })
         const trayBuffer = await createTrayIcon(Buffer.from(coverRes.data)).catch(() => null)
-        if (!trayBuffer) throw new Error('Error al procesar el icono del paquete.')
+        if (!trayBuffer) throw new Error('Erro ao processar o ícone do pacote.')
 
         const zipFiles = []
         const stickerMeta = []
@@ -240,7 +240,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
             } catch (err) { continue }
         }
 
-        if (zipFiles.length === 0) return m.reply(`*⌬┤ ❌ ├⌬ Error al procesar los stickers.*`)
+        if (zipFiles.length === 0) return m.reply(`*⌬┤ ❌ ├⌬ Erro ao processar os stickers.*`)
         
         const packEncTemp = encryptBuffer(buildZip(zipFiles), 'WhatsApp Sticker Pack Keys')
         const packId = packEncTemp.fileEncSha256.toString('base64url')
@@ -249,7 +249,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
         const finalZipBuffer = buildZip([{ name: trayIconName, data: trayBuffer }, ...zipFiles])
         const packUpload = await uploadBuffer(conn, finalZipBuffer, 'sticker-pack')
 
-        if (!packUpload) throw new Error('Error al subir el paquete a WhatsApp.')
+        if (!packUpload) throw new Error('Erro ao enviar o pacote ao WhatsApp.')
 
         const thumbSha256 = crypto.createHash('sha256').update(trayBuffer).digest()
         const thumbKeys = hkdf(packUpload.mediaKey, 112, 'WhatsApp Sticker Pack Keys')
@@ -264,7 +264,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
             stickerPackMessage: {
                 stickerPackId: packUpload.fileEncSha256.toString('base64url'),
                 name: packData.name.substring(0, 30),
-                publisherName: packData.author.substring(0, 30) || 'ZenBot',
+                publisherName: packData.author.substring(0, 30) || config.botName || 'Kurumi',
                 trayIconFileName: trayIconName,
                 stickers: stickerMeta,
                 stickerPackSize: finalZipBuffer.length,
@@ -280,17 +280,17 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
                 thumbnailHeight: 96,
                 thumbnailWidth: 96,
                 mediaKeyTimestamp: Math.floor(Date.now() / 1000),
-                packDescription: 'ZenBot Native Pack',
+                packDescription: `${config.botName || 'Kurumi'} · Pacote nativo`,
                 imageDataHash: thumbSha256.toString('base64')
             }
         }, { messageId: msgId, quoted: m })
 
         userDb.kogen -= 1
-        await conn.sendMessage(m.chat, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*\n> 📦 Pack de ${zipFiles.length} stickers agregado.` }, { quoted: m })
+        await conn.sendMessage(m.chat, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*\n> 📦 Pacote com ${zipFiles.length} stickers adicionado.` }, { quoted: m })
 
     } catch (err) {
         console.error('[Stickerly Pack]', err)
-        return m.reply(`*⌬┤ ❌ ├⌬ Error al procesar el pack de stickers.*`)
+        return m.reply(`*⌬┤ ❌ ├⌬ Erro ao processar o pacote de stickers.*`)
     }
 }
 

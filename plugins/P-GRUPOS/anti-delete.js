@@ -12,15 +12,15 @@ function cacheDel(jid, id) { antideleteCache.delete(`${jid}-${id}`) }
 
 const handler = async (m, { args, groupDb, usedPrefix, command }) => {
   const modo = args[0]?.toLowerCase()
-  if (!['on', '1', 'true', 'activar', 'off', '0', 'false', 'desactivar'].includes(modo)) {
-    return m.reply(`*⌬┤ ✙ ├⌬ MODO INVÁLIDO.*\n> Usá: *${usedPrefix}${command} on | off*`)
+  if (!['on', '1', 'true', 'activar', 'ativar', 'off', '0', 'false', 'desactivar', 'desativar'].includes(modo)) {
+    return m.reply(`*⌬┤ ✙ ├⌬ MODO INVÁLIDO.*\n> Use: *${usedPrefix}${command} on | off*`)
   }
 
-  const activar = ['on', '1', 'true', 'activar'].includes(modo)
+  const activar = ['on', '1', 'true', 'activar', 'ativar'].includes(modo)
   groupDb.antidelete = activar
   await groupDb.save()
 
-  return m.reply(`*⌬┤ 🗑️ ├⌬ ANTI DELETE ${activar ? 'ACTIVADO' : 'DESACTIVADO'}.*`)
+  return m.reply(`*⌬┤ 🗑️ ├⌬ ANTI-EXCLUSÃO ${activar ? 'ATIVADO' : 'DESATIVADO'}.*`)
 }
 
 handler.before = async (m, { conn, groupDb }) => {
@@ -39,7 +39,7 @@ handler.before = async (m, { conn, groupDb }) => {
       const cached = cacheGet(delJid, delId)
 
       if (cached && !cached.fromMe) {
-        const aviso = `*⌬┤ 🗑️ ├⌬ MENSAJE ELIMINADO*\n> @${cached.sender.split('@')[0]} eliminó este mensaje:`
+        const aviso = `*⌬┤ 🗑️ ├⌬ MENSAGEM APAGADA*\n> @${cached.sender.split('@')[0]} apagou esta mensagem:`
         try {
           await conn.sendMessage(m.chat, { text: aviso, mentions: [cached.sender] })
           await conn.sendMessage(m.chat, { forward: cached.waMsg })
@@ -55,7 +55,7 @@ handler.before = async (m, { conn, groupDb }) => {
 
 handler.help = ['antidelete <on/off>']
 handler.tags = ['group']
-handler.command = ['antidel', 'antidelete']
+handler.command = ['antidel', 'antidelete', 'antiexclusao']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.alwaysBefore = true

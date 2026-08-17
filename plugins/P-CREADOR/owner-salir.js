@@ -1,18 +1,18 @@
 const handler = async (m, { conn }) => {
-  if (!m.isGroup) return m.reply('*⌬┤ ⚠️ ├⌬ SOLO GRUPOS.*\n> Este comando solo se puede usar dentro de un grupo.')
+  if (!m.isGroup) return m.reply(`*⌬┤ ❌ ├⌬ SOMENTE GRUPOS.*`)
 
-  await m.reply('*⌬┤ 👋 ├⌬ ÓRDENES DEL OWNER.*\n> Ha sido un placer estar aquí, pero me tengo que ir. ¡Hasta pronto!')
-  
   try {
+    await m.reply(`*⌬┤ 👋 ├⌬ Saindo do grupo...*`)
     await conn.groupLeave(m.chat)
   } catch (e) {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No pude abandonar el grupo: ${e.message}`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível sair do grupo.`)
   }
 }
 
-handler.help = ['salir']
+handler.help = ['sairgrupo']
+handler.command = ['salir', 'leave', 'sairgrupo', 'sair']
 handler.tags = ['owner']
-handler.command = ['salir', 'leave', 'salirdelgrupo', 'quit']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler

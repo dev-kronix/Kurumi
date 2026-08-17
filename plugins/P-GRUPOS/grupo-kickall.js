@@ -12,7 +12,7 @@ const handler = async (m, { conn, participants, config, isOwner }) => {
   const puedeUsar = isOwner || isGroupCreator
 
   if (!puedeUsar) {
-    return m.reply(`*⌬┤ ❌ ├⌬ ACCESO DENEGADO.*\n\n> Este comando de limpieza masiva es exclusivo para el *Creador del Grupo* o el *Creador del Bot*.`)
+    return m.reply(`*⌬┤ ❌ ├⌬ ACESSO NEGADO.*\n\n> Este comando de limpeza em massa é exclusivo do *Criador do Grupo* ou do *Dono da Bot*.`)
   }
 
   const botJid = jidNormalizedUser(conn.user.id)
@@ -41,10 +41,10 @@ const handler = async (m, { conn, participants, config, isOwner }) => {
     })
 
   if (targets.length === 0) {
-    return m.reply(`*⌬┤ ℹ️ ├⌬ GRUPO VACÍO.*\n\n> No hay miembros elegibles para expulsar en este grupo.`)
+    return m.reply(`*⌬┤ ℹ️ ├⌬ GRUPO VAZIO.*\n\n> Não há membros elegíveis para expulsar neste grupo.`)
   }
 
-  await m.reply(`*⌬┤ 🥾 ├⌬ INICIANDO LIMPIEZA MASIVA.*\n\n> Expulsando a *${targets.length}* miembros del grupo...`)
+  await m.reply(`*⌬┤ 🥾 ├⌬ INICIANDO LIMPEZA EM MASSA.*\n\n> Expulsando *${targets.length}* membros do grupo...`)
 
   try {
     const batchSize = 10
@@ -54,16 +54,16 @@ const handler = async (m, { conn, participants, config, isOwner }) => {
       await new Promise(resolve => setTimeout(resolve, 1500))
     }
 
-    m.reply(`*⌬┤ 🗑️ ├⌬ LIMPIEZA FINALIZADA.*\n\n> Todos los miembros elegibles han sido expulsados con éxito.`)
+    m.reply(`*⌬┤ 🗑️ ├⌬ LIMPEZA CONCLUÍDA.*\n\n> Todos os membros elegíveis foram expulsos com sucesso.`)
   } catch (e) {
     console.error('[KICKALL ERROR]', e)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n\n> Ocurrió un error inesperado al intentar expulsar a los miembros.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n\n> Ocorreu um erro inesperado ao tentar expulsar os membros.`)
   }
 }
 
-handler.help = ['kickall']
+handler.help = ['expulsartodos']
 handler.tags = ['group']
-handler.command = ['kickall', 'banall', 'expulsartodos', 'echaratodos']
+handler.command = ['kickall', 'banall', 'expulsartodos', 'echaratodos', 'removertodos']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.botAdminOnly = true

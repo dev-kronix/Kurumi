@@ -4,10 +4,10 @@ import { groupDbCache } from '../../lib/caches.js'
 const ETIQUETAS = ['info', 'owner', 'rpg', 'eco', 'registro', 'juegos', 'fun', 'group', 'tools', 'descargas', 'busquedas', 'convertidores', 'anime', 'nsfw', 'jadibot', 'otros']
 
 const handler = async (m, { args, usedPrefix, command, groupDb }) => {
-  const isEnable = command === 'enable' || command === 'activar'
+  const isEnable = ['enable', 'activar', 'ativar', 'habilitar'].includes(command)
   const target = args[0]?.toLowerCase()
   
-  if (!target) return m.reply(`*⌬┤ ℹ️ ├⌬ USO CORRECTO:*\n> ${usedPrefix}${command} <comando | categoria>\n\n> _Ejemplo: ${usedPrefix}${command} nsfw_`)
+  if (!target) return m.reply(`*⌬┤ ℹ️ ├⌬ USO CORRETO:*\n> ${usedPrefix}${command} <comando | categoria>\n\n> _Exemplo: ${usedPrefix}${command} nsfw_`)
 
   if (!groupDb) {
     groupDb = await GroupDb.findOne({ id: m.chat }) || new GroupDb({ id: m.chat })
@@ -36,12 +36,12 @@ const handler = async (m, { args, usedPrefix, command, groupDb }) => {
 
   groupDbCache.set(m.chat, groupDb)
 
-  m.reply(`*⌬┤ ✅ ├⌬ ÉXITO*\n> ${target.toUpperCase()} ha sido ${isEnable ? 'habilitado' : 'deshabilitado'} en este grupo.`)
+  m.reply(`*⌬┤ ✅ ├⌬ SUCESSO*\n> ${target.toUpperCase()} foi ${isEnable ? 'habilitado' : 'desabilitado'} neste grupo.`)
 }
 
-handler.help = ['disable <cmd/cat>', 'enable <cmd/cat>']
+handler.help = ['desabilitar <cmd/categoria>', 'habilitar <cmd/categoria>']
 handler.tags = ['group']
-handler.command = ['disable', 'desactivar', 'enable', 'activar']
+handler.command = ['disable', 'desactivar', 'desativar', 'desabilitar', 'enable', 'activar', 'ativar', 'habilitar']
 handler.adminOnly = true
 handler.groupOnly = true
 handler.noRegister = true

@@ -1,25 +1,22 @@
-const handler = async (m, { conn, args, text, usedPrefix, command }) => {
-  const tipo = args[0]?.toLowerCase()
-  const valor = text.slice(args[0]?.length || 0).trim()
-
-  if (!tipo || !['nombre', 'bio'].includes(tipo) || !valor) {
-    return m.reply(
-      `*⌬┤ 👤 ├⌬ PERFIL DEL BOT.*\n\n▢ *${usedPrefix}${command} nombre <nuevo nombre>*\n▢ *${usedPrefix}${command} bio <nueva bio>*`
-    )
+const handler = async (m, { conn, text, command, usedPrefix }) => {
+  if (command === 'setbio') {
+    if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO:* ${usedPrefix + command} <nova bio>`)
+    await conn.updateProfileStatus(text)
+    return m.reply(`*⌬┤ ✅ ├⌬ BIO ATUALIZADA.*`)
   }
 
-  if (tipo === 'nombre') {
-    await conn.updateProfileName(valor)
-    m.reply(`*⌬┤ ✅ ├⌬ NOMBRE ACTUALIZADO.*\n▢ *Nuevo nombre:* ${valor}`)
-  } else if (tipo === 'bio') {
-    await conn.updateProfileStatus(valor)
-    m.reply(`*⌬┤ ✅ ├⌬ BIO ACTUALIZADA.*\n▢ *Nueva bio:* ${valor}`)
+  if (command === 'setnamebot') {
+    if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO:* ${usedPrefix + command} <novo nome>`)
+    await conn.updateProfileName(text)
+    conn.botname = text
+    return m.reply(`*⌬┤ ✅ ├⌬ NOME ATUALIZADO.*\n> Novo nome: *${text}*`)
   }
 }
 
-handler.help = ['botperfil nombre <texto>', 'botperfil bio <texto>']
+handler.help = ['setbio <texto>', 'setnamebot <nome>']
+handler.command = ['setbio', 'setnamebot', 'mudarnomebot']
 handler.tags = ['owner']
-handler.command = ['botperfil', 'setperfil']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler

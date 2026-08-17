@@ -9,14 +9,14 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ ENLACE REQUERIDO.*\n> Enviá o respondé a un mensaje con un enlace válido de Pinterest.`)
+  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK OBRIGATÓRIO.*\n> Envie ou responda a uma mensagem com um link válido do Pinterest.`)
   if (!url.includes('pinterest.com') && !url.includes('pin.it')) {
-    return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Asegurate de que sea de Pinterest.`)
+    return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Verifique se o link é do Pinterest.`)
   }
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ ⏳ ├⌬ Buscando y descargando de Pinterest...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Buscando e baixando conteúdo do Pinterest...*`)
 
   try {
     let videoUrl = null
@@ -44,23 +44,23 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     }
 
     if (!videoUrl && !imageUrl) {
-      return m.reply(`*⌬┤ ❌ ├⌬ No se encontró contenido descargable en ese enlace.*`)
+      return m.reply(`*⌬┤ ❌ ├⌬ Não encontrei conteúdo disponível para download nesse link.*`)
     }
 
     if (videoUrl) {
       const buf = Buffer.from(await (await fetch(videoUrl, { timeout: 60_000 })).arrayBuffer())
-      await conn.sendMessage(chatId, { video: buf, mimetype: 'video/mp4', fileName: 'pinterest.mp4', caption: `*⌬┤ 📌 ├⌬ PINTEREST*\n> 🎬 Video` }, { quoted: m })
+      await conn.sendMessage(chatId, { video: buf, mimetype: 'video/mp4', fileName: 'pinterest.mp4', caption: `*⌬┤ 📌 ├⌬ PINTEREST*\n> 🎬 Vídeo` }, { quoted: m })
     } else {
       const buf = Buffer.from(await (await fetch(imageUrl, { timeout: 60_000 })).arrayBuffer())
-      await conn.sendMessage(chatId, { image: buf, caption: `*⌬┤ 📌 ├⌬ PINTEREST*\n> 🖼️ Imagen` }, { quoted: m })
+      await conn.sendMessage(chatId, { image: buf, caption: `*⌬┤ 📌 ├⌬ PINTEREST*\n> 🖼️ Imagem` }, { quoted: m })
     }
 
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch (e) {
     console.error('[PIN]', e.message)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar. Intentá de nuevo.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download. Tente novamente.`)
   }
 }
 

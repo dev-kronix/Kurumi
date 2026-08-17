@@ -35,7 +35,7 @@ async function downloadFile(url, destPath) {
     throw new Error(`LIMITE:${Math.round(cl / (1024 * 1024))}`)
   await pipeline(res.data, createWriteStream(destPath))
   const { size } = statSync(destPath)
-  if (size < 100) throw new Error(`Archivo inválido (${size} bytes)`)
+  if (size < 100) throw new Error(`Arquivo inválido (${size} bytes)`)
   return size
 }
 
@@ -47,18 +47,18 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ ENLACE REQUERIDO.*\n> Enviá o respondé a un mensaje con un enlace válido de MediaFire.`)
-  if (!url.includes('mediafire.com')) return m.reply(`*⌬┤ ✙ ├⌬ ENLACE INVÁLIDO.*\n> Asegurate de que sea de MediaFire.`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ LINK OBRIGATÓRIO.*\n> Envie ou responda a uma mensagem com um link válido do MediaFire.`)
+  if (!url.includes('mediafire.com')) return m.reply(`*⌬┤ ✙ ├⌬ LINK INVÁLIDO.*\n> Verifique se o link é do MediaFire.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ ⬇️ ├⌬ Descargando archivo...*`)
+  await m.reply(`*⌬┤ ⬇️ ├⌬ Baixando arquivo...*`)
 
   const tmpPath = join(TMP_DIR, randomUUID())
 
   try {
     let info = await mediafireInfo(url)
-    if (!info) throw new Error('No se pudo obtener la información.')
+    if (!info) throw new Error('Não foi possível obter as informações do arquivo.')
 
     const { name, download } = info
 
@@ -68,12 +68,12 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     const sizeMB = contentLength / (1024 * 1024)
 
     if (contentLength && sizeMB > MAX_MB) {
-      return m.reply(`*⌬┤ ⚠️ ├⌬ ARCHIVO MUY GRANDE.*\n> El archivo supera el límite de ${MAX_MB} MB.`)
+      return m.reply(`*⌬┤ ⚠️ ├⌬ ARQUIVO MUITO GRANDE.*\n> O arquivo ultrapassa o limite de ${MAX_MB} MB.`)
     }
 
     const ext = name.split('.').pop()?.toLowerCase() || ''
     const mime = MF_MIMES[ext] || contentType
-    const fileName = name || `archivo.${ext}`
+    const fileName = name || `arquivo.${ext}`
     const destPath = `${tmpPath}.${ext}`
 
     await downloadFile(download, destPath)
@@ -82,15 +82,15 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       document: readFileSync(destPath),
       mimetype: mime,
       fileName,
-      caption: `*⌬┤ ✅ ├⌬ Aquí tenés tu archivo.*\n> 📄 *${fileName}*`,
+      caption: `*⌬┤ ✅ ├⌬ Aqui está seu arquivo.*\n> 📄 *${fileName}*`,
     }, { quoted: m })
 
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch (e) {
     console.error('[MEDIAFIRE ERROR]', e.message)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar. Intentá de nuevo.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download. Tente novamente.`)
   } finally {
     await rm(`${tmpPath}.bin`, { force: true }).catch(() => {})
   }

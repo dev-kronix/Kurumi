@@ -9,18 +9,18 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Ej: *${usedPrefix}${command} https://open.spotify.com/track/ID*`)
-  if (!url.includes('spotify.com/track')) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Asegurate de que sea un link a una canción de Spotify.`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Exemplo: *${usedPrefix}${command} https://open.spotify.com/track/ID*`)
+  if (!url.includes('spotify.com/track')) return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Verifique se é um link de música do Spotify.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ ⏳ ├⌬ Descargando canción...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Baixando música...*`)
   
   try {
     const response = await fetch(`https://luxinfinity.vercel.app/api/spotify?url=${encodeURIComponent(url)}`)
     const json = await response.json()
 
-    if (!json.status || !json.data) return m.reply(`*⌬┤ ⚠️ ├⌬ No se pudo obtener la canción de la API.*`)
+    if (!json.status || !json.data) return m.reply(`*⌬┤ ⚠️ ├⌬ Não foi possível obter a música pela API.*`)
     
     const data = json.data
     
@@ -39,10 +39,10 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     }, { quoted: m })
     
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch (e) { 
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la descarga. Intentá de nuevo.`) 
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download. Tente novamente.`) 
   }
 }
 

@@ -1,40 +1,39 @@
 import fs from 'fs'
 import path from 'path'
+import { loadPlugin } from '../../handler.js'
+
+const PLUGINS = path.resolve('./plugins')
 
 const handler = async (m, { text, usedPrefix, command }) => {
-  const q = m.quoted
-  if (!q || !q.msg?.fileName) {
-    return m.reply(`*⌬┤ ⚠️ ├⌬ RESPONDE A UN DOCUMENTO.*\n> Debés responder a un archivo *.js* enviado como documento.\n> *Uso:* ${usedPrefix + command} <carpeta destino opcional>`)
+  if (!m.quoted?.text && !text) {
+    return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> Responda a uma mensagem contendo o código do plugin ou envie:\n> *${usedPrefix}${command} pasta/arquivo.js* junto do código respondido.`)
   }
 
-  const fileName = q.msg.fileName
-  if (!fileName.endsWith('.js')) return m.reply('*⌬┤ ❌ ├⌬ FORMATO INVÁLIDO.*\n> Solo se permiten archivos .js')
-
-  let folderPath = text.trim()
-  if (folderPath.startsWith('/')) folderPath = folderPath.slice(1)
-
-  const destPath = path.resolve(process.cwd(), 'plugins', folderPath, fileName)
-
-  try {
-    fs.mkdirSync(path.dirname(destPath), { recursive: true })
-
-    const buffer = await q.download()
-    if (!buffer) throw new Error('No se pudo descargar el buffer del archivo.')
-
-    fs.writeFileSync(destPath, buffer)
-
-    const relPath = path.relative(process.cwd(), destPath).replace(/\\/g, '/')
-
-    m.reply(`*⌬┤ ✅ ├⌬ PLUGIN INSTALADO EXITOSAMENTE.*\n> 📁 *Guardado en:* ${relPath}\n\n> 💡 _Usá el comando de reload para cargarlo inmediatamente si el bot no está en modo desarrollo._`)
-
-  } catch (e) {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR AL GUARDAR.*\n> ${e.message}`)
+  const code = m.quoted?.text || m.quoted?.body || ''
+  if (!code.includes('export default') && !code.includes('module.exports')) {
+    return m.reply(`*⌬┤ ⚠️ ├⌬ CÓDIGO INVÁLIDO.*\n> A mensagem respondida não parece conter um plugin válido.`)
   }
+
+  let relPath = (text || '').trim()
+  if (!relPath) relPath = `P-TOOLS/plugin-${Date.now()}.js`
+  if (!relPath.endsWith('.js')) relPath += '.js'
+  relPath = relPath.replace(/^plugins[\\/]/, '').replace(/\.\./g, '')
+
+  const fullPath = path.join(PLUGINS, relPath)
+  if (!fullPath.startsWith(PLUGINS)) return m.reply(`*⌬┤ ❌ ├⌬ CAMINHO INVÁLIDO.*`)
+  if (fs.existsSync(fullPath)) return m.reply(`*⌬┤ ⚠️ ├⌬ ARQUIVO JÁ EXISTE.*\n> Use outro nome ou remova o plugin antigo primeiro.`)
+
+  fs.mkdirSync(path.dirname(fullPath), { recursive: true })
+  fs.writeFileSync(fullPath, code, 'utf8')
+  await loadPlugin(relPath, true)
+
+  m.reply(`*⌬┤ ✅ ├⌬ PLUGIN ADICIONADO.*\n> 📄 *${relPath}*\n> O plugin foi salvo e carregado.`)
 }
 
-handler.help = ['addplugin <ruta>']
+handler.help = ['addplugin [pasta/arquivo.js]']
+handler.command = ['addplugin', 'adicionarplugin']
 handler.tags = ['owner']
-handler.command = ['addplugin', 'saveplugin', 'addp']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler

@@ -25,44 +25,44 @@ const handler = async (m, { conn, userDb }) => {
   let txt = `*╔═══⌦ ✦ 🏆 RANKING GLOBAL ✦ ⌫═══╗*\n\n`
 
   if (topCoins.length > 0) {
-    txt += `*⌬┤ ${config.CURRENCY_SYMBOL} RICOS EN ${config.CURRENCY_NAME.toUpperCase()} ├⌬*\n`
+    txt += `*⌬┤ ${config.CURRENCY_SYMBOL} MAIS RICOS EM ${config.CURRENCY_NAME.toUpperCase()} ├⌬*\n`
     topCoins.forEach((u, i) => {
       const medal = getMedal(i)
-      const name = u.name || 'Invitado'
-      txt += `> ${medal} ${name} (@${u.jid.split('@')[0]}) — ${u.zenCoins.toLocaleString('es-AR')} ${config.CURRENCY_SYMBOL}\n`
+      const name = u.name || 'Visitante'
+      txt += `> ${medal} ${name} (@${u.jid.split('@')[0]}) — ${u.zenCoins.toLocaleString('pt-BR')} ${config.CURRENCY_SYMBOL}\n`
     })
     txt += '\n'
   }
 
   if (topKogen.length > 0) {
-    txt += `*⌬┤ ${config.PREMIUM_SYMBOL} MAESTROS EN ${config.PREMIUM_NAME.toUpperCase()} ├⌬*\n`
+    txt += `*⌬┤ ${config.PREMIUM_SYMBOL} MESTRES EM ${config.PREMIUM_NAME.toUpperCase()} ├⌬*\n`
     topKogen.forEach((u, i) => {
       const medal = getMedal(i)
-      const name = u.name || 'Invitado'
-      txt += `> ${medal} ${name} (@${u.jid.split('@')[0]}) — ${u.kogen.toLocaleString('es-AR')} ${config.PREMIUM_SYMBOL}\n`
+      const name = u.name || 'Visitante'
+      txt += `> ${medal} ${name} (@${u.jid.split('@')[0]}) — ${u.kogen.toLocaleString('pt-BR')} ${config.PREMIUM_SYMBOL}\n`
     })
     txt += '\n'
   }
 
   if (topCoins.length === 0 && topKogen.length === 0) {
-    txt += `> _Aún no hay usuarios registrados en el ranking._\n\n`
+    txt += `> _Ainda não há usuários registrados no ranking._\n\n`
   }
 
-  txt += `*⌬┤ 📉 ESTADÍSTICAS DE CIRCULANTE ├⌬*\n`
-  txt += `> 🪙 Circulante de ${config.CURRENCY_NAME}: ${totalCoins.toLocaleString('es-AR')} ${config.CURRENCY_SYMBOL}\n`
-  txt += `> ${config.PREMIUM_SYMBOL} Circulante de ${config.PREMIUM_NAME}: ${totalKogen.toLocaleString('es-AR')} ${config.PREMIUM_SYMBOL}\n\n`
+  txt += `*⌬┤ 📉 ESTATÍSTICAS DE CIRCULAÇÃO ├⌬*\n`
+  txt += `> 🪙 ${config.CURRENCY_NAME} em circulação: ${totalCoins.toLocaleString('pt-BR')} ${config.CURRENCY_SYMBOL}\n`
+  txt += `> ${config.PREMIUM_SYMBOL} ${config.PREMIUM_NAME} em circulação: ${totalKogen.toLocaleString('pt-BR')} ${config.PREMIUM_SYMBOL}\n\n`
 
-  txt += `*━━━━━━━━━━━━━━━━━━━━*\n*📊 TU ESTADO ACTUAL:*\n`
-  txt += `> ${config.CURRENCY_SYMBOL} *${config.CURRENCY_NAME}:* Puesto #${posCoins + 1}\n`
-  txt += `> ${config.PREMIUM_SYMBOL} *${config.PREMIUM_NAME}:* Puesto #${posKogen + 1}\n`
+  txt += `*━━━━━━━━━━━━━━━━━━━━*\n*📊 SUA POSIÇÃO ATUAL:*\n`
+  txt += `> ${config.CURRENCY_SYMBOL} *${config.CURRENCY_NAME}:* Posição #${posCoins + 1}\n`
+  txt += `> ${config.PREMIUM_SYMBOL} *${config.PREMIUM_NAME}:* Posição #${posKogen + 1}\n`
   txt += `*╚══⌦ ${config.footer} ⌫══╝*`
 
   const allMentions = [...new Set([...topCoins.map(u => u.jid), ...topKogen.map(u => u.jid)])]
   conn.sendMessage(m.chat, { text: txt, mentions: allMentions }, { quoted: m })
 }
 
-handler.help    = ['leaderboard']
+handler.help    = ['ranking']
 handler.tags    = ['eco']
-handler.command = ['lb', 'topcoins', 'topkogens', 'leaderboard', 'ricos']
+handler.command = ['lb', 'topcoins', 'topkogens', 'leaderboard', 'ranking', 'ricos']
 handler.register = true
 export default handler

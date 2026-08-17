@@ -3,9 +3,9 @@ import User, { RANGOS } from '../../lib/database/models/zen-users.js'
 import config from '../../config.js'
 
 const TITLE_LABEL = {
-  title_cazador: '🏷️ El Cazador',
-  title_magnate: '🏷️ Magnate',
-  title_legendario: '🏷️ Leyenda Viva',
+  title_cazador: '🏷️ O Caçador',
+  title_magnate: '🏷️ Magnata',
+  title_legendario: '🏷️ Lenda Viva',
   title_sombra: '🏷️ Sombra'
 }
 
@@ -41,7 +41,7 @@ const handler = async (m, { conn, participants }) => {
     ? await User.findOne({ jid: { $regex: `^${extraerNum(m.sender)}@` } }).lean()
     : await findByNum(targetRaw)
 
-  if (!u) return isSelf ? undefined : m.reply('*⌬┤ ❌ · USUARIO NO REGISTRADO.*')
+  if (!u) return isSelf ? undefined : m.reply('*⌬┤ ❌ · USUÁRIO NÃO CADASTRADO.*')
 
   const displayJid = u.jid
   const rango = RANGOS[Math.min(u.level, RANGOS.length - 1)]
@@ -52,43 +52,38 @@ const handler = async (m, { conn, participants }) => {
   let pfp = await conn.profilePictureUrl(displayJid, 'image').catch(() => null)
   if (!pfp) pfp = 'https://i.ibb.co/sphnd13T/images-4.jpg'
 
-  const insignias = (inv.badges || [])
-    .map(b => BADGE_EMOJI[b] || '')
-    .filter(Boolean)
-    .join(' ')
-
+  const insignias = (inv.badges || []).map(b => BADGE_EMOJI[b] || '').filter(Boolean).join(' ')
   const badgeSuffix = insignias ? ` [ ${insignias} ]` : ''
 
   let txt = `*╔═══⌦ ✦ ✨ PERFIL ✨ ✦ ⌫═══╗*\n\n`
-  txt += `> 👤 *Nombre:* ${u.name || 'Invitado'}${badgeSuffix}\n`
-  if (!isSelf) txt += `> 🔖 *Usuario:* @${extraerNum(displayJid)}\n`
+  txt += `> 👤 *Nome:* ${u.name || 'Visitante'}${badgeSuffix}\n`
+  if (!isSelf) txt += `> 🔖 *Usuário:* @${extraerNum(displayJid)}\n`
   if (inv.title) txt += `> 🏷️ *Título:* ${TITLE_LABEL[inv.title] || inv.title}\n`
-  if (social.nickname) txt += `> 🎭 *Apodo:* ${social.nickname}\n`
-  if (social.bio)      txt += `> 📜 *Bio:* ${social.bio}\n`
-  txt += `> 🆔 *Serie:* ${u.serial || '---'}\n\n`
+  if (social.nickname) txt += `> 🎭 *Apelido:* ${social.nickname}\n`
+  if (social.bio) txt += `> 📜 *Bio:* ${social.bio}\n`
+  txt += `> 🆔 *Serial:* ${u.serial || '---'}\n\n`
 
-  txt += `*⌬┤ 🏆 RANGO Y NIVEL ├⌬*\n`
-  txt += `> 🆙 *Nivel:* ${u.level}\n`
-  txt += `> 👑 *Rango:* ${rango}\n`
+  txt += `*⌬┤ 🏆 PATENTE E NÍVEL ├⌬*\n`
+  txt += `> 🆙 *Nível:* ${u.level}\n`
+  txt += `> 👑 *Patente:* ${rango}\n`
   txt += `> ✨ *XP:* [ ${u.xp} / ${xpNec} ]\n\n`
 
   let socialInfo = ''
-  if (social.country)  socialInfo += `> 🌎 *País:* ${social.country}\n`
-  if (social.birthday) socialInfo += `> 🎂 *Cumpleaños:* ${social.birthday}\n`
-  if (social.zodiac)   socialInfo += `> 🔯 *Signo:* ${social.zodiac}\n`
-  if (social.song)     socialInfo += `> 🎵 *Canción:* ${social.song}\n`
-  if (social.color)    socialInfo += `> 🎨 *Color:* ${social.color}\n`
-  if (social.food)     socialInfo += `> 🍱 *Comida:* ${social.food}\n`
-  if (socialInfo) txt += `*⌬┤ 👤 INFORMACIÓN ├⌬*\n${socialInfo}\n`
+  if (social.country) socialInfo += `> 🌎 *País:* ${social.country}\n`
+  if (social.birthday) socialInfo += `> 🎂 *Aniversário:* ${social.birthday}\n`
+  if (social.zodiac) socialInfo += `> 🔯 *Signo:* ${social.zodiac}\n`
+  if (social.song) socialInfo += `> 🎵 *Música:* ${social.song}\n`
+  if (social.color) socialInfo += `> 🎨 *Cor:* ${social.color}\n`
+  if (social.food) socialInfo += `> 🍱 *Comida:* ${social.food}\n`
+  if (socialInfo) txt += `*⌬┤ 👤 INFORMAÇÕES ├⌬*\n${socialInfo}\n`
 
-  txt += `*⌬┤ 🏦 ECONOMÍA ├⌬*\n`
-  txt += `> 🪙 *Billetera:* ${u.zenCoins} ${config.CURRENCY_SYMBOL}\n`
+  txt += `*⌬┤ 🏦 ECONOMIA ├⌬*\n`
+  txt += `> 🪙 *Carteira:* ${u.zenCoins} ${config.CURRENCY_SYMBOL}\n`
   txt += `> 💳 *Banco:* ${u.bankBalance} ${config.CURRENCY_SYMBOL}\n`
   txt += `> ${config.PREMIUM_SYMBOL} *${config.PREMIUM_NAME}:* ${u.kogen} ${config.PREMIUM_SYMBOL}\n\n`
 
   txt += `*⌬┤ 🎒 MOCHILA ├⌬*\n`
   txt += `> ⚒️ ${inv.pickaxeDurability || 0} | 🏹 ${inv.bowDurability || 0} | 🎣 ${inv.baitDurability || 0}\n\n`
-
   txt += `*╚══⌦ ${config.footer} ⌫══╝*`
 
   let imgBuffer
@@ -105,7 +100,7 @@ const handler = async (m, { conn, participants }) => {
       : { text: txt, mentions: [displayJid] }
     await conn.sendMessage(m.chat, payload, { quoted: m })
   } catch (err) {
-    console.error('[PERFIL ERROR]', err.message)
+    console.error('[ERRO PERFIL]', err.message)
   }
 }
 

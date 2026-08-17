@@ -22,21 +22,22 @@ const findByNum = (jid) => {
 
 const formatBalance = (u, jid, now) => {
   const rango = RANGOS[Math.min(u.level, RANGOS.length - 1)]
-  const estaProtegido = u.bankExpiry > now
-  const expira = estaProtegido
+  const protegido = u.bankExpiry > now
+  const expira = protegido
     ? `${Math.floor((u.bankExpiry - now) / 3600000)}h ${Math.floor(((u.bankExpiry - now) % 3600000) / 60000)}m`
-    : 'INACTIVO ⚠️'
-  return `*╔═══⌦ ✦ 💳 CUENTA ✦ ⌫═══╗*\n\n`
-       + `> 👤 *Usuario:* @${extraerNum(jid)}\n`
-       + `> 🆙 *Nivel:* ${u.level}\n`
-       + `> 🏆 *Rango:* ${rango}\n\n`
-       + `*⌬┤ 💰 BILLETERA ├⌬*\n`
+    : 'INATIVO ⚠️'
+
+  return `*╔═══⌦ ✦ 💳 CONTA ✦ ⌫═══╗*\n\n`
+       + `> 👤 *Usuário:* @${extraerNum(jid)}\n`
+       + `> 🆙 *Nível:* ${u.level}\n`
+       + `> 🏆 *Patente:* ${rango}\n\n`
+       + `*⌬┤ 💰 CARTEIRA ├⌬*\n`
        + `> ${config.CURRENCY_SYMBOL} *${config.CURRENCY_NAME}:* ${u.zenCoins} ${config.CURRENCY_SYMBOL}\n`
-       + `> 🔓 *Estado:* EXPUESTO A ROBOS\n\n`
+       + `> 🔓 *Estado:* EXPOSTA A ROUBOS\n\n`
        + `*⌬┤ 🏦 BANCO ├⌬*\n`
        + `> 💳 *Saldo:* ${u.bankBalance} ${config.CURRENCY_SYMBOL}\n`
-       + `> 🛡️ *Protección:* ${estaProtegido ? 'ACTIVA ✅' : 'INACTIVA ❌'}\n`
-       + `> ⏳ *Expira:* ${expira}\n\n`
+       + `> 🛡️ *Proteção:* ${protegido ? 'ATIVA ✅' : 'INATIVA ❌'}\n`
+       + `> ⏳ *Expira em:* ${expira}\n\n`
        + `*⌬┤ ✨ PREMIUM ├⌬*\n`
        + `> ${config.PREMIUM_SYMBOL} *${config.PREMIUM_NAME}:* ${u.kogen} ${config.PREMIUM_SYMBOL}\n\n`
        + `*╚══⌦ ${config.footer} ⌫══╝*`
@@ -52,7 +53,7 @@ const handler = async (m, { userDb, participants }) => {
 
   if (!isSelf) {
     const v = await findByNum(targetRaw)
-    if (!v) return m.reply('*⌬┤ ❌ · USUARIO NO REGISTRADO.*')
+    if (!v) return m.reply('*⌬┤ ❌ · USUÁRIO NÃO CADASTRADO.*')
     return m.reply(formatBalance(v, v.jid, now), { mentions: [v.jid] })
   }
 
@@ -70,8 +71,8 @@ const handler = async (m, { userDb, participants }) => {
   m.reply(formatBalance(userDb, senderJid, now), { mentions: [senderJid] })
 }
 
-handler.help = ['balance [@usuario]']
+handler.help = ['saldo [@usuario]']
 handler.tags = ['eco']
-handler.command = ['bal', 'balance', 'wallet', 'cartera', 'puntos']
+handler.command = ['saldo', 'bal', 'balance', 'wallet', 'carteira', 'cartera', 'pontos']
 handler.register = true
 export default handler

@@ -51,16 +51,16 @@ const handler = async (m, { userDb, participants }) => {
 
     if (r < cooldown) {
         const f = cooldown - r
-        return m.reply(`*⌬┤ ⏳ ├⌬ ESPERA.*\n> Volvé a intentar en: *${Math.floor(f / 60000)}m ${Math.floor((f % 60000) / 1000)}s*.`)
+        return m.reply(`*⌬┤ ⏳ ├⌬ AGUARDE.*\n> Tente novamente em: *${Math.floor(f / 60000)}m ${Math.floor((f % 60000) / 1000)}s*.`)
     }
 
     const targetRaw = resolveTargetJid(m, participants)
     if (!targetRaw || extraerNum(targetRaw) === extraerNum(m.sender)) {
-        return m.reply('*⌬┤ ⚠️ · ETIQUETÁ O RESPONDÉ A ALGUIEN.*')
+        return m.reply('*⌬┤ ⚠️ · MARQUE OU RESPONDA A ALGUÉM.*')
     }
 
     const v = await findByNum(targetRaw)
-    if (!v) return m.reply('*⌬┤ ❌ · USUARIO NO REGISTRADO.*')
+    if (!v) return m.reply('*⌬┤ ❌ · USUÁRIO NÃO CADASTRADO.*')
 
     const targetJid = v.jid
     const shield = bestShield(v.inventory)
@@ -94,9 +94,9 @@ const handler = async (m, { userDb, participants }) => {
           User.updateOne({ jid: senderJid }, updateSender)
         ])
 
-        let txt = `*⌬┤ ${SHIELD_ICON[shield.tier]} ├⌬ ROBO BLOQUEADO*\n\n> Intentaste robar a @${extraerNum(targetJid)} pero su *Escudo* se activó y te detuvo. El escudo ha quedado destruido.`
+        let txt = `*⌬┤ ${SHIELD_ICON[shield.tier]} ├⌬ ROUBO BLOQUEADO*\n\n> Você tentou roubar @${extraerNum(targetJid)}, mas o *Escudo* foi ativado e bloqueou o ataque. O escudo foi destruído.`
         if (refund > 0) {
-            txt += `\n> 💸 Además, su escudo te penalizó: perdiste *${refund} ${config.CURRENCY_NAME}*, que fueron transferidos a @${extraerNum(targetJid)}.`
+            txt += `\n> 💸 Além disso, o escudo aplicou uma penalidade: você perdeu *${refund} ${config.CURRENCY_NAME}*, transferidos para @${extraerNum(targetJid)}.`
         }
 
         return m.reply(txt, { mentions: [targetJid] })
@@ -106,7 +106,7 @@ const handler = async (m, { userDb, participants }) => {
     let capitalExpuesto = v.zenCoins
     if (!bancoProtegido) capitalExpuesto += v.bankBalance
 
-    if (capitalExpuesto < 500) return m.reply('*⌬┤ ❌ ├⌬ VÍCTIMA POBRE.*\n> No tiene suficiente capital expuesto para que valga la pena el riesgo.')
+    if (capitalExpuesto < 500) return m.reply('*⌬┤ ❌ ├⌬ VÍTIMA SEM RECURSOS.*\n> Ela não possui capital exposto suficiente para valer o risco.')
 
     userDb.lastRob = now
 
@@ -130,11 +130,11 @@ const handler = async (m, { userDb, participants }) => {
           User.updateOne({ jid: senderJid }, { $inc: { zenCoins: robado }, $set: { lastRob: now } })
         ])
 
-        let msg = `*╔═══⌦ ✦ 🔫 ATRACO ÉXITOSO ✦ ⌫═══╗*\n\n`
-                + `> 👤 *Víctima:* @${extraerNum(targetJid)}\n`
-                + `> 💰 *Botín:* ${robado} ${config.CURRENCY_NAME}\n`
+        let msg = `*╔═══⌦ ✦ 🔫 ROUBO BEM-SUCEDIDO ✦ ⌫═══╗*\n\n`
+                + `> 👤 *Vítima:* @${extraerNum(targetJid)}\n`
+                + `> 💰 *Valor roubado:* ${robado} ${config.CURRENCY_NAME}\n`
         if (!bancoProtegido && lossBank > 0) {
-            msg += `\n> 🔓 *Nota:* El banco sin protección también fue saqueado.`
+            msg += `\n> 🔓 *Observação:* O banco sem proteção também foi saqueado.`
         }
         msg += `\n*╚══⌦ ${config.footer} ⌫══╝*`
         m.reply(msg, { mentions: [targetJid] })
@@ -145,15 +145,15 @@ const handler = async (m, { userDb, participants }) => {
         userDb.zenCoins -= loss
         await User.updateOne({ jid: senderJid }, { $inc: { zenCoins: -loss }, $set: { lastRob: now } })
         m.reply(
-          `*⌬┤ 👮 ├⌬ ¡LA POLICÍA!*\n\n> Te atraparon intentando robar a @${extraerNum(targetJid)}.\n> 💸 *Multa pagada:* ${loss} ${config.CURRENCY_NAME}`,
+          `*⌬┤ 👮 ├⌬ A POLÍCIA TE PEGOU!*\n\n> Você foi pego tentando roubar @${extraerNum(targetJid)}.\n> 💸 *Multa paga:* ${loss} ${config.CURRENCY_NAME}`,
           { mentions: [targetJid] }
         )
     }
 }
 
-handler.help = ['robar @tag']
+handler.help = ['roubar @usuario']
 handler.tags = ['eco']
-handler.command = ['rob', 'robar']
+handler.command = ['rob', 'robar', 'roubar']
 handler.groupOnly = true
 handler.register = true
 export default handler

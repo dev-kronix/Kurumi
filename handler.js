@@ -18,26 +18,26 @@ const watchDebounce = new Map()
 const PLUGINS_DIR = path.resolve('./plugins')
 
 function getPlatform(id) {
-  if (!id) return '❓ Desconocido'
+  if (!id) return '❓ Desconhecido'
   if (id.startsWith('BAE5') && id.length === 16) return '🤖 Bot (Baileys)'
   if (id.length === 16) return '💻 Web / Desktop'
   if (id.startsWith('3EB0') && id.length === 12) return '💻 WhatsApp Web'
   if (id.startsWith('3A') && (id.length === 28 || id.length === 32)) return '🍏 iOS (iPhone)'
   if (id.startsWith('3E') && id.length === 22) return '🤖 Android'
-  return '📱 Android (Heurístico)'
+  return '📱 Android (estimado)'
 }
 
 function getMsgType(m) {
-  if (!m?.mtype) return '❓ Desconocido'
+  if (!m?.mtype) return '❓ Desconhecido'
   if (m.mtype === 'conversation' || m.mtype === 'extendedTextMessage') return 'Texto 📝'
-  if (m.mtype === 'imageMessage') return 'Imagen 🖼️'
-  if (m.mtype === 'videoMessage') return m.msg?.gifPlayback ? 'GIF 🎞️' : 'Video 🎥'
-  if (m.mtype === 'audioMessage') return m.msg?.ptt ? 'Nota de Voz 🎙️' : 'Audio 🎵'
+  if (m.mtype === 'imageMessage') return 'Imagem 🖼️'
+  if (m.mtype === 'videoMessage') return m.msg?.gifPlayback ? 'GIF 🎞️' : 'Vídeo 🎥'
+  if (m.mtype === 'audioMessage') return m.msg?.ptt ? 'Mensagem de voz 🎙️' : 'Áudio 🎵'
   if (m.mtype === 'documentMessage') return 'Documento 📄'
   if (m.mtype === 'stickerMessage') return 'Sticker 🏷️'
-  if (m.mtype === 'buttonsResponseMessage' || m.mtype === 'templateButtonReplyMessage' || m.mtype === 'listResponseMessage') return 'Respuesta de Botón 🔘'
-  if (m.mtype === 'pollCreationMessage' || m.mtype === 'pollUpdateMessage') return 'Encuesta 📊'
-  if (m.mtype === 'interactiveResponseMessage') return 'Respuesta Interactiva 📱'
+  if (m.mtype === 'buttonsResponseMessage' || m.mtype === 'templateButtonReplyMessage' || m.mtype === 'listResponseMessage') return 'Resposta de botão 🔘'
+  if (m.mtype === 'pollCreationMessage' || m.mtype === 'pollUpdateMessage') return 'Enquete 📊'
+  if (m.mtype === 'interactiveResponseMessage') return 'Resposta interativa 📱'
   return m.mtype.replace('Message', '')
 }
 
@@ -70,7 +70,12 @@ function getFilesRecursively(dir) {
 export async function loadPlugin(relPath, silent = false) {
   try {
     const full = path.join(PLUGINS_DIR, relPath)
-    if (!fs.existsSync(full)) { delete plugins[relPath]; rebuildIndex(); return }
+    if (!fs.existsSync(full)) {
+      delete plugins[relPath]
+      rebuildIndex()
+      return
+    }
+
     const url = process.env.NODE_ENV === 'production'
       ? pathToFileURL(full).href
       : pathToFileURL(full).href + `?v=${Date.now()}`
@@ -82,24 +87,25 @@ export async function loadPlugin(relPath, silent = false) {
       if (mod.manejarParticipantes) plugin.manejarParticipantes = mod.manejarParticipantes
       plugins[relPath] = plugin
       rebuildIndex()
-      if (!silent) console.log(chalk.bold.cyanBright(`[PLUGIN] Cargado: ${relPath}`))
+      if (!silent) console.log(chalk.bold.cyanBright(`[PLUGIN] Carregado: ${relPath}`))
     } else {
-      delete plugins[relPath]; rebuildIndex()
+      delete plugins[relPath]
+      rebuildIndex()
     }
   } catch (e) {
-    console.error(chalk.bold.bgRed.white(` [PLUGIN ERROR] ${relPath} `), chalk.bold.redBright(e.stack || e.message))
+    console.error(chalk.bold.bgRed.white(` [ERRO NO PLUGIN] ${relPath} `), chalk.bold.redBright(e.stack || e.message))
   }
 }
 
 export async function loadPlugins() {
   if (!fs.existsSync(PLUGINS_DIR)) fs.mkdirSync(PLUGINS_DIR, { recursive: true })
   const files = getFilesRecursively(PLUGINS_DIR)
-  console.log(chalk.bold.blueBright(`\n📦 CARGANDO ${files.length} PLUGINS...`))
+  console.log(chalk.bold.blueBright(`\n📦 CARREGANDO ${files.length} PLUGINS...`))
   for (const fullPath of files) {
     const relPath = path.relative(PLUGINS_DIR, fullPath).replace(/\\/g, '/')
     await loadPlugin(relPath, true)
   }
-  console.log(chalk.bold.greenBright('✅ PLUGINS LISTOS.\n'))
+  console.log(chalk.bold.greenBright('✅ PLUGINS PRONTOS.\n'))
 }
 
 export function setupWatchers() {
@@ -113,8 +119,9 @@ export function setupWatchers() {
     watchDebounce.set(full, setTimeout(async () => {
       watchDebounce.delete(full)
       if (!fs.existsSync(full)) {
-        delete plugins[relPath]; rebuildIndex()
-        console.log(chalk.bold.redBright(`[PLUGIN] Eliminado: ${relPath}`))
+        delete plugins[relPath]
+        rebuildIndex()
+        console.log(chalk.bold.redBright(`[PLUGIN] Removido: ${relPath}`))
         return
       }
       await loadPlugin(relPath, false)
@@ -129,11 +136,6 @@ const normalizarNum = (n = '') => {
   if (n.startsWith('549')) n = '54' + n.slice(3)
   if (n.startsWith('521')) n = '52' + n.slice(3)
   return n
-}
-
-const sonIguales = (jid1, jid2) => {
-  if (!jid1 || !jid2) return false
-  return jid1.split('@')[0].split(':')[0] === jid2.split('@')[0].split(':')[0]
 }
 
 const compararNumeros = (owners, numB) => {
@@ -154,16 +156,25 @@ function isSpamming(num, isSubBot = false) {
     ? config.antiSpamSubBot
     : config.antiSpam
   if (!cfg.enabled) return false
+
   const now = Date.now()
   const data = spamCache.get(num) || { count: 0, first: now, blockedUntil: 0 }
   if (now < data.blockedUntil) return true
-  if (now - data.first > cfg.ventanaMs) { data.count = 1; data.first = now; data.blockedUntil = 0 }
-  else data.count++
+
+  if (now - data.first > cfg.ventanaMs) {
+    data.count = 1
+    data.first = now
+    data.blockedUntil = 0
+  } else {
+    data.count++
+  }
+
   if (data.count > cfg.maxCmds) {
     data.blockedUntil = now + cfg.muteMs
     spamCache.set(num, data)
     return true
   }
+
   spamCache.set(num, data)
   return false
 }
@@ -171,15 +182,14 @@ function isSpamming(num, isSubBot = false) {
 function getAdminStatus(participants, jidList) {
   if (!participants?.length || !jidList?.length) return false
   const numbersToMatch = jidList.filter(Boolean).map(j => extraerNum(j))
-  
+
   const p = participants.find(p => {
     const pIdNum = p.id ? extraerNum(p.id) : ''
     const pLidNum = p.lid ? extraerNum(p.lid) : ''
     const pTelNum = p.phoneNumber ? String(p.phoneNumber).replace(/\D/g, '') : ''
-    
     return numbersToMatch.some(num => num === pIdNum || num === pLidNum || num === pTelNum)
   })
-  
+
   return p ? (p.admin === 'admin' || p.admin === 'superadmin' || p.isCommunityAdmin === true) : false
 }
 
@@ -191,7 +201,7 @@ export async function handler(conn, rawM) {
     m = serializarM(conn, rawM)
     if (!m) return
   } catch (e) {
-    console.error(chalk.bold.bgRed.white(' [SERIALIZE ERROR] '), chalk.bold.redBright(e.stack || e.message))
+    console.error(chalk.bold.bgRed.white(' [ERRO DE SERIALIZAÇÃO] '), chalk.bold.redBright(e.stack || e.message))
     return
   }
 
@@ -253,7 +263,11 @@ export async function handler(conn, rawM) {
     }
   }
 
-  let participants = [], grupoMeta = {}, esAdmin = false, esBotAdmin = false, groupDb = null
+  let participants = []
+  let grupoMeta = {}
+  let esAdmin = false
+  let esBotAdmin = false
+  let groupDb = null
 
   if (m.isGroup) {
     grupoMeta = groupCache.get(m.chat)
@@ -286,7 +300,11 @@ export async function handler(conn, rawM) {
 
   if (m.isGroup && groupDb) {
     const cmdUsado = esCmd ? m.body.slice(prefixUsado.length).trim().split(/\s+/)[0].toLowerCase() : ''
-    const isBypass = ['zendespierta', 'zenduerme', 'bot', 'boton', 'botoff', 'setprimary', 'principal', 'onlyadmin', 'soloadmin', 'adminonly'].includes(cmdUsado)
+    const isBypass = [
+      'zendespierta', 'zenduerme', 'kurumiacorda', 'kurumidorme',
+      'bot', 'boton', 'botoff', 'setprimary', 'principal',
+      'onlyadmin', 'soloadmin', 'adminonly'
+    ].includes(cmdUsado)
 
     const myNumber = normalizarNum(extraerNum(conn.user.id))
     const isMainBot = !conn.isSubBot
@@ -343,14 +361,14 @@ export async function handler(conn, rawM) {
     }
   }
 
-  for (const [nombre, plug] of Object.entries(plugins)) {
+  for (const [nome, plug] of Object.entries(plugins)) {
     if (typeof plug.all === 'function') {
       try { await plug.all.call(conn, m, ctx) }
-      catch (e) { console.error(chalk.bold.bgRed.white(` [ALL:${nombre}] `), chalk.bold.redBright(e.stack || e.message)) }
+      catch (e) { console.error(chalk.bold.bgRed.white(` [ALL:${nome}] `), chalk.bold.redBright(e.stack || e.message)) }
     }
     if (typeof plug.before === 'function' && plug.alwaysBefore) {
       try { await plug.before(m, ctx) }
-      catch (e) { console.error(chalk.bold.bgRed.white(` [BEFORE:${nombre}] `), chalk.bold.redBright(e.stack || e.message)) }
+      catch (e) { console.error(chalk.bold.bgRed.white(` [BEFORE:${nome}] `), chalk.bold.redBright(e.stack || e.message)) }
     }
   }
 
@@ -369,13 +387,13 @@ export async function handler(conn, rawM) {
   if (!plugin) return
 
   if (plugin.register && !plugin.noRegister && !userDb?.registered) {
-    return m.reply(`*『 🔒 』USUARIO NO REGISTRADO.*\n\n> Para usar este comando y el sistema de economía, debés registrarte.\n\n> *Uso:* ${prefixUsado}reg nombre.edad`)
+    return m.reply(`*『 🔒 』USUÁRIO NÃO CADASTRADO.*\n\n> Para usar este comando e o sistema de economia, você precisa se cadastrar.\n\n> *Uso:* ${prefixUsado}reg nome.idade`)
   }
 
   if (!esOwner && isSpamming(numSender, !!conn.isSubBot)) {
     if (!warnCache.has(senderUser)) {
       warnCache.set(senderUser, true)
-      await m.reply(`*『 ⏳ 』ANTI SPAM.*\n> @${userTag}, estás enviando comandos muy rápido. Esperá unos segundos.`)
+      await m.reply(`*『 ⏳ 』ANTI-SPAM.*\n> @${userTag}, você está enviando comandos rápido demais. Aguarde alguns segundos.`)
     }
     return
   }
@@ -383,26 +401,26 @@ export async function handler(conn, rawM) {
   if (config.MODE === 'private' && !esOwner) {
     if (!warnCache.has(senderUser)) {
       warnCache.set(senderUser, true)
-      await m.reply(`*『 ⚠️ 』MODO PRIVADO.*\n> @${userTag}, el bot está en modo privado.`)
+      await m.reply(`*『 ⚠️ 』MODO PRIVADO.*\n> @${userTag}, a ${config.botName} está em modo privado.`)
     }
     return
   }
 
   if (m.isGroup) {
     if (groupDb && !esOwner && !esAdmin) {
-      const pTag = (Array.isArray(plugin.tags) ? plugin.tags[0] : (plugin.tags || 'otros')).toLowerCase()
+      const pTag = (Array.isArray(plugin.tags) ? plugin.tags[0] : (plugin.tags || 'outros')).toLowerCase()
       if (groupDb.disabledCategories?.includes(pTag) || groupDb.disabledCmds?.includes(cmd)) {
-        return m.reply(`*『 🚫 』BLOQUEADO.*\n> Este comando o categoría fue desactivado por los administradores de este grupo.`)
+        return m.reply(`*『 🚫 』BLOQUEADO.*\n> Este comando ou categoria foi desativado pelos administradores deste grupo.`)
       }
     }
 
-    let necesitaRecarga = false
-    if (plugin.adminOnly && !esAdmin && !esOwner) necesitaRecarga = true
-    if (plugin.botAdminOnly && !esBotAdmin) necesitaRecarga = true
+    let precisaRecarregar = false
+    if (plugin.adminOnly && !esAdmin && !esOwner) precisaRecarregar = true
+    if (plugin.botAdminOnly && !esBotAdmin) precisaRecarregar = true
 
-    if (necesitaRecarga) {
+    if (precisaRecarregar) {
       const freshMeta = await conn.groupMetadata(m.chat).catch(() => null)
-      if (freshMeta && freshMeta.participants) {
+      if (freshMeta?.participants) {
         groupCache.set(m.chat, freshMeta)
         participants = freshMeta.participants
 
@@ -418,20 +436,20 @@ export async function handler(conn, rawM) {
     }
   }
 
-  if (plugin.ownerOnly && !esOwner) return m.reply(`*『 👑 』SOLO OWNER.*\n> @${userTag}, este comando es exclusivo del dueño del bot.`)
+  if (plugin.ownerOnly && !esOwner) return m.reply(`*『 👑 』SOMENTE O DONO.*\n> @${userTag}, este comando é exclusivo do responsável pela bot.`)
 
   if (!conn.isSubBot && botNum && numSender === botNum) {
     const tags = (Array.isArray(plugin.tags) ? plugin.tags : [plugin.tags]).map(t => (t || '').toLowerCase())
     if (tags.includes('eco')) return
   }
 
-  if (plugin.groupOnly && !m.isGroup) return m.reply(`*『 👥 』SOLO GRUPOS.*\n> @${userTag}, este comando solo funciona en grupos.`)
-  if (plugin.adminOnly && !esAdmin && !esOwner) return m.reply(`*『 👤 』SOLO ADMINS.*\n> @${userTag}, necesitás ser admin para usar este comando.`)
-  if (plugin.botAdminOnly && !esBotAdmin) return m.reply(`*『 🤖 』BOT SIN PERMISOS.*\n> @${userTag}, hacé al bot administrador para usar esto.`)
+  if (plugin.groupOnly && !m.isGroup) return m.reply(`*『 👥 』SOMENTE GRUPOS.*\n> @${userTag}, este comando funciona apenas em grupos.`)
+  if (plugin.adminOnly && !esAdmin && !esOwner) return m.reply(`*『 👤 』SOMENTE ADMINS.*\n> @${userTag}, você precisa ser administrador para usar este comando.`)
+  if (plugin.botAdminOnly && !esBotAdmin) return m.reply(`*『 🤖 』SEM PERMISSÃO.*\n> @${userTag}, torne a ${config.botName} administradora para usar este recurso.`)
 
   if (plugin.nsfw) {
-    if (m.isGroup && !groupDb?.nsfw) return m.reply(`*『 🔞 』NSFW DESACTIVADO.*\n> Los administradores no han habilitado el contenido +18 en este grupo.\n> Usen *${prefixUsado}nsfw on* para activarlo.`)
-    if (userDb?.age < 18) return m.reply(`*『 🚷 』ACCESO DENEGADO.*\n> Eres menor de edad (*${userDb.age} años*). Este comando es +18.\n> Si te equivocaste en tu registro, usa *${prefixUsado}cambiaredad <edad>*.`)
+    if (m.isGroup && !groupDb?.nsfw) return m.reply(`*『 🔞 』NSFW DESATIVADO.*\n> Os administradores não habilitaram conteúdo +18 neste grupo.\n> Use *${prefixUsado}nsfw on* para ativar.`)
+    if (userDb?.age < 18) return m.reply(`*『 🚷 』ACESSO NEGADO.*\n> Sua idade cadastrada é *${userDb.age} anos*. Este comando é +18.\n> Se a idade estiver errada, use *${prefixUsado}cambiaredad <idade>*.`)
   }
 
   const text = args.join(' ')
@@ -439,15 +457,14 @@ export async function handler(conn, rawM) {
     return m.reply(plugin.expectedArgs.replace(/\{p\}/g, prefixUsado).replace(/\{cmd\}/g, cmd))
   }
 
-  const nombreChat = (m.isGroup && grupoMeta?.subject) ? grupoMeta.subject : m.chat.split('@')[0]
-  const hora = new Date().toLocaleTimeString('es', { hour12: false })
-
+  const nomeChat = (m.isGroup && grupoMeta?.subject) ? grupoMeta.subject : m.chat.split('@')[0]
+  const hora = new Date().toLocaleTimeString('pt-BR', { hour12: false })
   const platform = getPlatform(m.id)
   const msgType = getMsgType(m)
 
   console.log(`\n${chalk.bold.magentaBright('╭━━━ ❬')} ${chalk.bold.cyanBright(hora)} ${chalk.bold.magentaBright('❭ ━━━ ✧')}`)
-  console.log(`${chalk.bold.magentaBright('┃')} ${chalk.bold.white('💬 Chat :')} ${m.isGroup ? chalk.bold.cyanBright('👥 Grupo') : chalk.bold.blueBright('👤 Privado')} ${chalk.dim(`(${nombreChat})`)}`)
-  console.log(`${chalk.bold.magentaBright('┃')} ${chalk.bold.white('👤 User :')} ${chalk.bold.yellowBright(m.pushName)} ${chalk.bold.greenBright(`(+${numSender})`)}${esOwner ? chalk.bold.redBright(' [👑 OWNER]') : ''}`)
+  console.log(`${chalk.bold.magentaBright('┃')} ${chalk.bold.white('💬 Chat :')} ${m.isGroup ? chalk.bold.cyanBright('👥 Grupo') : chalk.bold.blueBright('👤 Privado')} ${chalk.dim(`(${nomeChat})`)}`)
+  console.log(`${chalk.bold.magentaBright('┃')} ${chalk.bold.white('👤 User :')} ${chalk.bold.yellowBright(m.pushName)} ${chalk.bold.greenBright(`(+${numSender})`)}${esOwner ? chalk.bold.redBright(' [👑 DONO]') : ''}`)
   console.log(`${chalk.bold.magentaBright('┃')} ${chalk.bold.white('📱 Platf:')} ${chalk.bold.cyanBright(platform)}`)
   console.log(`${chalk.bold.magentaBright('┃')} ${chalk.bold.white('📦 Tipo :')} ${chalk.bold.greenBright(msgType)}`)
   console.log(`${chalk.bold.magentaBright('┃')} ${chalk.bold.white('🚀 Cmd  :')} ${chalk.bold.whiteBright(m.body.substring(0, 60))}`)
@@ -468,18 +485,18 @@ export async function handler(conn, rawM) {
     }
     if (typeof plugin.after === 'function') await plugin.after(m, ctx)
 
-    if (userDb) {
-      if (!globalXpCache.has(m.id)) {
-        globalXpCache.set(m.id, true)
-        const dbActualizada = await checkLevelUp(m, conn, userDb)
-        if (dbActualizada) { userCache.set(dbActualizada.jid, dbActualizada); userCache.set(numSender, dbActualizada) }
+    if (userDb && !globalXpCache.has(m.id)) {
+      globalXpCache.set(m.id, true)
+      const dbAtualizada = await checkLevelUp(m, conn, userDb)
+      if (dbAtualizada) {
+        userCache.set(dbAtualizada.jid, dbAtualizada)
+        userCache.set(numSender, dbAtualizada)
       }
     }
 
-    if (plugin.kogen) await m.reply(`✦ Utilizaste *${plugin.kogen} Kōgen*`)
-
+    if (plugin.kogen) await m.reply(`✦ Você usou *${plugin.kogen} Kōgen*`)
   } catch (e) {
-    console.error(chalk.bold.bgRed.white(` [ERROR: ${cmd}] `), chalk.bold.redBright(e.stack || e.message))
-    await m.reply(`*❌ Ocurrió un error inesperado.*`).catch(() => {})
+    console.error(chalk.bold.bgRed.white(` [ERRO: ${cmd}] `), chalk.bold.redBright(e.stack || e.message))
+    await m.reply('*❌ Ocorreu um erro inesperado.*').catch(() => {})
   }
 }

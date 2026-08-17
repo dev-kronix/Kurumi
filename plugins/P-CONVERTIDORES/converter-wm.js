@@ -1,40 +1,29 @@
 import { addExif } from '../../lib/sticker.js'
 import config from '../../config.js'
 
-const handler = async (m, { conn, text }) => {
-  const q = m.quoted ? m.quoted : m
-  const mtype = q.mtype
-  const mime = (q.msg || q).mimetype || ''
-
-  if (mtype !== 'stickerMessage' && !/webp/i.test(mime)) {
-    return m.reply(`*⌬┤ ✙ ├⌬ SIN STICKER.*\n> Respondé a un sticker para editarle el nombre.`)
+const handler = async (m, { conn, text, usedPrefix, command }) => {
+  if (!m.quoted || m.quoted.mtype !== 'stickerMessage') {
+    return m.reply(`*⌬┤ ✙ ├⌬ STICKER OBRIGATÓRIO.*\n> Responda a um sticker com *${usedPrefix}${command} pacote|autor*`)
   }
 
-  let packname = config.packname || 'ZΞN-BOT'
-  let author = config.author || 'AXELDEV09'
+  const [packnameRaw, authorRaw] = (text || '').split('|').map(v => v?.trim())
+  const packname = packnameRaw || config.packname || 'Kurumi'
+  const author = authorRaw || config.author || 'DevKronix'
 
-  if (text?.trim()) {
-    const partes = text.split('|').map(s => s.trim())
-    if (partes[0]) packname = partes[0]
-    if (partes[1]) author = partes[1]
-  }
-
-  await m.reply(`*⌬┤ ⏳ ├⌬ Aplicando watermark...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Atualizando informações do sticker...*`)
 
   try {
-    const buffer = await q.download()
-    if (!buffer || !buffer.length) throw new Error('Sin buffer')
-    const stickerBuf = await addExif(buffer, packname, author)
-    await conn.sendMessage(m.chat, { sticker: stickerBuf }, { quoted: m })
-    await m.reply(`*⌬┤ ✅ ├⌬ STICKER EDITADO.*\n> 📦 Pack: *${packname}*\n> ✍️ Autor: *${author}*`)
+    const buffer = await m.quoted.download()
+    const sticker = await addExif(buffer, packname, author)
+    await conn.sendMessage(m.chat, { sticker }, { quoted: m })
   } catch (e) {
     console.error('[WM]', e.message)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo editar el sticker.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível atualizar o sticker.`)
   }
 }
 
-handler.help = ['wm <pack | author>']
-handler.command = ['wm', 'take', 'watermark', 'stickerinfo', 'setwm']
+handler.help = ['wm <pacote|autor>']
+handler.command = ['wm', 'take', 'roubarsticker', 'renomearsticker']
 handler.tags = ['convertidores']
 
 export default handler

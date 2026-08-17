@@ -16,16 +16,16 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK REQUERIDO.*\n> Ej: *${usedPrefix}${command} https://www.threads.net/...*`)
+  if (!url) return m.reply(`*⌬┤ ❗ ├⌬ LINK OBRIGATÓRIO.*\n> Exemplo: *${usedPrefix}${command} https://www.threads.net/...*`)
   if (!url.includes('threads.net') && !url.includes('threads.com')) {
-    return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Asegurate de que sea de Threads.`)
+    return m.reply(`*⌬┤ ❗ ├⌬ LINK INVÁLIDO.*\n> Verifique se o link é do Threads.`)
   }
   if (userDb.kogen < 1) {
-    return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+    return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
   }
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ ⏳ ├⌬ Descargando post de Threads...*`)
+  await m.reply(`*⌬┤ ⏳ ├⌬ Baixando publicação do Threads...*`)
 
   try {
     const primaryUrl = `https://luxinfinity.vercel.app/api/threads?url=${encodeURIComponent(url)}`
@@ -61,7 +61,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     }
 
     if (!media.length) {
-      return m.reply(`*⌬┤ ❗ ├⌬ Sin resultados.*\n> Verificá que el post sea público.`)
+      return m.reply(`*⌬┤ ❗ ├⌬ SEM RESULTADOS.*\n> Verifique se a publicação é pública.`)
     }
 
     if (media.length === 1) {
@@ -69,8 +69,8 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       const buffer = Buffer.from(await (await fetch(item.url)).arrayBuffer())
 
       const caption = item.type === 'video'
-        ? `*⌬┤ 🧵 ├⌬ THREADS*\n> 🎬 Video`
-        : `*⌬┤ 🧵 ├⌬ THREADS*\n> 🖼️ Imagen`
+        ? `*⌬┤ 🧵 ├⌬ THREADS*\n> 🎬 Vídeo`
+        : `*⌬┤ 🧵 ├⌬ THREADS*\n> 🖼️ Imagem`
 
       await conn.sendMessage(chatId, {
         [item.type]: buffer,
@@ -99,7 +99,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
           const msg = await generateWAMessage(chatId, {
             [item.type]: buffer,
             mimetype: item.type === 'video' ? 'video/mp4' : undefined,
-            caption: i === 0 ? `*⌬┤ 🧵 ├⌬ THREADS CARRUSEL*` : ''
+            caption: i === 0 ? `*⌬┤ 🧵 ├⌬ CARROSSEL DO THREADS*` : ''
           }, { upload: conn.waUploadToServer })
 
           msg.message.messageContextInfo = {
@@ -113,11 +113,11 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     }
 
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch (e) {
     console.log(e)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar. Intentá de nuevo.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download. Tente novamente.`)
   }
 }
 

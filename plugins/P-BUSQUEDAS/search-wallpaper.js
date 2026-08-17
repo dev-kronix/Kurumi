@@ -5,7 +5,7 @@ const pkg = baileysMod.default && Object.keys(baileysMod).length === 1 ? baileys
 const { generateWAMessageFromContent, generateWAMessage } = pkg
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <búsqueda>*`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <pesquisa>*`)
 
   const textoReal = text.trim()
   await m.reply(`*⌬┤ ⏳ ├⌬ Buscando...*`)
@@ -14,7 +14,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const res = await fetch(`https://api.delirius.store/search/wallpapers?q=${encodeURIComponent(textoReal)}`)
     const json = await res.json()
     
-    if (!json.status || !json.data?.length) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontraron wallpapers para *${textoReal}*.`)
+    if (!json.status || !json.data?.length) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei wallpapers para *${textoReal}*.`)
     
     const items = json.data.sort(() => Math.random() - 0.5).slice(0, 6)
     
@@ -35,12 +35,12 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
       } catch (e) {}
     }))
   } catch (e) { 
-    await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`) 
+    await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`) 
   }
 }
 
-handler.help = ['wallpaper <búsqueda>']
-handler.command = ['wallpaper', 'fondo']
+handler.help = ['wallpaper <pesquisa>']
+handler.command = ['wallpaper', 'fondo', 'papeldeparede']
 handler.tags = ['busquedas']
 
 export default handler

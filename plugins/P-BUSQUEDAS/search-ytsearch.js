@@ -3,7 +3,7 @@ import config from '../../config.js'
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
   if (!text) {
-    return m.reply(`*⌬┤ ⚠️ ├⌬ PARÁMETRO REQUERIDO.*\n\n> Por favor, ingresá el nombre de la canción o video que querés buscar.\n> Ejemplo: *${usedPrefix + command} Sia Chandelier*`)
+    return m.reply(`*⌬┤ ⚠️ ├⌬ PARÂMETRO OBRIGATÓRIO.*\n\n> Digite o nome da música ou vídeo que deseja buscar.\n> Exemplo: *${usedPrefix + command} Sia Chandelier*`)
   }
 
   try {
@@ -12,21 +12,21 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     })
 
     if (!apiRes.data || apiRes.data.status !== true || !Array.isArray(apiRes.data.data) || apiRes.data.data.length === 0) {
-      return m.reply(`*⌬┤ 🔍 ├⌬ SIN RESULTADOS.*\n\n> No se encontraron videos que coincidan con la búsqueda: *"${text}"*.`)
+      return m.reply(`*⌬┤ 🔍 ├⌬ SEM RESULTADOS.*\n\n> Não encontrei vídeos correspondentes à pesquisa: *"${text}"*.`)
     }
 
     const videos = apiRes.data.data
     const primerVideo = videos[0]
 
-    let txt = `*╔═══⌦ ✦ 🔍 BÚSQUEDA YOUTUBE ✦ ⌫═══╗*\n\n`
-    txt += `> 🔎 *Búsqueda:* ${text}\n`
+    let txt = `*╔═══⌦ ✦ 🔍 PESQUISA NO YOUTUBE ✦ ⌫═══╗*\n\n`
+    txt += `> 🔎 *Pesquisa:* ${text}\n`
     txt += `> 📊 *Resultados:* ${videos.length}\n\n`
 
     videos.forEach((v, i) => {
       txt += `*${i + 1}.* ${v.title}\n`
-      txt += `   🔗 *Enlace:* ${v.url}\n`
-      txt += `   ⏱️ *Duración:* ${v.duration?.text || '---'} │ 👁️ *Vistas:* ${v.views || '---'}\n`
-      txt += `   👤 *Canal:* ${v.author?.name || '---'} │ 📅 *Subido:* ${v.publishDate || '---'}\n\n`
+      txt += `   🔗 *Link:* ${v.url}\n`
+      txt += `   ⏱️ *Duração:* ${v.duration?.text || '---'} │ 👁️ *Visualizações:* ${v.views || '---'}\n`
+      txt += `   👤 *Canal:* ${v.author?.name || '---'} │ 📅 *Publicado:* ${v.publishDate || '---'}\n\n`
     })
 
     txt += `*╚══⌦ ${config.footer} ⌫══╝*`
@@ -47,11 +47,11 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
 
   } catch (e) {
     console.error('[YTSEARCH ERROR]', e.message)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n\n> Ocurrió un error al realizar la búsqueda en YouTube. Volvé a intentar en unos instantes.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n\n> Ocorreu um erro ao pesquisar no YouTube. Tente novamente em instantes.`)
   }
 }
 
-handler.help = ['ytsearch <búsqueda>']
+handler.help = ['ytsearch <pesquisa>']
 handler.tags = ['busquedas']
 handler.command = ['yts', 'ytsearch', 'youtube', 'buscarvideo']
 handler.register = true

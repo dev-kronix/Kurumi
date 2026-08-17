@@ -1,131 +1,58 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 180" width="800" height="180">
   <defs>
-    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#0a0a0f"/>
-      <stop offset="50%" style="stop-color:#0d0d1a"/>
-      <stop offset="100%" style="stop-color:#0a0a0f"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#07070a"/>
+      <stop offset="48%" stop-color="#14070c"/>
+      <stop offset="100%" stop-color="#08080d"/>
     </linearGradient>
-
-    <filter id="glow" x="-20%" y="-50%" width="140%" height="200%">
-      <feGaussianBlur stdDeviation="3" result="blur1"/>
-      <feGaussianBlur stdDeviation="10" result="blur2"/>
-      <feMerge>
-        <feMergeNode in="blur2"/>
-        <feMergeNode in="blur1"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <radialGradient id="halo">
+      <stop offset="0%" stop-color="#9f1239" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#9f1239" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="glow" x="-30%" y="-80%" width="160%" height="260%">
+      <feGaussianBlur stdDeviation="7" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
-
-    <filter id="lineGlow" x="-10%" y="-200%" width="120%" height="500%">
-      <feGaussianBlur stdDeviation="2" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-
-    <clipPath id="canvas">
-      <rect width="800" height="180"/>
-    </clipPath>
-
-    <pattern id="scan" x="0" y="0" width="800" height="4" patternUnits="userSpaceOnUse">
-      <rect width="800" height="1" fill="rgba(0,0,0,0.25)" y="2"/>
+    <pattern id="scan" width="800" height="4" patternUnits="userSpaceOnUse">
+      <rect y="2" width="800" height="1" fill="#000" opacity="0.28"/>
     </pattern>
   </defs>
 
-  <g clip-path="url(#canvas)">
-    <rect width="800" height="180" fill="url(#bg)"/>
+  <rect width="800" height="180" rx="18" fill="url(#bg)"/>
+  <circle cx="400" cy="92" r="170" fill="url(#halo)"/>
 
-    <!-- Partículas flotantes -->
-    <g opacity="0.4">
-      <circle cx="60" cy="30" r="1" fill="#7c3aed">
-        <animate attributeName="cy" values="30;150;30" dur="6s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0;0.8;0" dur="6s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="140" cy="130" r="1" fill="#a855f7">
-        <animate attributeName="cy" values="130;20;130" dur="8s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0;0.6;0" dur="8s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="680" cy="50" r="1" fill="#7c3aed">
-        <animate attributeName="cy" values="50;150;50" dur="7s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0;0.7;0" dur="7s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="750" cy="110" r="1.5" fill="#a855f7">
-        <animate attributeName="cy" values="110;15;110" dur="9s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0;0.5;0" dur="9s" repeatCount="indefinite"/>
-      </circle>
-      <circle cx="400" cy="20" r="1" fill="#c084fc">
-        <animate attributeName="cy" values="20;160;20" dur="11s" repeatCount="indefinite"/>
-        <animate attributeName="opacity" values="0;0.4;0" dur="11s" repeatCount="indefinite"/>
-      </circle>
-    </g>
-
-    <!-- Línea superior animada -->
-    <line x1="-800" y1="1" x2="800" y2="1" stroke="#7c3aed" stroke-width="1" opacity="0.6" filter="url(#lineGlow)">
-      <animateTransform attributeName="transform" type="translate" values="-800,0;800,0;-800,0" dur="4s" repeatCount="indefinite"/>
-    </line>
-
-    <!-- Línea inferior animada (inversa) -->
-    <line x1="800" y1="179" x2="-800" y2="179" stroke="#a855f7" stroke-width="1" opacity="0.6" filter="url(#lineGlow)">
-      <animateTransform attributeName="transform" type="translate" values="800,0;-800,0;800,0" dur="4s" repeatCount="indefinite"/>
-    </line>
-
-    <!-- Texto principal: letra por letra para controlar tamaño del Ξ -->
-    <text
-      x="400" y="112"
-      text-anchor="middle"
-      font-family="'Courier New', Courier, monospace"
-      font-weight="700"
-      letter-spacing="6"
-      fill="#c084fc"
-      filter="url(#glow)"
-    >
-      <tspan font-size="96">Z</tspan><tspan font-size="72" dy="0">Ξ</tspan><tspan font-size="96" dy="0">N-BOT</tspan>
-      <animate attributeName="opacity" values="1;0.85;1" dur="3s" repeatCount="indefinite"/>
-    </text>
-
-    <!-- Glitch rojo -->
-    <text
-      x="400" y="112"
-      text-anchor="middle"
-      font-family="'Courier New', Courier, monospace"
-      font-weight="700"
-      letter-spacing="6"
-      fill="#f43f5e"
-      opacity="0"
-    >
-      <tspan font-size="96">Z</tspan><tspan font-size="72" dy="0">Ξ</tspan><tspan font-size="96" dy="0">N-BOT</tspan>
-      <animate attributeName="opacity" values="0;0;0.35;0;0;0;0.2;0;0" dur="5s" repeatCount="indefinite"/>
-      <animate attributeName="x" values="400;397;400;403;400" dur="5s" repeatCount="indefinite"/>
-    </text>
-
-    <!-- Glitch cyan -->
-    <text
-      x="400" y="112"
-      text-anchor="middle"
-      font-family="'Courier New', Courier, monospace"
-      font-weight="700"
-      letter-spacing="6"
-      fill="#06b6d4"
-      opacity="0"
-    >
-      <tspan font-size="96">Z</tspan><tspan font-size="72" dy="0">Ξ</tspan><tspan font-size="96" dy="0">N-BOT</tspan>
-      <animate attributeName="opacity" values="0;0;0;0.3;0;0;0;0.18;0" dur="5s" repeatCount="indefinite"/>
-      <animate attributeName="x" values="400;403;400;397;400" dur="5s" repeatCount="indefinite"/>
-    </text>
-
-    <!-- Scanlines -->
-    <rect width="800" height="180" fill="url(#scan)" opacity="0.3"/>
-
-    <!-- Subtítulo -->
-    <text
-      x="400" y="155"
-      text-anchor="middle"
-      font-family="'Courier New', Courier, monospace"
-      font-size="11"
-      letter-spacing="5"
-      fill="#7c3aed"
-      opacity="0.9"
-    >
-      W H A T S A P P · B O T · v 7
-      <animate attributeName="opacity" values="0.9;0.5;0.9" dur="4s" repeatCount="indefinite"/>
-    </text>
+  <!-- Marcadores de relógio -->
+  <g stroke="#e11d48" stroke-width="2" opacity="0.6" transform="translate(400 90)">
+    <line x1="0" y1="-72" x2="0" y2="-62"/>
+    <line x1="72" y1="0" x2="62" y2="0"/>
+    <line x1="0" y1="72" x2="0" y2="62"/>
+    <line x1="-72" y1="0" x2="-62" y2="0"/>
+    <circle r="72" fill="none" opacity="0.3"/>
+    <line x1="0" y1="0" x2="31" y2="-35"/>
+    <line x1="0" y1="0" x2="-11" y2="-50"/>
+    <circle r="4" fill="#fda4af" stroke="none"/>
   </g>
+
+  <!-- Nome principal -->
+  <text x="400" y="108" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="72" font-weight="700"
+        letter-spacing="10" fill="#fff1f2" filter="url(#glow)">
+    KURUMI
+    <animate attributeName="opacity" values="1;0.88;1" dur="3.2s" repeatCount="indefinite"/>
+  </text>
+
+  <!-- Pequeno efeito de glitch -->
+  <text x="403" y="108" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="72" font-weight="700"
+        letter-spacing="10" fill="#e11d48" opacity="0">
+    KURUMI
+    <animate attributeName="opacity" values="0;0;0.25;0;0;0.12;0" dur="5s" repeatCount="indefinite"/>
+  </text>
+
+  <line x1="90" y1="142" x2="710" y2="142" stroke="#be123c" stroke-width="1" opacity="0.55"/>
+  <text x="400" y="160" text-anchor="middle"
+        font-family="'Courier New', monospace" font-size="11" letter-spacing="4"
+        fill="#fda4af" opacity="0.9">W H A T S A P P · B O T · P T - B R · v 8.1</text>
+
+  <rect width="800" height="180" rx="18" fill="url(#scan)" opacity="0.38"/>
 </svg>

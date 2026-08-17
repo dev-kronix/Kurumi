@@ -12,23 +12,23 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     query = (m.quoted.body || m.quoted.text || '').trim()
   }
 
-  if (!query) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <término>* — Ej: *${usedPrefix}${command} gatos*`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!query) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <termo>* — Exemplo: *${usedPrefix}${command} gatos*`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
 
-  await m.reply(`*⌬┤ 🔍 ├⌬ Buscando en TikTok (6 videos)...*`)
+  await m.reply(`*⌬┤ 🔍 ├⌬ Buscando no TikTok (6 vídeos)...*`)
 
   try {
     const videos = await tiktokSearch(query, 6)
-    if (!videos?.length) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontraron videos para *${query}*.`)
+    if (!videos?.length) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei vídeos para *${query}*.`)
 
     const items = videos.slice(0, 6)
 
     if (items.length === 1) {
       const v = items[0]
       const buf = Buffer.from(await (await fetch(v.nowatermark || v.url)).arrayBuffer())
-      const caption = `*⌬┤ 🎵 ├⌬ ${v.title?.slice(0, 80)}*\n> 👤 *${v.author}*\n> ⏱️ ${v.duration}s · 👁️ ${v.plays?.toLocaleString()} vistas`
+      const caption = `*⌬┤ 🎵 ├⌬ ${v.title?.slice(0, 80)}*\n> 👤 *${v.author}*\n> ⏱️ ${v.duration}s · 👁️ ${v.plays?.toLocaleString('pt-BR')} visualizações`
       await conn.sendMessage(chatId, { video: buf, caption }, { quoted: m })
     } else {
       const album = generateWAMessageFromContent(chatId, {
@@ -46,7 +46,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
 
         try {
           const buf = Buffer.from(await (await fetch(mediaUrl, { timeout: 60000 })).arrayBuffer())
-          const caption = `*⌬┤ 🎵 ├⌬ ${v.title?.slice(0, 60)}*\n> 👤 *${v.author}* · 👁️ ${v.plays?.toLocaleString()}`
+          const caption = `*⌬┤ 🎵 ├⌬ ${v.title?.slice(0, 60)}*\n> 👤 *${v.author}* · 👁️ ${v.plays?.toLocaleString('pt-BR')}`
 
           const msg = await generateWAMessage(chatId, {
             [isImage ? 'image' : 'video']: buf,
@@ -59,14 +59,14 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     }
     
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
 
   } catch (e) {
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`)
   }
 }
 
-handler.help = [`ttsearch <término> ${config.PREMIUM_SYMBOL}`]
+handler.help = [`ttsearch <termo> ${config.PREMIUM_SYMBOL}`]
 handler.command = ['ttsearch', 'tiktoksearch', 'tts']
 handler.tags = ['descargas']
 
