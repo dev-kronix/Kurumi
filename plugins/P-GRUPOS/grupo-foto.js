@@ -8,7 +8,7 @@ const handler = async (m, { conn }) => {
   const mtype = msg.mtype
 
   if (!msg || mtype !== 'imageMessage') {
-    return m.reply(`*⌬┤ ⚠️ ├⌬ IMAGEN REQUERIDA.*\n> Respondé una imagen para usarla como foto del grupo.`)
+    return m.reply(`*⌬┤ ⚠️ ├⌬ IMAGEM OBRIGATÓRIA.*\n> Responda a uma imagem para usá-la como foto do grupo.`)
   }
 
   try {
@@ -43,16 +43,16 @@ const handler = async (m, { conn }) => {
       }]
     })
 
-    m.reply(`*⌬┤ ✅ ├⌬ FOTO ACTUALIZADA.*\n▢ La foto del grupo fue cambiada.`)
+    m.reply(`*⌬┤ ✅ ├⌬ FOTO ATUALIZADA.*\n▢ A foto do grupo foi alterada.`)
   } catch (e) {
     console.error(e)
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> ${e.message}`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> ${e.message}`)
   }
 }
 
-handler.help = ['fotog']
+handler.help = ['fotogrupo']
 handler.tags = ['group']
-handler.command = ['fotog', 'setfoto', 'groupfoto']
+handler.command = ['fotog', 'setfoto', 'groupfoto', 'fotogrupo']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.botAdminOnly = true
