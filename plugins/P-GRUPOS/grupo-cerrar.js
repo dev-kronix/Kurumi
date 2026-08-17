@@ -1,11 +1,11 @@
 const handler = async (m, { conn }) => {
   await conn.groupSettingUpdate(m.chat, 'announcement')
-  m.reply(`*⌬┤ 🔒 ├⌬ GRUPO CERRADO.*\n▢ Solo los admins pueden enviar mensajes.`)
+  m.reply(`*⌬┤ 🔒 ├⌬ GRUPO FECHADO.*\n▢ Somente os administradores podem enviar mensagens.`)
 }
 
-handler.help = ['cerrar']
+handler.help = ['fechar']
 handler.tags = ['group']
-handler.command = ['cerrar', 'closegroup', 'close']
+handler.command = ['fechar', 'fechargrupo', 'cerrar', 'closegroup', 'close']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.botAdminOnly = true

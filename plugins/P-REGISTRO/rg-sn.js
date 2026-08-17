@@ -1,13 +1,14 @@
 import User from '../../lib/database/models/zen-users.js'
 
 const handler = async (m) => {
-  let userDb = await User.findOne({ jid: m.sender })
+  const userDb = await User.findOne({ jid: m.sender })
+  if (!userDb?.serial) return m.reply('*⌬┤ ❌ ├⌬ SERIAL NÃO ENCONTRADO.*')
 
-  m.reply(`*⌬┤ 🔐 ├⌬ TU CÓDIGO DE SERIE:*\n\n> \`${userDb.serial}\`\n\n~No lo compartas.~`)
+  m.reply(`*⌬┤ 🔐 ├⌬ SEU CÓDIGO SERIAL:*\n\n> \`${userDb.serial}\`\n\n_Não compartilhe esse código._`)
 }
 
 handler.help = ['serial']
 handler.tags = ['registro']
-handler.command = ['miserial', 'sn', 'serial']
+handler.command = ['miserial', 'meuserial', 'sn', 'serial']
 handler.register = true
 export default handler

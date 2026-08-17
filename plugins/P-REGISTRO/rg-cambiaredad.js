@@ -1,28 +1,28 @@
 const handler = async (m, { args, usedPrefix, command, userDb }) => {
-  if (!args[0]) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <nueva_edad>*\n> 💰 Costo: *10 Kōgen*`)
+  if (!args[0]) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <nova_idade>*\n> 💰 Custo: *10 Kōgen*`)
 
-  const nuevaEdad = parseInt(args[0])
-  if (isNaN(nuevaEdad) || nuevaEdad < 5 || nuevaEdad > 100) {
-    return m.reply('*⌬┤ ⚠️ ├⌬ EDAD INVÁLIDA.*\n> Ingresá una edad real (entre 5 y 100 años).')
+  const novaIdade = parseInt(args[0])
+  if (isNaN(novaIdade) || novaIdade < 5 || novaIdade > 100) {
+    return m.reply('*⌬┤ ⚠️ ├⌬ IDADE INVÁLIDA.*\n> Informe uma idade válida entre 5 e 100 anos.')
   }
 
-  if (userDb.age === nuevaEdad) {
-    return m.reply('*⌬┤ ⚠️ ├⌬ MISMA EDAD.*\n> Ya tenés esa edad registrada en tu perfil.')
+  if (userDb.age === novaIdade) {
+    return m.reply('*⌬┤ ⚠️ ├⌬ MESMA IDADE.*\n> Essa idade já está registrada no seu perfil.')
   }
 
   if (userDb.kogen < 10) {
-    return m.reply(`*⌬┤ 💎 ├⌬ SIN KŌGEN.*\n> Necesitás *10 Kōgen* para cambiar tu edad.\n> Actualmente tenés: *${userDb.kogen} ✦*`)
+    return m.reply(`*⌬┤ 💎 ├⌬ SEM KŌGEN.*\n> Você precisa de *10 Kōgen* para alterar sua idade.\n> Saldo atual: *${userDb.kogen} ✦*`)
   }
 
-  userDb.age = nuevaEdad
+  userDb.age = novaIdade
   userDb.kogen -= 10
   await userDb.save()
 
-  m.reply(`*⌬┤ ✅ ├⌬ EDAD ACTUALIZADA.*\n> Tu edad ha sido cambiada a *${nuevaEdad} años*.\n> ✦ Se te han descontado *10 Kōgen*.`)
+  m.reply(`*⌬┤ ✅ ├⌬ IDADE ATUALIZADA.*\n> Sua idade foi alterada para *${novaIdade} anos*.\n> ✦ Foram descontados *10 Kōgen*.`)
 }
 
-handler.help = ['cambiaredad <edad>']
+handler.help = ['alteraridade <idade>']
 handler.tags = ['registro']
-handler.command = ['cambiaredad', 'setage']
+handler.command = ['alteraridade', 'cambiaredad', 'setage']
 
 export default handler

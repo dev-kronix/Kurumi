@@ -1,15 +1,16 @@
 import User from '../../lib/database/models/zen-users.js'
 
 const handler = async (m, { text, usedPrefix }) => {
-  let userDb = await User.findOne({ jid: m.sender })
+  const userDb = await User.findOne({ jid: m.sender })
+  if (!userDb) return m.reply('*⌬┤ ❌ ├⌬ CADASTRO NÃO ENCONTRADO.*')
 
-  if (userDb.serial && userDb.serial !== '') {
+  if (userDb.serial) {
     if (!text) {
-      return m.reply(`*⌬┤ ⚠️ ├⌬ FALTA SERIAL.*\n> Ingresá tu serial para confirmar.\n> Ejemplo: *${usedPrefix}unreg A1B2C3D4E5*\n> Si no lo recordás, usá *${usedPrefix}serial*`)
+      return m.reply(`*⌬┤ ⚠️ ├⌬ SERIAL OBRIGATÓRIO.*\n> Informe seu serial para confirmar.\n> Exemplo: *${usedPrefix}unreg A1B2C3D4E5*\n> Se não lembrar, use *${usedPrefix}serial*.`)
     }
 
     if (userDb.serial !== text.trim().toUpperCase()) {
-      return m.reply('*⌬┤ ❌ ├⌬ SERIAL INCORRECTO.*\n> Verificá que esté bien escrito o usá el comando para verlo.')
+      return m.reply('*⌬┤ ❌ ├⌬ SERIAL INCORRETO.*\n> Confira o código informado ou use o comando *serial* para consultá-lo.')
     }
   }
 
@@ -19,11 +20,11 @@ const handler = async (m, { text, usedPrefix }) => {
   userDb.serial = ''
   await userDb.save()
 
-  m.reply('*⌬┤ ✅ ├⌬ REGISTRO ELIMINADO.*\n> Tus datos han sido borrados.\n> Ya no tenés acceso a la economía ni comandos exclusivos.')
+  m.reply('*⌬┤ ✅ ├⌬ CADASTRO REMOVIDO.*\n> Seus dados de cadastro foram removidos.\n> Você não terá acesso à economia nem aos comandos exclusivos até se cadastrar novamente.')
 }
 
-handler.help = ['unreg <sn>']
+handler.help = ['unreg <serial>']
 handler.tags = ['registro']
-handler.command = ['unreg', 'borrarregistro']
+handler.command = ['unreg', 'borrarregistro', 'removercadastro']
 handler.register = true
 export default handler
