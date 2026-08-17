@@ -1,53 +1,38 @@
 import User from '../../lib/database/models/zen-users.js'
-import { userCache } from '../../lib/caches.js'
 import config from '../../config.js'
 
-const extraerNum = (jid = '') => (typeof jid === 'string' ? jid : '').split('@')[0].split(':')[0].replace(/\D/g, '')
+const handler = async (m, { text, command, participants }) => {
+  const target = m.mentionedJid?.[0] || m.quoted?.sender || null
+  if (!target) return m.reply(`*⌬┤ ✙ ├⌬ USUÁRIO OBRIGATÓRIO.*\n> Mencione ou responda à mensagem do usuário.`)
 
-const resolveTargetJid = (m, participants = []) => {
-  const raw = m.mentionedJid?.[0] || m.quoted?.sender || null
-  if (!raw) return null
-  if (!raw.endsWith('@lid')) return raw
-  const p = participants.find(p => p.id === raw || p.lid === raw)
-  if (p?.phoneNumber) return `${String(p.phoneNumber).replace(/\D/g, '')}@s.whatsapp.net`
-  if (p?.id?.includes('@s.whatsapp.net')) return p.id
-  return raw
-}
+  const amountMatch = text?.match(/-?\d+/)
+  const amount = amountMatch ? parseInt(amountMatch[0]) : NaN
+  if (isNaN(amount) || amount === 0) return m.reply(`*⌬┤ ✙ ├⌬ VALOR INVÁLIDO.*\n> Informe uma quantidade diferente de zero.`)
 
-const handler = async (m, { text, usedPrefix, command, participants }) => {
-  const targetRaw = resolveTargetJid(m, participants)
-  if (!targetRaw) return m.reply(`*⌬┤ ⚠️ ├⌬ USO CORRECTO*\n> *${usedPrefix + command}* <cantidad> <moneda> @usuario\n> Ejemplo: *${usedPrefix + command} 500 zencoins* (respondiendo)`)
+  const num = target.split('@')[0].split(':')[0].replace(/\D/g, '')
+  const user = await User.findOne({ jid: { $regex: `^${num}@` } })
+  if (!user) return m.reply(`*⌬┤ ❌ ├⌬ USUÁRIO NÃO CADASTRADO.*`)
 
-  const targetJid = targetRaw.includes('@s.whatsapp.net') ? targetRaw : `${extraerNum(targetRaw)}@s.whatsapp.net`
-  const targetNum = extraerNum(targetJid)
-
-  const amountMatch = text.match(/-?\d+/)
-  if (!amountMatch) return m.reply('*⌬┤ ⚠️ · CANTIDAD INVÁLIDA.*')
-  const amount = parseInt(amountMatch[0])
-
-  const isKogen = /kogen/i.test(text) || new RegExp(config.PREMIUM_NAME, 'i').test(text)
+  const isKogen = ['addkogen', 'delkogen', 'removekogen'].includes(command)
+  const isRemove = ['deleco', 'delcoins', 'removercoins', 'delkogen', 'removekogen'].includes(command)
   const field = isKogen ? 'kogen' : 'zenCoins'
-  const currencyName = isKogen ? config.PREMIUM_NAME : config.CURRENCY_NAME
-  const currencySymbol = isKogen ? config.PREMIUM_SYMBOL : config.CURRENCY_SYMBOL
+  const delta = isRemove ? -Math.abs(amount) : Math.abs(amount)
 
-  const v = await User.findOne({ jid: targetJid })
-  if (!v) return m.reply('*⌬┤ ❌ · USUARIO NO REGISTRADO.*')
+  if (delta < 0 && user[field] + delta < 0) {
+    return m.reply(`*⌬┤ ❌ ├⌬ SALDO INSUFICIENTE.*\n> O usuário possui apenas *${user[field]}* ${isKogen ? config.PREMIUM_NAME : config.CURRENCY_NAME}.`)
+  }
 
-  v[field] += amount
+  await User.updateOne({ _id: user._id }, { $inc: { [field]: delta } })
+  const simbolo = isKogen ? config.PREMIUM_SYMBOL : config.CURRENCY_SYMBOL
+  const nome = isKogen ? config.PREMIUM_NAME : config.CURRENCY_NAME
 
-  await User.updateOne({ jid: targetJid }, { $inc: { [field]: amount } })
-
-  const tCacheJid = userCache.get(targetJid)
-  const tCacheNum = userCache.get(targetNum)
-  if (tCacheJid) tCacheJid[field] += amount
-  if (tCacheNum && tCacheNum !== tCacheJid) tCacheNum[field] += amount
-
-  m.reply(`*⌬┤ ✅ ├⌬ FONDOS MODIFICADOS*\n> Se añadieron/quitaron **${amount}** ${currencySymbol} a @${targetNum}.\n> 💰 *Nuevo saldo:* ${v[field]} ${currencyName}.`, { mentions: [targetJid] })
+  m.reply(`*⌬┤ ✅ ├⌬ ECONOMIA ATUALIZADA.*\n> 👤 @${num}\n> ${delta > 0 ? '➕ Adicionado' : '➖ Removido'}: *${Math.abs(delta)} ${simbolo} ${nome}*`, { mentions: [target] })
 }
 
-handler.help = ['addeco <cantidad> <moneda> @user']
+handler.help = ['addcoins @usuario <valor>', 'removercoins @usuario <valor>', 'addkogen @usuario <valor>']
+handler.command = ['addeco', 'addcoins', 'darcoins', 'deleco', 'delcoins', 'removercoins', 'addkogen', 'delkogen', 'removekogen']
 handler.tags = ['owner']
-handler.command = ['addeco', 'añadir', 'addzencoins', 'addkogen', 'darplata']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler
