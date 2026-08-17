@@ -63,7 +63,7 @@ const handler = async (m, { conn, participants, config, isOwner }) => {
 
 handler.help = ['expulsartodos']
 handler.tags = ['group']
-handler.command = ['kickall', 'banall', 'expulsartodos', 'echaratodos', 'removerTodos']
+handler.command = ['kickall', 'banall', 'expulsartodos', 'echaratodos', 'removertodos']
 handler.groupOnly = true
 handler.adminOnly = true
 handler.botAdminOnly = true
