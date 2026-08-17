@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { sendSmart } from '../../lib/serializer.js'
 import fetch from 'node-fetch'
+import config from '../../config.js'
 
 const handler = async (m, { conn, command, usedPrefix, userDb }) => {
   await m.reply(`*⌬┤ ⏳ ├⌬ Buscando...*`)
@@ -13,19 +14,19 @@ const handler = async (m, { conn, command, usedPrefix, userDb }) => {
     await sendSmart(conn, m, {
       image: buf,
       caption: `🎭 *Meme*\n[ 📛 ] *Título:* ${title}\n🔗 ${postLink}`,
-      footer: global.botname || 'ZΞN-BOT',
-      buttons: [{ buttonId: `${usedPrefix}${command}`, buttonText: { displayText: '😂 Otro meme' } }],
+      footer: global.botname || config.botName || 'Kurumi',
+      buttons: [{ buttonId: `${usedPrefix}${command}`, buttonText: { displayText: '😂 Outro meme' } }],
       viewOnce: true,
       headerType: 4
     }, {}, userDb)
 
   } catch (e) {
-    await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`)
+    await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a busca.`)
   }
 }
 
 handler.help = ['meme']
-handler.command = ['meme', 'memardo', 'chiste']
+handler.command = ['meme', 'memardo', 'chiste', 'piada']
 handler.tags = ['busquedas']
 
 export default handler
