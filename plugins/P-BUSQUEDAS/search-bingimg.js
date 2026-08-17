@@ -5,7 +5,7 @@ const pkg = baileysMod.default && Object.keys(baileysMod).length === 1 ? baileys
 const { generateWAMessageFromContent, generateWAMessage } = pkg
 
 const handler = async (m, { conn, text, usedPrefix, command }) => {
-  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <búsqueda>*`)
+  if (!text) return m.reply(`*⌬┤ ✙ ├⌬ USO.*\n> *${usedPrefix}${command} <pesquisa>*`)
 
   await m.reply(`*⌬┤ ⏳ ├⌬ Buscando...*`)
   
@@ -13,7 +13,7 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
     const res = await fetch(`https://api.delirius.store/search/bingimage?query=${encodeURIComponent(text)}`)
     const json = await res.json()
     
-    if (!json.status || !json.data?.length) return m.reply(`*⌬┤ ✙ ├⌬ SIN RESULTADOS.*\n> No se encontraron imágenes para *${text}*.`)
+    if (!json.status || !json.data?.length) return m.reply(`*⌬┤ ✙ ├⌬ SEM RESULTADOS.*\n> Não encontrei imagens para *${text}*.`)
     
     const items = json.data.sort(() => Math.random() - 0.5).slice(0, 6)
     
@@ -27,19 +27,19 @@ const handler = async (m, { conn, text, usedPrefix, command }) => {
         const buf = Buffer.from(await fetch(item.direct || item.thumbnail).then(r => r.arrayBuffer()))
         const msg = await generateWAMessage(m.chat, {
           image: buf,
-          caption: i === 0 ? `*⌬┤ 🔍 ├⌬ BING IMÁGENES*\n> 🔎 *${text}*` : ''
+          caption: i === 0 ? `*⌬┤ 🔍 ├⌬ BING IMAGENS*\n> 🔎 *${text}*` : ''
         }, { upload: conn.waUploadToServer })
         msg.message.messageContextInfo = { messageAssociation: { associationType: 1, parentMessageKey: album.key } }
         await conn.relayMessage(m.chat, msg.message, { messageId: msg.key.id })
       } catch (e) {}
     }))
   } catch (e) { 
-    await m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la búsqueda.`) 
+    await m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir a pesquisa.`) 
   }
 }
 
-handler.help = ['bingimg <búsqueda>']
-handler.command = ['bingimg', 'bingimagen']
+handler.help = ['bingimg <pesquisa>']
+handler.command = ['bingimg', 'bingimagen', 'bingimagem']
 handler.tags = ['busquedas']
 
 export default handler
