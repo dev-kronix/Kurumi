@@ -1,8 +1,6 @@
 import User from '../../lib/database/models/zen-users.js'
-import { userCache } from '../../lib/caches.js'
 import config from '../../config.js'
-
-const extraerNum = (jid = '') => (typeof jid === 'string' ? jid : '').split('@')[0].split(':')[0].replace(/\D/g, '')
+import { userCache } from '../../lib/caches.js'
 
 const resolveTargetJid = (m, participants = []) => {
   const raw = m.mentionedJid?.[0] || m.quoted?.sender || null
@@ -14,59 +12,39 @@ const resolveTargetJid = (m, participants = []) => {
   return raw
 }
 
-const handler = async (m, { text, usedPrefix, command, participants }) => {
-  const targetRaw = resolveTargetJid(m, participants)
-  if (!targetRaw) return m.reply(`*⌬┤ ⚠️ ├⌬ USO CORRECTO*\n> *${usedPrefix + command}* <cantidad> <moneda> [bank] @usuario\n> Ejemplo: *${usedPrefix + command} 500 zencoins bank*`)
-
-  const targetJid = targetRaw.includes('@s.whatsapp.net') ? targetRaw : `${extraerNum(targetRaw)}@s.whatsapp.net`
-  const targetNum = extraerNum(targetJid)
-
-  const amountMatch = text.match(/\d+/)
-  if (!amountMatch) return m.reply('*⌬┤ ⚠️ · CANTIDAD INVÁLIDA.*')
-  const amount = parseInt(amountMatch[0])
-
-  const isKogen = /kogen/i.test(text) || new RegExp(config.PREMIUM_NAME, 'i').test(text)
-  const isBank = /bank|banco/i.test(text)
-
-  let field = 'zenCoins'
-  let locationName = 'Billetera'
-  
-  if (isKogen) {
-    field = 'kogen'
-    locationName = 'Premium'
-  } else if (isBank) {
-    field = 'bankBalance'
-    locationName = 'Banco'
+const handler = async (m, { text, participants }) => {
+  const target = resolveTargetJid(m, participants)
+  if (!target) {
+    return m.reply(`*⌬┤ ⚠️ ├⌬ MARQUE OU RESPONDA A UM USUÁRIO.*\n\n> Exemplo: *!seteco @usuario 5000 10*\n> _Ordem: ${config.CURRENCY_NAME} | ${config.PREMIUM_NAME}_`)
   }
 
-  const currencySymbol = isKogen ? config.PREMIUM_SYMBOL : config.CURRENCY_SYMBOL
+  const limpio = text.replace(/@\d+/g, '').trim().split(/\s+/)
+  const coins = parseInt(limpio[0])
+  const kogen = parseInt(limpio[1])
 
-  const v = await User.findOne({ jid: targetJid })
-  if (!v) return m.reply('*⌬┤ ❌ · USUARIO NO REGISTRADO.*')
+  if (isNaN(coins) || coins < 0) return m.reply(`*⌬┤ ❌ ├⌬ Informe uma quantidade válida de ${config.CURRENCY_NAME}.*`)
+  if (isNaN(kogen) || kogen < 0) return m.reply(`*⌬┤ ❌ ├⌬ Informe uma quantidade válida de ${config.PREMIUM_NAME}.*`)
 
-  const prevAmount = v[field]
-  v[field] = amount
+  let user = await User.findOne({ jid: target })
+  if (!user) return m.reply('*⌬┤ ❌ ├⌬ USUÁRIO NÃO CADASTRADO.*')
 
-  await User.updateOne({ jid: targetJid }, { $set: { [field]: amount } })
+  user.zenCoins = coins
+  user.kogen = kogen
+  await user.save()
 
-  const tCacheJid = userCache.get(targetJid)
-  const tCacheNum = userCache.get(targetNum)
-  if (tCacheJid) tCacheJid[field] = amount
-  if (tCacheNum && tCacheNum !== tCacheJid) tCacheNum[field] = amount
+  const targetNum = target.split('@')[0]
+  const c1 = userCache.get(target)
+  const c2 = userCache.get(targetNum)
+  if (c1) { c1.zenCoins = coins; c1.kogen = kogen }
+  if (c2 && c2 !== c1) { c2.zenCoins = coins; c2.kogen = kogen }
 
-  let txt = `*╔═══⌦ ✦ ⚙️ BALANCE SETEADO ✦ ⌫═══╗*\n\n`
-          + `> 👤 *Usuario:* @${targetNum}\n`
-          + `> 🏦 *Ubicación:* ${locationName}\n`
-          + `> 📉 *Anterior:* ${prevAmount} ${currencySymbol}\n`
-          + `> 📈 *Actual:* ${amount} ${currencySymbol}\n\n`
-          + `*╚══⌦ ${config.footer} ⌫══╝*`
-
-  m.reply(txt, { mentions: [targetJid] })
+  m.reply(`*╔═══⌦ ✦ 🛠️ ECONOMIA MODIFICADA ✦ ⌫═══╗*\n\n> 👤 *Usuário:* @${targetNum}\n> ${config.CURRENCY_SYMBOL} *${config.CURRENCY_NAME}:* ${coins.toLocaleString('pt-BR')}\n> ${config.PREMIUM_SYMBOL} *${config.PREMIUM_NAME}:* ${kogen.toLocaleString('pt-BR')}\n\n*╚══⌦ ${config.footer} ⌫══╝*`, { mentions: [target] })
 }
 
-handler.help = ['dejar <cantidad> <moneda> [bank] @user']
+handler.help = ['seteco @usuario <coins> <kogen>']
 handler.tags = ['owner']
-handler.command = ['dejar', 'seteco', 'setbalance']
+handler.command = ['seteco', 'seteconomia']
 handler.ownerOnly = true
+handler.noRegister = true
 
 export default handler
