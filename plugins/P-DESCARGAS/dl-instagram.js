@@ -13,12 +13,12 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     if (match) url = match[0]
   }
 
-  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ ENLACE REQUERIDO.*\n> Enviá o respondé a un mensaje con un enlace válido de Instagram.`)
-  if (!url.includes('instagram.com')) return m.reply(`*⌬┤ ✙ ├⌬ ENLACE INVÁLIDO.*\n> Asegurate de que sea de Instagram.`)
-  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SIN ${config.PREMIUM_NAME.toUpperCase()}.*\n> No tenés suficientes ${config.PREMIUM_NAME} para usar este comando.`)
+  if (!url) return m.reply(`*⌬┤ ✙ ├⌬ LINK OBRIGATÓRIO.*\n> Envie ou responda a uma mensagem com um link válido do Instagram.`)
+  if (!url.includes('instagram.com')) return m.reply(`*⌬┤ ✙ ├⌬ LINK INVÁLIDO.*\n> Verifique se o link é do Instagram.`)
+  if (userDb.kogen < 1) return m.reply(`*⌬┤ 💎 ├⌬ SEM ${config.PREMIUM_NAME.toUpperCase()}.*\n> Você não possui ${config.PREMIUM_NAME} suficiente para usar este comando.`)
 
   const chatId = m.chat
-  await m.reply(`*⌬┤ 📥 ├⌬ Descargando de Instagram...*`)
+  await m.reply(`*⌬┤ 📥 ├⌬ Baixando conteúdo do Instagram...*`)
   
   try {
     let mediaItems = []
@@ -41,14 +41,14 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
     }
 
     if (!mediaItems.length) {
-      return m.reply(`*⌬┤ ✙ ├⌬ SIN CONTENIDO.*\n> No se encontró media en ese enlace o es un perfil privado.`)
+      return m.reply(`*⌬┤ ✙ ├⌬ CONTEÚDO NÃO ENCONTRADO.*\n> Não encontrei mídia nesse link ou o perfil é privado.`)
     }
     
     if (mediaItems.length === 1) {
       const item = mediaItems[0]
       const mediaRes = await fetch(item.url)
       if (!mediaRes.ok) {
-        return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo descargar el archivo (HTTP ${mediaRes.status}).`)
+        return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível baixar o arquivo (HTTP ${mediaRes.status}).`)
       }
       const buf = Buffer.from(await mediaRes.arrayBuffer())
       const captionMsg = item.type === 'video' ? `*⌬┤ 🎬 ├⌬ INSTAGRAM*` : `*⌬┤ 📸 ├⌬ INSTAGRAM*`
@@ -67,7 +67,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
 
       const ok = downloads.filter(d => d.ok)
       if (ok.length === 0) {
-        return m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo descargar ningún elemento del álbum.`)
+        return m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível baixar nenhum item do álbum.`)
       }
 
       const album = generateWAMessageFromContent(chatId, {
@@ -78,7 +78,7 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
       await Promise.all(ok.map(async ({ item, buf }, idx) => {
         const msg = await generateWAMessage(chatId, {
           [item.type]: buf,
-          caption: idx === 0 ? `*⌬┤ 📚 ├⌬ INSTAGRAM CARRUSEL*\n> 🖼️ Álbum descargado.` : ''
+          caption: idx === 0 ? `*⌬┤ 📚 ├⌬ CARROSSEL DO INSTAGRAM*\n> 🖼️ Álbum baixado.` : ''
         }, { upload: conn.waUploadToServer })
         msg.message.messageContextInfo = { messageAssociation: { associationType: 1, parentMessageKey: album.key } }
         await conn.relayMessage(chatId, msg.message, { messageId: msg.key.id })
@@ -86,18 +86,18 @@ const handler = async (m, { conn, text, usedPrefix, command, userDb }) => {
 
       const failed = mediaItems.length - ok.length
       if (failed > 0) {
-        await conn.sendMessage(chatId, { text: `*⌬┤ ⚠️ ├⌬* ${failed} de ${mediaItems.length} elementos no se pudieron descargar.` }, { quoted: m })
+        await conn.sendMessage(chatId, { text: `*⌬┤ ⚠️ ├⌬* ${failed} de ${mediaItems.length} itens não puderam ser baixados.` }, { quoted: m })
       }
     }
     
     userDb.kogen -= 1
-    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Utilizaste *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
+    await conn.sendMessage(chatId, { text: `${config.PREMIUM_SYMBOL} Você usou *1 ${config.PREMIUM_NAME}*` }, { quoted: m })
     
   } catch (e) {
     if (e.message?.includes('404') || e.message?.includes('500')) {
-      return m.reply(`*⌬┤ 🔒 ├⌬ PERFIL PRIVADO O ERROR.*\n> No se pudo extraer la información del enlace.`)
+      return m.reply(`*⌬┤ 🔒 ├⌬ PERFIL PRIVADO OU ERRO.*\n> Não foi possível extrair as informações do link.`)
     }
-    m.reply(`*⌬┤ ❌ ├⌬ ERROR.*\n> No se pudo completar la descarga. Intentá de nuevo.`)
+    m.reply(`*⌬┤ ❌ ├⌬ ERRO.*\n> Não foi possível concluir o download. Tente novamente.`)
   }
 }
 
