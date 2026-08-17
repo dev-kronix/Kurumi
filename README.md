@@ -1,232 +1,243 @@
 <div align="center">
 
-<img src="banner.svg" alt="ZΞN-BOT" width="800"/>
+<img src="banner.svg" alt="Kurumi" width="800"/>
 
-**Bot de WhatsApp multifuncional**
-**Created by: [AxelDev09](https://github.com/AxelDev09)**
+# Kurumi
 
-[![Version](https://img.shields.io/badge/versión-8.0.0-blueviolet?style=for-the-badge&logo=whatsapp&logoColor=white)](.)
+**Bot de WhatsApp multifuncional em português do Brasil.**  
+Fork mantido por **DevKronix**, baseado no projeto original **ZenBot**, de **AxelDev09**.
+
+[![Version](https://img.shields.io/badge/versão-8.1.0-e11d48?style=for-the-badge&logo=whatsapp&logoColor=white)](.)
 [![Node](https://img.shields.io/badge/Node.js-v18%2B-339933?style=for-the-badge&logo=node.js&logoColor=white)](.)
 [![ESM](https://img.shields.io/badge/módulos-ESM-f7df1e?style=for-the-badge&logo=javascript&logoColor=black)](.)
-[![MongoDB](https://img.shields.io/badge/base%20de%20datos-MongoDB%20%7C%20JSON-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](.)
-[![License](https://img.shields.io/badge/licencia-GPL--3.0-22c55e?style=for-the-badge)](LICENSE)
+[![MongoDB](https://img.shields.io/badge/banco-MongoDB%20%7C%20JSON-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](.)
+[![License](https://img.shields.io/badge/licença-GPL--3.0-22c55e?style=for-the-badge)](LICENSE)
+
 </div>
 
 ---
 
-## ¿Qué es ZenBot?
+## O que é a Kurumi?
 
-**ZenBot** es un bot de WhatsApp de alto rendimiento construido sobre [Baileys](https://github.com/WhiskeySockets/Baileys), con una arquitectura modular de plugins, economía propia, sistema RPG, descargas multimedia y mucho más. Diseñado para grupos grandes, con soporte para múltiples sub-bots simultáneos.
+A **Kurumi** é uma bot de WhatsApp baseada em Baileys, organizada em plugins e preparada para grupos, sub-bots, economia, RPG, downloads, ferramentas, IA e outros recursos.
 
-> **Más de 245 archivos. Más de 16 categorías de plugins. Un solo bot que los gobierna a todos 🥵.**
+Esta versão foi localizada para **PT-BR** e recebeu uma nova identidade. A Kurumi se apresenta no feminino e os recursos de IA usam uma personalidade própria: elegante, confiante, misteriosa, espirituosa e direta.
 
----
-
-## Instalación
-
-### Requisitos previos
-
-- **Node.js** v18 o superior (recomendado: v20+)
-- **MongoDB** (local o Atlas) — *opcional*, ver [Base de datos](#base-de-datos) más abajo
-- **ffmpeg** instalado en el sistema
-- Cuenta de WhatsApp activa
-
-### QUÉ DEBO HACER?
-
-**1. Configurar variables de entorno**
-
-Crear un archivo `.env` en la raíz del proyecto:
-```env
-MONGODB_URI=mongodb+srv://usuario:contraseña@cluster.mongodb.net/zenbot
-NODE_ENV=production
-```
-
-> 💡 `MONGODB_URI` es **opcional**. Si no la definís (o la conexión falla), el bot arranca igual usando **almacenamiento JSON local** como respaldo automático. Ver [Base de datos](#base-de-datos).
-
-**2. Editar la configuración**
-
-Abrir `config.js` y personalizar:
-```js
-ownerNumber: ['549XXXXXXXXXX'],   // Tu número con código de país (sin +)
-botName: 'ZΞN-BOT',
-MODE: 'public',                   // 'public' o 'private'
-```
-
-**3. Iniciar el bot**
-```bash
-npm start
-```
-
-Al iniciar por primera vez, se pedirá el número de teléfono para generar el código de vinculación. Ingresarlo en WhatsApp → **Dispositivos vinculados → Vincular con número de teléfono**.
+> A identidade visual e os textos desta versão são da Kurumi. Alguns nomes internos antigos, como campos de banco de dados, foram preservados para não quebrar dados e instalações existentes. Porque migração destrutiva só para deixar nome bonito seria uma decisão muito criativa, no pior sentido possível.
 
 ---
 
-## Instalación en Termux (Android)
+## Requisitos
 
-### 1 — Actualizar el entorno e instalar dependencias (Ejemplo con Termux)
+- **Node.js 18+** (recomendado: 20 ou superior)
+- **FFmpeg** instalado
+- Uma conta do WhatsApp
+- **MongoDB** é opcional. Sem MongoDB, a Kurumi usa armazenamento JSON local automaticamente.
+
+---
+
+## Instalação
+
+### 1. Clone o repositório
 
 ```bash
-pkg update && pkg upgrade
-pkg install git nodejs yarn ffmpeg -y
+git clone https://github.com/dev-kronix/Kurumi.git
+cd Kurumi
 ```
 
----
-
-### 2 — Configurar acceso al almacenamiento
-
-> ⚠️ Paso obligatorio para poder trabajar en `/sdcard` desde Termux.
-
-```bash
-termux-setup-storage
-```
-
-Cuando aparezca el popup de permisos → tocá **Permitir**. Esto habilita el acceso a `/sdcard` y todo tu almacenamiento interno.
-
----
-
-### 3 — Clonar el repositorio
-
-```bash
-git clone https://github.com/Axelix09/ZenBot.git /sdcard/ZenBot
-cd /sdcard/ZenBot
-```
-
-> 💡 El proyecto queda en tu almacenamiento interno, accesible desde cualquier explorador de archivos de Android.
-
----
-
-### 4 — Instalar dependencias de Node.js
+### 2. Instale as dependências
 
 ```bash
 npm install
-# o bien
-yarn install
 ```
 
----
+### 3. Configure o ambiente
 
-### 5 — Iniciar el bot
+Copie `.env-example` para `.env` e preencha somente o que for usar:
+
+```env
+MONGODB_URI=mongodb+srv://usuario:senha@cluster.mongodb.net/kurumi
+NODE_ENV=production
+
+GEMINI_API_KEY=
+REMOVEBG_API_KEY=
+NOVA_API_KEY=
+```
+
+`MONGODB_URI` é opcional. Sem ela, o banco JSON local é ativado.
+
+### 4. Configure a Kurumi
+
+Edite `config.js`:
+
+```js
+botName: 'Kurumi',
+ownerName: 'DevKronix',
+ownerNumber: ['55XXXXXXXXXXX'],
+MODE: 'public',
+```
+
+Use seu número com DDI e sem o sinal `+`.
+
+### 5. Inicie
 
 ```bash
 npm start
 ```
+
+Na primeira execução, digite o número solicitado no terminal e use o código em:
+
+**WhatsApp → Dispositivos conectados → Conectar com número de telefone**.
+
+---
+
+## Instalação no Termux
+
+```bash
+pkg update && pkg upgrade -y
+pkg install git nodejs ffmpeg -y
+termux-setup-storage
+git clone https://github.com/dev-kronix/Kurumi.git /sdcard/Kurumi
+cd /sdcard/Kurumi
+npm install
+npm start
+```
+
+---
+
+## Estrutura principal
+
+```text
+Kurumi/
+├── kurumi.js          # entrypoint principal
+├── zen.js             # compatibilidade com instalações antigas
+├── config.js          # nome, dono, prefixos e preferências
+├── handler.js         # roteamento e validação dos comandos
+├── plugins/           # comandos e recursos
+├── lib/               # banco, serialização, RPG e utilitários
+├── .env-example       # exemplo das variáveis de ambiente
+└── package.json
+```
+
 ---
 
 ## Sistema de plugins
 
-Los plugins se cargan automáticamente desde la carpeta `plugins/`. En modo desarrollo, se recargan al guardar sin necesidad de reiniciar el bot.
+Os plugins são carregados automaticamente da pasta `plugins/`. Em desenvolvimento, eles podem ser recarregados ao salvar.
 
-**Estructura de un plugin:**
+Exemplo:
+
 ```js
-const handler = async (m, { conn, args, text, usedPrefix, command, isOwner, userDb, config }) => {
-  await m.reply('¡Hola!')
+const handler = async (m, { conn, text, usedPrefix, command }) => {
+  await m.reply('Olá! Eu sou a Kurumi.')
 }
 
-handler.help       = ['comando <argumento>']
-handler.tags       = ['tools']
-handler.command    = ['comando', 'alias']
-handler.groupOnly  = false
-handler.adminOnly  = false
+handler.help = ['exemplo <texto>']
+handler.tags = ['tools']
+handler.command = ['exemplo']
+handler.groupOnly = false
+handler.adminOnly = false
 handler.botAdminOnly = false
-handler.ownerOnly  = false
-handler.noRegister = false   // true = no requiere registro de usuario
+handler.ownerOnly = false
+handler.noRegister = true
 
 export default handler
 ```
 
-Los plugins se registran por propiedades sobre la función, no como objeto. El handler recibe el mensaje serializado `m` y un contexto con todo lo necesario.
+### Hooks disponíveis
 
-**Hooks disponibles:**
-
-| Hook | Cuándo se ejecuta |
-|------|-------------------|
-| `handler` (default) | Cuando el mensaje coincide con un comando |
-| `handler.before` | Antes del comando, en *cada* mensaje del grupo/chat |
-| `handler.all` | En cada mensaje recibido, sin importar prefijo ni comando |
+| Hook | Quando roda |
+|---|---|
+| `handler` | Quando o comando corresponde ao plugin |
+| `handler.before` | Antes da execução do comando |
+| `handler.all` | Em todas as mensagens recebidas |
+| `handler.after` | Depois da execução do comando |
 
 ---
 
-## Configuración avanzada
+## Configuração
 
-### Anti-spam
-```js
-antiSpam: {
-  enabled: true,
-  maxCmds: 5,       // Máximo de comandos permitidos
-  ventanaMs: 8000,  // Ventana de tiempo (ms)
-  muteMs: 15000,    // Tiempo de silencio al superar el límite
-}
-```
+### Prefixos padrão
 
-### Prefijos válidos
-```
+```text
 . # / !
 ```
 
-### Modos de bot
-| Modo | Descripción |
-|------|-------------|
-| `public` | Cualquier usuario puede usar el bot |
-| `private` | Solo el owner puede usar el bot |
+### Modos
 
-### Sub-bots (Jadibot)
-ZenBot soporta hasta **40 sub-bots** simultáneos. Cada sub-bot puede configurarse de forma independiente por grupo, incluyendo imágenes, nombres y permisos.
+| Modo | Comportamento |
+|---|---|
+| `public` | Qualquer usuário pode usar os comandos permitidos |
+| `private` | Somente o dono pode usar a bot |
 
----
+### Anti-spam
 
-## Base de datos
+```js
+antiSpam: {
+  enabled: true,
+  maxCmds: 5,
+  ventanaMs: 8000,
+  muteMs: 15000,
+}
+```
 
-ZenBot usa **MongoDB como base de datos principal**, pero **no es obligatorio configurarla**.
-
-Al iniciar, el bot intenta conectarse usando la variable `MONGODB_URI`:
-
-- ✅ **Si `MONGODB_URI` está definida y la conexión es exitosa** → se usa MongoDB normalmente.
-- ⚠️ **Si `MONGODB_URI` no está definida, o la conexión falla** (credenciales inválidas, sin internet, cluster caído, etc.) → el bot **cae automáticamente a un modo de respaldo basado en archivos JSON locales**, sin necesidad de configurar nada más.
-
-En modo JSON, los datos (usuarios, grupos, economía, RPG, etc.) se guardan como archivos `.json` dentro de `lib/database/data/`. Funcionalmente es equivalente a Mongo para el uso normal del bot — útil para pruebas locales, instancias pequeñas, o entornos donde no querés/podés levantar un cluster de MongoDB (como Termux).
-
-> 🔁 El cambio de modo es **transparente**: no hace falta tocar ningún plugin ni configuración adicional. El propio bot detecta qué modo usar al arrancar y lo indica por consola:
-> ```
-> [DB] Sin MONGODB_URI — usando almacenamiento JSON local. (lib/database/data/)
-> ```
-> o, si Mongo falló:
-> ```
-> [DB FALLBACK] No se pudo conectar a MongoDB. Usando JSON como respaldo.
-> ```
-
-> ⚠️ **Importante:** el modo JSON es ideal para uso personal o grupos chicos/medianos. Para producción con muchos usuarios simultáneos, se recomienda usar MongoDB por motivos de rendimiento y concurrencia.
+Os nomes internos `ventanaMs` e alguns outros identificadores herdados foram mantidos por compatibilidade. Isso não muda o idioma das mensagens exibidas ao usuário.
 
 ---
 
-## Variables de entorno
+## IA e personalidade
 
-| Variable | Descripción | Requerida |
-|----------|-------------|-----------|
-| `MONGODB_URI` | URI de conexión a MongoDB. Si se omite, el bot usa JSON local automáticamente | ❌ No (opcional) |
-| `NODE_ENV` | `production` o `development` | ✅ Sí |
+Os comandos de IA usam a identidade da **Kurumi** e instruem os modelos a:
+
+- responder em português do Brasil;
+- se identificar no feminino;
+- usar o nome Kurumi;
+- manter um estilo elegante, confiante, misterioso e espirituoso;
+- não se apresentar como ZenBot;
+- informar corretamente que esta versão é mantida por DevKronix e deriva do projeto ZenBot original.
+
+Alguns provedores exigem chaves no `.env`. Chaves privadas não devem ser colocadas diretamente no código ou enviadas para o GitHub.
 
 ---
 
-## Tecnologías utilizadas
+## Banco de dados
 
-- **[@whiskeysockets/baileys](https://github.com/itsliaaa/baileys)** (fork) — Conexión WebSocket con WhatsApp. Se usa un fork específico que soporta botones interactivos nativos (`nativeFlowMessage`). Los usuarios que prefieran no usarlos pueden desactivarlos con `.botones off` y recibirán selección numerada en texto plano en su lugar.
-- **[MongoDB + Mongoose](https://mongoosejs.com/)** — Base de datos persistente principal *(opcional, con fallback a JSON local)*
-- **[node-cache](https://github.com/node-cache/node-cache)** — Caché en memoria multicapa
-- **[fluent-ffmpeg](https://github.com/fluent-ffmpeg/node-fluent-ffmpeg)** — Procesamiento de audio y video
-- **[jimp](https://github.com/jimp-dev/jimp)** — Procesamiento de imágenes
-- **[chalk](https://github.com/chalk/chalk)** — Logs con color en consola
+A Kurumi tenta usar MongoDB quando `MONGODB_URI` estiver definida.
+
+Se a variável não existir ou a conexão falhar, ela usa automaticamente arquivos JSON em:
+
+```text
+lib/database/data/
+```
+
+Campos internos herdados, como `zenCoins`, continuam existindo para manter compatibilidade com bancos antigos. Para o usuário, a moeda é exibida como **KurumiCoins**.
+
 ---
 
-## Contacto
+## Sub-bots
+
+O sistema Jadibot/sub-bot continua disponível. O limite pode ser configurado em `config.js`:
+
+```js
+limiteSubbots: 30
+```
+
+Cada sub-bot pode manter nome e imagem próprios.
+
+---
+
+## Créditos e licença
+
+Este repositório é um **fork/modificação** do ZenBot. O projeto original e o trabalho de **AxelDev09** continuam creditados conforme a licença e o histórico do repositório.
+
+A versão Kurumi é mantida e personalizada por **DevKronix**.
+
+Licença: **GPL-3.0**. Consulte [LICENSE](LICENSE).
+
+---
 
 <div align="center">
 
-[![GitHub](https://img.shields.io/badge/GitHub-Axelix09-181717?style=for-the-badge&logo=github)](https://github.com/Axelix09)
-[![Instagram](https://img.shields.io/badge/Instagram-@axeldev09-E4405F?style=for-the-badge&logo=instagram&logoColor=white)](https://instagram.com/axeldev09)
-[![WhatsApp Channel](https://img.shields.io/badge/Canal-WhatsApp-25D366?style=for-the-badge&logo=whatsapp&logoColor=white)](https://whatsapp.com/channel/0029Vb6OR9O2v1IvoXO5oT2c)
-
----
-
-*Si usás este proyecto, dejá los créditos. Se agradece 🗣️*
+**Kurumi · PT-BR · DevKronix**
 
 </div>
