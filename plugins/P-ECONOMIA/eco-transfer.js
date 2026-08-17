@@ -17,33 +17,33 @@ const resolveTargetJid = (m, participants = []) => {
 const handler = async (m, { text, usedPrefix, command, userDb, participants }) => {
   const target = resolveTargetJid(m, participants)
 
-  if (!target || !text) return m.reply(`*⌬┤ 💸 ├⌬ USO CORRECTO*\n> *${usedPrefix + command}* <moneda> @user <monto>\n\n> 💡 *Monedas:* ${config.CURRENCY_NAME.toLowerCase()} / ${config.PREMIUM_NAME.toLowerCase()}\n> 💰 *Límite diario:* ${DAILY_LIMIT_ZEN.toLocaleString('es-AR')} ${config.CURRENCY_NAME} / 100 ${config.PREMIUM_NAME}s`)
+  if (!target || !text) return m.reply(`*⌬┤ 💸 ├⌬ USO CORRETO*\n> *${usedPrefix + command}* <moeda> @usuario <valor>\n\n> 💡 *Moedas:* ${config.CURRENCY_NAME.toLowerCase()} / ${config.PREMIUM_NAME.toLowerCase()}\n> 💰 *Limite diário:* ${DAILY_LIMIT_ZEN.toLocaleString('pt-BR')} ${config.CURRENCY_NAME} / 100 ${config.PREMIUM_NAME}`)
 
   const args = text.toLowerCase().split(' ')
   const type = args.includes(config.PREMIUM_NAME.toLowerCase()) || args.includes('kogen') ? 'kogen' : 'zenCoins'
   const monto = parseInt(text.replace(/[^0-9]/g, ''))
 
-  if (isNaN(monto) || monto <= 0) return m.reply('*⌬┤ ⚠️ · CANTIDAD INVÁLIDA.*')
-  if (target === m.sender) return m.reply('*⌬┤ 🤡 · ¿TE VAS A ENVIAR A VOS MISMO?*')
+  if (isNaN(monto) || monto <= 0) return m.reply('*⌬┤ ⚠️ · QUANTIDADE INVÁLIDA.*')
+  if (target === m.sender) return m.reply('*⌬┤ 🤡 · VOCÊ VAI TRANSFERIR PARA SI MESMO?*')
 
   if (type === 'kogen') {
     const limit = 100
-    if (monto > limit) return m.reply(`*⌬┤ 🚫 ├⌬ LÍMITE SUPERADO.* El máximo por transacción es ${limit} ${config.PREMIUM_NAME}s.`)
+    if (monto > limit) return m.reply(`*⌬┤ 🚫 ├⌬ LIMITE EXCEDIDO.* O máximo por transação é ${limit} ${config.PREMIUM_NAME}.`)
   } else {
-    const transferidoHoy = userDb.dailyStats?.transferToday || 0
-    const restante = DAILY_LIMIT_ZEN - transferidoHoy
+    const transferidoHoje = userDb.dailyStats?.transferToday || 0
+    const restante = DAILY_LIMIT_ZEN - transferidoHoje
     if (restante <= 0) {
-      return m.reply(`*⌬┤ 🚫 ├⌬ LÍMITE DIARIO ALCANZADO.*\n> Ya transferiste el máximo de *${DAILY_LIMIT_ZEN.toLocaleString('es-AR')} ${config.CURRENCY_NAME}* hoy. Volvé a intentarlo mañana.`)
+      return m.reply(`*⌬┤ 🚫 ├⌬ LIMITE DIÁRIO ATINGIDO.*\n> Você já transferiu o máximo de *${DAILY_LIMIT_ZEN.toLocaleString('pt-BR')} ${config.CURRENCY_NAME}* hoje. Tente novamente amanhã.`)
     }
     if (monto > restante) {
-      return m.reply(`*⌬┤ 🚫 ├⌬ LÍMITE DIARIO SUPERADO.*\n> Te quedan *${restante.toLocaleString('es-AR')} ${config.CURRENCY_NAME}* disponibles para transferir hoy.`)
+      return m.reply(`*⌬┤ 🚫 ├⌬ LIMITE DIÁRIO EXCEDIDO.*\n> Restam *${restante.toLocaleString('pt-BR')} ${config.CURRENCY_NAME}* disponíveis para transferir hoje.`)
     }
   }
 
-  if (userDb[type] < monto) return m.reply(`*⌬┤ ❌ ├⌬ SALDO INSUFICIENTE.* No tenés esa cantidad.`)
+  if (userDb[type] < monto) return m.reply(`*⌬┤ ❌ ├⌬ SALDO INSUFICIENTE.* Você não possui essa quantidade.`)
 
   const v = await User.findOne({ jid: target }, { _id: 1 })
-  if (!v) return m.reply('*⌬┤ ❌ · USUARIO NO ENCONTRADO.*')
+  if (!v) return m.reply('*⌬┤ ❌ · USUÁRIO NÃO ENCONTRADO.*')
 
   let comision = (type === 'zenCoins' && monto >= 5000) ? Math.floor(monto * 0.05) : 0
   const neto = monto - comision
@@ -68,24 +68,24 @@ const handler = async (m, { text, usedPrefix, command, userDb, participants }) =
   if (tCacheJid) tCacheJid[type] += neto
   if (tCacheNum && tCacheNum !== tCacheJid) tCacheNum[type] += neto
 
-  let res = `*╔═══⌦ ✦ 📤 ENVÍO EXITOSO ✦ ⌫═══╗*\n\n`
+  let res = `*╔═══⌦ ✦ 📤 TRANSFERÊNCIA CONCLUÍDA ✦ ⌫═══╗*\n\n`
           + `> 👤 *De:* @${m.sender.split('@')[0]}\n`
           + `> 👤 *Para:* @${targetNum}\n`
-          + `> 💰 *Monto:* ${monto} ${type === 'kogen' ? config.PREMIUM_SYMBOL : config.CURRENCY_SYMBOL}\n`
-  if (comision > 0) res += `> 🧾 *Comisión (5%):* ${comision} ${config.CURRENCY_SYMBOL}\n`
-  res += `\n> ✨ *Recibido:* ${neto} ${type === 'kogen' ? config.PREMIUM_SYMBOL : config.CURRENCY_SYMBOL}\n`
+          + `> 💰 *Valor:* ${monto} ${type === 'kogen' ? config.PREMIUM_SYMBOL : config.CURRENCY_SYMBOL}\n`
+  if (comision > 0) res += `> 🧾 *Taxa (5%):* ${comision} ${config.CURRENCY_SYMBOL}\n`
+  res += `\n> ✨ *Recebido:* ${neto} ${type === 'kogen' ? config.PREMIUM_SYMBOL : config.CURRENCY_SYMBOL}\n`
   if (type === 'zenCoins') {
-    const restanteHoy = DAILY_LIMIT_ZEN - userDb.dailyStats.transferToday
-    res += `> 📊 *Restante hoy:* ${restanteHoy.toLocaleString('es-AR')} ${config.CURRENCY_NAME}\n`
+    const restanteHoje = DAILY_LIMIT_ZEN - userDb.dailyStats.transferToday
+    res += `> 📊 *Restante hoje:* ${restanteHoje.toLocaleString('pt-BR')} ${config.CURRENCY_NAME}\n`
   }
   res += `*╚══⌦ ${config.footer} ⌫══╝*`
 
   m.reply(res, { mentions: [m.sender, target] })
 }
 
-handler.help = ['transferir <moneda @tag cantidad>']
+handler.help = ['transferir <moeda @usuario valor>']
 handler.tags = ['eco']
-handler.command = ['transferir', 'enviar', 'pay', 'give']
+handler.command = ['transferir', 'transferencia', 'enviar', 'pagar', 'pay', 'give']
 handler.register = true
 handler.groupOnly = true
 export default handler
