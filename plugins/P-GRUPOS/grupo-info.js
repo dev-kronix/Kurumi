@@ -20,7 +20,7 @@ const on  = '✅'
 const off = '❌'
 
 const handler = async (m, { conn, participants, groupMetadata, groupDb, isBotAdmin }) => {
-  if (!m.isGroup) return m.reply(`*⌬┤ 👥 ├⌬ SOLO GRUPOS.*\n> Este comando solo funciona en grupos.`)
+  if (!m.isGroup) return m.reply(`*⌬┤ 👥 ├⌬ SOMENTE GRUPOS.*\n> Este comando funciona apenas em grupos.`)
 
   const meta = groupMetadata || await conn.groupMetadata(m.chat).catch(() => ({}))
 
@@ -30,7 +30,7 @@ const handler = async (m, { conn, participants, groupMetadata, groupDb, isBotAdm
   const totalReal = participants.length
 
   const createdAt = meta.creation
-    ? new Date(meta.creation * 1000).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric' })
+    ? new Date(meta.creation * 1000).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' })
     : '---'
 
   const inviteCode = isBotAdmin
@@ -45,11 +45,11 @@ const handler = async (m, { conn, participants, groupMetadata, groupDb, isBotAdm
     return jid !== botJid && !(activity[jid] > 0)
   }).length
 
-  const restrict  = meta.restrict   ? '🔒 Solo admins' : '🌐 Todos'
-  const announce  = meta.announce   ? '🔒 Solo admins' : '🌐 Todos'
+  const restrict  = meta.restrict   ? '🔒 Somente admins' : '🌐 Todos'
+  const announce  = meta.announce   ? '🔒 Somente admins' : '🌐 Todos'
   const ephemeral = meta.ephemeralDuration
     ? `⏳ ${meta.ephemeralDuration / 86400}d`
-    : `${off} Desactivado`
+    : `${off} Desativado`
 
   const joinApproval = meta.joinApprovalMode  ? on  : off
   const memberAdd    = meta.memberAddMode      ? on  : off
@@ -61,60 +61,60 @@ const handler = async (m, { conn, participants, groupMetadata, groupDb, isBotAdm
     : '---'
 
   const db = groupDb || {}
-  const disabledCmds = db.disabledCmds?.length     ? db.disabledCmds.join(', ')     : 'ninguno'
-  const disabledCats = db.disabledCategories?.length ? db.disabledCategories.join(', ') : 'ninguna'
+  const disabledCmds = db.disabledCmds?.length ? db.disabledCmds.join(', ') : 'nenhum'
+  const disabledCats = db.disabledCategories?.length ? db.disabledCategories.join(', ') : 'nenhuma'
 
-  let txt = `*╔═══⌦ ✦ 📋 INFO GRUPO ✦ ⌫═══╗*\n\n`
+  let txt = `*╔═══⌦ ✦ 📋 INFO DO GRUPO ✦ ⌫═══╗*\n\n`
 
-  txt += `*⌬┤ 📌 GENERAL ├⌬*\n`
-  txt += `> 📛 *Nombre:* ${meta.subject || '---'}\n`
+  txt += `*⌬┤ 📌 GERAL ├⌬*\n`
+  txt += `> 📛 *Nome:* ${meta.subject || '---'}\n`
   txt += `> 🆔 *ID:* ${m.chat}\n`
-  txt += `> 📅 *Creado:* ${createdAt}\n`
-  txt += `> 📝 *Descripción:* ${desc}\n`
+  txt += `> 📅 *Criado em:* ${createdAt}\n`
+  txt += `> 📝 *Descrição:* ${desc}\n`
   if (inviteCode) txt += `> 🔗 *Link:* https://chat.whatsapp.com/${inviteCode}\n`
   txt += '\n'
 
-  txt += `*⌬┤ 👥 MIEMBROS ├⌬*\n`
+  txt += `*⌬┤ 👥 MEMBROS ├⌬*\n`
   txt += `> 👤 *Total:* ${totalReal}\n`
   txt += `> 👑 *Admins:* ${admins.length}\n`
   txt += `> 🤖 *Bots:* ${bots.length}\n`
   txt += '\n'
 
-  txt += `*⌬┤ ⚙️ CONFIGURACIÓN ├⌬*\n`
-  txt += `> ✏️ *Editar info:* ${restrict}\n`
-  txt += `> 💬 *Enviar msgs:* ${announce}\n`
-  txt += `> ⏳ *Mensajes temp:* ${ephemeral}\n`
-  txt += `> 🚪 *Aprobación ingreso:* ${joinApproval}\n`
-  txt += `> ➕ *Miembros pueden agregar:* ${memberAdd}\n`
-  txt += `> 🏘️ *Es comunidad:* ${isCommunity}\n`
-  txt += `> 🔗 *Vinculado a comunidad:* ${isLinked}\n`
+  txt += `*⌬┤ ⚙️ CONFIGURAÇÃO ├⌬*\n`
+  txt += `> ✏️ *Editar informações:* ${restrict}\n`
+  txt += `> 💬 *Enviar mensagens:* ${announce}\n`
+  txt += `> ⏳ *Mensagens temporárias:* ${ephemeral}\n`
+  txt += `> 🚪 *Aprovação de entrada:* ${joinApproval}\n`
+  txt += `> ➕ *Membros podem adicionar:* ${memberAdd}\n`
+  txt += `> 🏘️ *É comunidade:* ${isCommunity}\n`
+  txt += `> 🔗 *Vinculado a comunidade:* ${isLinked}\n`
   txt += '\n'
 
-  txt += `*⌬┤ 🤖 CONFIG BOT ├⌬*\n`
-  txt += `> 👋 *Bienvenida:* ${db.welcome ? on : off}\n`
+  txt += `*⌬┤ 🤖 CONFIGURAÇÃO DA BOT ├⌬*\n`
+  txt += `> 👋 *Boas-vindas:* ${db.welcome ? on : off}\n`
   txt += `> 👋 *Despedida:* ${db.goodbye ? on : off}\n`
   txt += '\n'
 
-  txt += `*⌬┤ 🛡️ PROTECCIONES ├⌬*\n`
+  txt += `*⌬┤ 🛡️ PROTEÇÕES ├⌬*\n`
   txt += `> 🔗 *Antilink:* ${db.antilink ? on : off}\n`
-  txt += `> 🎙️ *Anti nota de voz:* ${db.antinotadevoz ? on : off}\n`
-  txt += `> 📢 *Anti etiqueta estado:* ${db.antimenciongp ? on : off}\n`
+  txt += `> 🎙️ *Anti áudio:* ${db.antinotadevoz ? on : off}\n`
+  txt += `> 📢 *Anti menção de status:* ${db.antimenciongp ? on : off}\n`
   txt += `> 🎭 *Anti sticker:* ${db.antisticker ? on : off}\n`
-  txt += `> 🎬 *Anti video:* ${db.antivideo ? on : off}\n`
-  txt += `> 🖼️ *Anti imagen:* ${db.antiimagen ? on : off}\n`
-  txt += `> 🗑️ *Anti delete:* ${db.antidelete ? on : off}\n`
-  txt += `> 🚫 *Anti toxic:* ${db.antitoxic ? on : off}\n`
+  txt += `> 🎬 *Anti vídeo:* ${db.antivideo ? on : off}\n`
+  txt += `> 🖼️ *Anti imagem:* ${db.antiimagen ? on : off}\n`
+  txt += `> 🗑️ *Anti-exclusão:* ${db.antidelete ? on : off}\n`
+  txt += `> 🚫 *Anti tóxico:* ${db.antitoxic ? on : off}\n`
   txt += '\n'
 
-  txt += `*⌬┤ ⚙️ BOT MISC ├⌬*\n`
-  txt += `> 🚫 *Cmds bloqueados:* ${disabledCmds}\n`
-  txt += `> 🚫 *Cats bloqueadas:* ${disabledCats}\n`
+  txt += `*⌬┤ ⚙️ OUTRAS CONFIGURAÇÕES ├⌬*\n`
+  txt += `> 🚫 *Comandos bloqueados:* ${disabledCmds}\n`
+  txt += `> 🚫 *Categorias bloqueadas:* ${disabledCats}\n`
   txt += '\n'
 
-  txt += `*⌬┤ 📊 ACTIVIDAD ├⌬*\n`
-  txt += `> 📨 *Mensajes registrados:* ${totalMsgs}\n`
-  txt += `> 🔥 *Con actividad:* ${conActividad} usuarios\n`
-  txt += `> 😴 *Sin mensajes:* ${sinMensajes} usuarios\n`
+  txt += `*⌬┤ 📊 ATIVIDADE ├⌬*\n`
+  txt += `> 📨 *Mensagens registradas:* ${totalMsgs}\n`
+  txt += `> 🔥 *Com atividade:* ${conActividad} usuários\n`
+  txt += `> 😴 *Sem mensagens:* ${sinMensajes} usuários\n`
 
   txt += `\n*╚══⌦ ${config.footer} ⌫══╝*`
 
